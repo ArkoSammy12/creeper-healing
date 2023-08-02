@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "creeper-healing",
+	"version": "${version}",
+	"name": "Creeper Healing",
+	"description": "This mod is intended to slowly heal creeper explosions",
+	"authors": [
+		"ArkoSammy12"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/creeper-healing/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"server": [
+			"xd.arkosammy.CreeperHealing"
+		]
+	},
+	"mixins": [
+		"creeper-healing.mixins.json",
+		{
+			"config": "creeper-healing.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
