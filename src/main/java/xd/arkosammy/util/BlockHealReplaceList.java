@@ -11,6 +11,8 @@ public class BlockHealReplaceList {
 
     public static HashMap<Block, Block> getReplaceList(){
 
+        //TODO: Add more entries
+
         replaceList.put(Blocks.DIAMOND_BLOCK, Blocks.STONE);
 
 

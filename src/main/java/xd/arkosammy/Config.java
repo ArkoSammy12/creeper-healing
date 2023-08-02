@@ -14,6 +14,8 @@ import java.util.Map;
 
 public class Config {
 
+    //TODO: Get Json Array config working
+
     @SerializedName("explosion_heal_delay")
     public int explosionHealDelay = 5;
 
