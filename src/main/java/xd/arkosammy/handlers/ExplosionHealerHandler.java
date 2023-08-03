@@ -63,7 +63,7 @@ public class ExplosionHealerHandler {
         //CreeperHealing.LOGGER.info(String.valueOf(explosionDelay));
         //CreeperHealing.LOGGER.info(String.valueOf(blockPlacementDelay));
 
-        //Poll a member of the CreeperExplosionEvent queue and check it is null. If it's not, go ahead and handle it
+        //Poll a member of the CreeperExplosionEvent queue and check if it is null. If it's not, go ahead and handle it
         CreeperExplosionEvent explosionEvent = CreeperExplosionEvent.getExplosionEvents().poll();
 
         if(explosionEvent != null){
