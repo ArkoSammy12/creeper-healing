@@ -1,4 +1,7 @@
 # Creeper Healing
+
+### This mod is dependent on the latest version of Fabric API.
+
 This server-side, customizable mod allows the world to automatically heal Creeper explosions. It has support for configuring a custom block-replace list, for teling the mod what blocks to use to replace a previously broken one, allowing for balancing and preventing potential abuse of this mod.
 
 ## Configuration
@@ -17,7 +20,8 @@ When the server is started, the mod will look for an existing `creeper-healing.j
 
 }
 ```
-Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left.
+Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left. Note that the minimum value for both delays is 1. Trying to set either of them below 1, will just set it back to 1.
+
 
 ## Building
 
