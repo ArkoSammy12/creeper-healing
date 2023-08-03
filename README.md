@@ -1,5 +1,5 @@
 # Creeper Healing
-This customizable mod allows the world to automatically heal Creeper explosions. It has support for configuring a custom block-replace list, for teling the mod what blocks to use to replace a previously broken one, allowing for balancing and preventing potential abuse of this mod.
+This server-side, customizable mod allows the world to automatically heal Creeper explosions. It has support for configuring a custom block-replace list, for teling the mod what blocks to use to replace a previously broken one, allowing for balancing and preventing potential abuse of this mod.
 
 ## Configuration
 When the server is started, the mod will look for an existing `creeper-healing.json` file for the configs. If it exists, it will read the values from there. If not, it will create a new config file in `/config/creeper-healing.json`. You can then edit this file to configure the mod, and restart the server to apply the changes.
