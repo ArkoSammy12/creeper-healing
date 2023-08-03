@@ -17,7 +17,8 @@ When the server is started, the mod will look for an existing `creeper-healing.j
 
 }
 ```
-Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left.
+Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left. Note that the minimum value for both delays is 1. Trying to set either of them below 1, will just set it back to 1.
+
 
 ## Building
 
