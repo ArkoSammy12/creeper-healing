@@ -2,55 +2,58 @@ package xd.arkosammy;
 
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
 import net.fabricmc.loader.api.FabricLoader;
-
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 
+//Huge thanks to @_jacg on the Fabric Discord Server for helping me out with setting the config
 public class Config {
-
-    //TODO: Get Json Array config working
-
     @SerializedName("explosion_heal_delay")
-    public int explosionHealDelay = 5;
+    public int explosionHealDelay = 3;
 
     @SerializedName("block_placement_delay")
-    public int blockPlacementDelay = 2;
+    public int blockPlacementDelay = 1;
 
     @SerializedName("replace_list")
-    public HashMap<String, String> replaceList;
+    public HashMap<String, String> replaceMap = new HashMap<>();
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public boolean  writeConfig(Config config) {
 
-    private static JsonArray customReplaceArray;
-
-    public void writeConfig(File file) throws IOException {
-
-        JsonObject jsonObject = new JsonObject();
+        Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 
 
+        //If no config file is found, write a new one
+        if(!Files.exists(configPath)) {
 
-        jsonObject.addProperty("explosion_heal_delay", explosionHealDelay);
-        jsonObject.addProperty("block_placement_delay", blockPlacementDelay);
+            try {
 
-        jsonObject.add("custom_replacements", customReplaceArray);
+                replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
-        GsonBuilder builder = new GsonBuilder();
+                Files.writeString(configPath, GSON.toJson(config));
 
-        builder.setPrettyPrinting();
+            } catch (IOException e) {
 
-        Gson gson = builder.create();
+                throw new RuntimeException(e);
 
-        FileWriter writer = new FileWriter(file);
+            }
 
-        gson.toJson(jsonObject, writer);
+            CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one and setting default values.");
+            CreeperHealing.LOGGER.info("Change the values in the configuration and restart the server to apply them.");
 
-        writer.close();
+            return true;
+
+        } else {
+
+            return false;
+
+        }
 
     }
+
 
     public void readConfig(File file) throws IOException{
 
@@ -58,12 +61,14 @@ public class Config {
 
         Gson gson = new Gson();
 
+        //Deserialize our Json file and turn it into a JsonObject
         JsonObject obj = gson.fromJson(reader, JsonObject.class);
-
+        //Set the config fields to the values read from our config
         explosionHealDelay = getIntOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
         blockPlacementDelay = getIntOrDefault(obj, "block_placement_delay", blockPlacementDelay);
 
-        customReplaceArray = getJsonArrayOrDefault(obj, "custom_replacements", new JsonArray());
+        JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
+        replaceMap = gson.fromJson(replaceListJson, HashMap.class);
 
         reader.close();
 
@@ -75,52 +80,12 @@ public class Config {
 
     }
 
-    private JsonArray getJsonArrayOrDefault(JsonObject obj, String name, JsonArray def){
+    private JsonObject getJsonObjectOrDefault(JsonObject obj, String name, JsonObject def){
 
         JsonElement element = obj.get(name);
 
-        return element != null && element.isJsonArray() ? element.getAsJsonArray() : def;
+        return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
 
     }
-
-    public void addReplaceEntry(String originalBlockName, String replacementBlockName, File file) throws IOException {
-
-        replaceList.put(originalBlockName, replacementBlockName);
-
-        customReplaceArray = new JsonArray();
-
-        for (Map.Entry<String, String> entry : replaceList.entrySet()) {
-
-            JsonObject entryObject = new JsonObject();
-
-            entryObject.addProperty("original", entry.getKey());
-
-            entryObject.addProperty("replacement", entry.getValue());
-
-            customReplaceArray.add(entryObject);
-
-        }
-
-        writeConfig(file);
-    }
-
-    public void readCustomBlockReplacements(File file) throws IOException {
-
-        JsonParser parser = new JsonParser();
-        JsonObject rootObject = parser.parse(new FileReader(file)).getAsJsonObject();
-
-        customReplaceArray = getJsonArrayOrDefault(rootObject, "custom_replacements", new JsonArray());
-
-        for (JsonElement entryElement : customReplaceArray) {
-            if (entryElement.isJsonObject()) {
-                JsonObject entryObject = entryElement.getAsJsonObject();
-                String originalBlockName = entryObject.get("original").getAsString();
-                String replacementBlockName = entryObject.get("replacement").getAsString();
-                addReplaceEntry(originalBlockName, replacementBlockName, file);
-            }
-        }
-
-    }
-
 
 }

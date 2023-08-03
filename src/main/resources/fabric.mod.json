@@ -3,15 +3,15 @@
 	"id": "creeper-healing",
 	"version": "${version}",
 	"name": "Creeper Healing",
-	"description": "This mod is intended to slowly heal creeper explosions",
+	"description": "This mod is intended to naturally heal Creeper explosions",
 	"authors": [
 		"ArkoSammy12"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/ArkoSammy12",
+		"sources": "https://github.com/ArkoSammy12/creeper-healing"
 	},
-	"license": "CC0-1.0",
+	"license": "CC BY-NC",
 	"icon": "assets/creeper-healing/icon.png",
 	"environment": "*",
 	"entrypoints": {

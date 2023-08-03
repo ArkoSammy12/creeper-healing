@@ -10,7 +10,7 @@ public class ExplosionQueueRunnable implements Runnable{
     private World world;
     private ArrayList<BlockInfo> blockInfoList;
 
-    //Constructor of ExplosionQueueRunnable for the .schedule() function, to schedule a new TickSchedule event
+    //Constructor of ExplosionQueueRunnable for the .schedule() function, to schedule a new tick event
     public ExplosionQueueRunnable(World world, ArrayList<BlockInfo> blockInfoList) {
 
         this.world = world;
@@ -18,7 +18,7 @@ public class ExplosionQueueRunnable implements Runnable{
 
     }
 
-    //The run() method of a Runnable gets called when the executorService says it is time to do so
+    //The run method of a Runnable gets called the executorService at the specified delay
 
     @Override
     public void run() {

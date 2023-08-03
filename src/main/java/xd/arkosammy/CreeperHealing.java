@@ -8,18 +8,13 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import static xd.arkosammy.handlers.ExplosionHealerHandler.explosionExecutorService;
 
 public class CreeperHealing implements DedicatedServerModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger("creeper-healing");
 
 	public static final Config CONFIG = new Config();
@@ -27,7 +22,7 @@ public class CreeperHealing implements DedicatedServerModInitializer {
 	@Override
 	public void onInitializeServer() {
 
-		LOGGER.info("I will try my best to heal your creeper explosions :)");
+		LOGGER.info("I will try my best to heal your creeper explosions :)\nThanks to @sulpherstaer for the idea, and thanks to @_jacg for the help with the config setup\n");
 
 		ExplosionHealerHandler explosionHealerHandler = new ExplosionHealerHandler();
 
@@ -42,13 +37,10 @@ public class CreeperHealing implements DedicatedServerModInitializer {
 
 		}
 
-		//LOGGER.info(String.valueOf(CONFIG.blockPlacementDelay));
-		//LOGGER.info(String.valueOf(CONFIG.explosionHealDelay));
-
-		//Register our TickHandler server initialization
+		//Register our ServerTickEvent on server initialization
 		explosionHealerHandler.registerTickEventHandler();
 
-		//Make sure to stop this ScheduleTickHandler upon server shutdown
+		//Make sure to stop this ServerTickEvent upon server shutdown
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
 	}
@@ -57,22 +49,14 @@ public class CreeperHealing implements DedicatedServerModInitializer {
 
 		File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
 
-		CONFIG.replaceList = new HashMap<>();
 
-		if(!file.exists()){
-
-			CONFIG.replaceList.put("minecraft:diamond_block", "minecraft_stone");
-			CONFIG.writeConfig(file);
-
-			LOGGER.error("Config not found. Generating a new one at " + file.getAbsolutePath());
-			LOGGER.error("Edit the default config and restart the serve to apply changes");
-
-		} else {
+		//writeConfig() will return false if the config doesn't already exist, in which case we can read the data from the already present one
+		if(!CONFIG.writeConfig(CONFIG)){
 
 			CONFIG.readConfig(file);
-			CONFIG.readCustomBlockReplacements(file);
 			ExplosionHealerHandler.setExplosionDelay(CONFIG.explosionHealDelay);
 			ExplosionHealerHandler.setBlockPlacementDelayTicks(CONFIG.blockPlacementDelay);
+			ExplosionHealerHandler.setCustomReplaceList(CONFIG.replaceMap);
 
 			LOGGER.info("Applied custom configs");
 

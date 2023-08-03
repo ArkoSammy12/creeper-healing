@@ -4,7 +4,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
 
@@ -27,7 +26,7 @@ public class BlockPlacementRunnable implements Runnable{
 
     }
 
-    //The run method of a Runnable gets called whenever a TickScheduler says it is time to do so
+    //The run method of a Runnable gets called the executorService at the specified delay
 
     @Override
     public void run() {
@@ -43,13 +42,15 @@ public class BlockPlacementRunnable implements Runnable{
             BlockState state = blockInfo.getBlockState();
 
             //Bitwise shift to the right 4 times (divide by 16) to get actual chunk coordinates from the normal coordinates
+            //It turns out it doesn't matter if we run a setBlock on an unloaded chunk but I'll keep this here just in case
 
             if (/*world.isChunkLoaded(pos.getX() >> 4, pos.getZ() >> 4) && */world.getBlockState(pos).equals(Blocks.AIR.getDefaultState())) { //Let's not override a block placed by a player
 
                 ExplosionHealerHandler.placeBlock(world, pos, state);
 
             }
-            //Increment our iterator index and schedule a new TickSchedule for the next Block placement
+            //Increment our iterator index and recursively schedule ourselves to achieve our delay between block placements. Continue this until the current index is greater than the size of blockInfoSorted
+            //This also ensures sequential processing in the order specified in blockInfoSorted
             currentIndex++;
             ExplosionHealerHandler.explosionExecutorService.schedule(this, ExplosionHealerHandler.getBlockPlacementDelay(), TimeUnit.SECONDS);
 

@@ -16,18 +16,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.events.CreeperExplosionEvent;
-
 import java.util.ArrayList;
 
 @Mixin(Explosion.class)
 public abstract class CreeperExplosionMixin {
-
-
     @Shadow @Final private ObjectArrayList<BlockPos> affectedBlocks;
-
-
     @Shadow @Nullable public abstract Entity getEntity();
-
     @Shadow @Final private World world;
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
@@ -37,6 +31,7 @@ public abstract class CreeperExplosionMixin {
 
             ArrayList<BlockInfo> blockInfoList = new ArrayList<>();
 
+            //Get our list of affectedBlocks straight from the Explosion class
             ObjectArrayList<BlockPos> affectedBlocksPos = (ObjectArrayList<BlockPos>) ((Explosion) (Object) this).getAffectedBlocks();
 
             for(BlockPos pos: affectedBlocksPos){
@@ -51,7 +46,7 @@ public abstract class CreeperExplosionMixin {
 
             }
 
-            //Offer a new CreeperExplosionEvent to the queue
+            //Offer a new CreeperExplosionEvent to the queue, passing in our blockInfoList
 
             CreeperExplosionEvent.getExplosionEvents().offer(new CreeperExplosionEvent(blockInfoList));
 
