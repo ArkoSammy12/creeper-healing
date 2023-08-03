@@ -1,6 +1,6 @@
 # Creeper Healing
 
-### This mod is dependent on the latest version of Fabric API.
+### This mod is server-side only. It is dependent on the latest version of Fabric API.
 
 This server-side, customizable mod allows the world to automatically heal Creeper explosions. It has support for configuring a custom block-replace list, for teling the mod what blocks to use to replace a previously broken one, allowing for balancing and preventing potential abuse of this mod.
 
