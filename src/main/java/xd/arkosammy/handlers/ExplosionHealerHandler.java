@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class ExplosionHealerHandler {
 
     //Static ScheduledExecutorService to insure this is shared across all instances of the mod, allowing centralized control
-    public static ScheduledExecutorService explosionExecutorService = Executors.newSingleThreadScheduledExecutor();
+    public static ScheduledExecutorService explosionExecutorService;
     private static int explosionDelay = CreeperHealing.CONFIG.explosionHealDelay; // Adjust the delay between each explosion restoration (100 ticks = 5 seconds)
     private static int blockPlacementDelay = CreeperHealing.CONFIG.blockPlacementDelay; // Adjust the delay between each block placement (1 tick = 0.05 seconds)
 
@@ -102,6 +102,8 @@ public class ExplosionHealerHandler {
     //Register our new ServerTickEvent, and call this function in our entrypoint over at CreeperHealing.class
     //At the end of each world tick, call the handleExplosionQueue() function.
     public void registerTickEventHandler(){
+
+        explosionExecutorService = Executors.newSingleThreadScheduledExecutor();
 
         ServerTickEvents.END_WORLD_TICK.register(this::handleExplosionQueue);
 

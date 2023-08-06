@@ -1,7 +1,5 @@
 package xd.arkosammy;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
-
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -20,12 +18,12 @@ public class CreeperHealing implements ModInitializer {
 
 	public static final Config CONFIG = new Config();
 
+	private static final ExplosionHealerHandler explosionHealerHandler = new ExplosionHealerHandler();
+
 	@Override
 	public void onInitialize() {
 
 		LOGGER.info("I will try my best to heal your creeper explosions :)\nThanks to @sulpherstaer for the idea, and thanks to @_jacg for the help with the config setup\n");
-
-		ExplosionHealerHandler explosionHealerHandler = new ExplosionHealerHandler();
 
 		//Initialize config
 		try {
@@ -38,8 +36,8 @@ public class CreeperHealing implements ModInitializer {
 
 		}
 
-		//Register our ServerTickEvent on server initialization
-		explosionHealerHandler.registerTickEventHandler();
+		//Register a new ServerTickEvent upon server/world starting
+		ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
 
 		//Make sure to stop this ServerTickEvent upon server shutdown
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
@@ -65,6 +63,12 @@ public class CreeperHealing implements ModInitializer {
 
 	}
 
+	private void onServerStarting(MinecraftServer server){
+
+		explosionHealerHandler.registerTickEventHandler();
+
+	}
+
 	private void onServerStopping(MinecraftServer server){
 
 		explosionExecutorService.shutdown(); // Initiate a graceful shutdown
@@ -84,6 +88,7 @@ public class CreeperHealing implements ModInitializer {
 			explosionExecutorService.shutdownNow(); // Thread interrupted, force shutdown
 
 		}
+
 	}
 
 }
