@@ -1,14 +1,14 @@
 # Creeper Healing
 
-### This mod is dependent on the latest version of Fabric API.
+### This mod is server-side only. It is dependent on the latest version of Fabric API.
 
 This server-side, customizable mod allows the world to automatically heal Creeper explosions. It has support for configuring a custom block-replace list, for teling the mod what blocks to use to replace a previously broken one, allowing for balancing and preventing potential abuse of this mod.
 
 ## Configuration
 When the server is started, the mod will look for an existing `creeper-healing.json` file for the configs. If it exists, it will read the values from there. If not, it will create a new config file in `/config/creeper-healing.json`. You can then edit this file to configure the mod, and restart the server to apply the changes.
 
-- `"explosion_heal_delay"`: This settinga allows you to change the delay in seconds between each creeper explosion and its corresponding healing process. This is 3 by default.
-- `"block_placement_delay"`: This setting allows you to change the delya in seconds between each block placement during the creeper explosion healing process. This is 1 by default.
+- `"explosion_heal_delay"`: This setting allows you to change the delay in seconds between each creeper explosion and its corresponding healing process. This is 3 by default.
+- `"block_placement_delay"`: This setting allows you to change the delay in seconds between each block placement during the creeper explosion healing process. This is 1 by default.
 - `"replace_list"`: This field allows you to add your own replace settings for choosing what block to use to heal another block. By default, there is one entry for using a Stone block to heal a Diamond block. However, you can add your own adding new entries here. Inside the array (bounded by the `{}`), insert new entries as follows
 ```
 "replace_list" : {
