@@ -15,16 +15,12 @@
 	"icon": "assets/creeper-healing/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"server": [
+		"main": [
 			"xd.arkosammy.CreeperHealing"
 		]
 	},
 	"mixins": [
-		"creeper-healing.mixins.json",
-		{
-			"config": "creeper-healing.client.mixins.json",
-			"environment": "client"
-		}
+		"creeper-healing.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.14.21",

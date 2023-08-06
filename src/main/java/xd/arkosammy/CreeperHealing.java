@@ -2,6 +2,7 @@ package xd.arkosammy;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
@@ -14,13 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 import static xd.arkosammy.handlers.ExplosionHealerHandler.explosionExecutorService;
 
-public class CreeperHealing implements DedicatedServerModInitializer {
+public class CreeperHealing implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("creeper-healing");
 
 	public static final Config CONFIG = new Config();
 
 	@Override
-	public void onInitializeServer() {
+	public void onInitialize() {
 
 		LOGGER.info("I will try my best to heal your creeper explosions :)\nThanks to @sulpherstaer for the idea, and thanks to @_jacg for the help with the config setup\n");
 

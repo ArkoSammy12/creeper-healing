@@ -25,7 +25,6 @@ public class Config {
 
         Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 
-
         //If no config file is found, write a new one
         if(!Files.exists(configPath)) {
 

@@ -60,9 +60,6 @@ public class ExplosionHealerHandler {
     //Called by ServerTickEvents.END_WORLD_TICK and is responsible for processing the explosion event after the specified delay
     public void handleExplosionQueue(World world){
 
-        //CreeperHealing.LOGGER.info(String.valueOf(explosionDelay));
-        //CreeperHealing.LOGGER.info(String.valueOf(blockPlacementDelay));
-
         //Poll a member of the CreeperExplosionEvent queue and check if it is null. If it's not, go ahead and handle it
         CreeperExplosionEvent explosionEvent = CreeperExplosionEvent.getExplosionEvents().poll();
 
