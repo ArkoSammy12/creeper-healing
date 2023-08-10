@@ -1,5 +1,6 @@
 package xd.arkosammy.handlers;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -64,15 +65,20 @@ public class ExplosionHealerHandler {
     }
 
     //Called by ServerTickEvents.END_WORLD_TICK and is responsible for processing the explosion event after the specified delay
-    public void handleExplosionQueue(World world, MinecraftServer server){
+    public void handleExplosionQueue(MinecraftServer server){
 
         CreeperExplosionEvent.tickCreeperExplosionEvents();
+
 
         if(!CreeperExplosionEvent.getExplosionEventsForUsage().isEmpty()){
 
             for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()){
 
+                CreeperHealing.LOGGER.info(String.valueOf(creeperExplosionEvent.getCreeperExplosionDelay()));
+
                 if(creeperExplosionEvent.getCreeperExplosionDelay() < 0){
+
+                    CreeperHealing.LOGGER.info("Found creeper explosion to heal");
 
                     BlockInfo currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
 
@@ -88,7 +94,6 @@ public class ExplosionHealerHandler {
                             placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState());
 
                             creeperExplosionEvent.incrementCounter();
-
 
                         }
 
@@ -140,9 +145,7 @@ public class ExplosionHealerHandler {
     //At the end of each world tick, call the handleExplosionQueue() function.
     public void registerTickEventHandler(MinecraftServer server){
 
-        minecraftServer = server;
-
-        ServerTickEvents.END_WORLD_TICK.register(world -> handleExplosionQueue(world, server));
+        ServerTickEvents.END_SERVER_TICK.register(this::handleExplosionQueue);
 
     }
 

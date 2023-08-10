@@ -2,6 +2,8 @@ package xd.arkosammy.events;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.handlers.ExplosionHealerHandler;
 import xd.arkosammy.util.BlockInfo;
 import java.io.Serial;
 import java.io.Serializable;
@@ -25,19 +27,17 @@ public class CreeperExplosionEvent implements Serializable {
 
     public static final Codec<CreeperExplosionEvent> CODEC = RecordCodecBuilder.create(creeperExplosionEventInstance -> creeperExplosionEventInstance.group(
 
-            Codec.list(BlockInfo.CODEC).fieldOf("Block_Info_List")
-                    .forGetter(CreeperExplosionEvent::getBlockList),
-            Codec.LONG.fieldOf("Explosion_Delay").forGetter(CreeperExplosionEvent::getCreeperExplosionDelay)
+            Codec.list(BlockInfo.CODEC).fieldOf("Block_Info_List").forGetter(CreeperExplosionEvent::getBlockList)
 
     ).apply(creeperExplosionEventInstance, CreeperExplosionEvent::new));
 
 
 
-    public CreeperExplosionEvent(List<BlockInfo> blockList, long creeperExplosionDelay){
+    public CreeperExplosionEvent(List<BlockInfo> blockList){
 
         setBlockList(blockList);
 
-        this.creeperExplosionDelay = creeperExplosionDelay * 40;
+        this.creeperExplosionDelay = ExplosionHealerHandler.getExplosionDelay() * 20L;
 
         this.currentCounter = 0;
 
@@ -76,6 +76,12 @@ public class CreeperExplosionEvent implements Serializable {
     public static void tickCreeperExplosionEvents(){
 
         for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()){
+
+            creeperExplosionEvent.tickSingleEvent();
+
+        }
+
+        for(CreeperExplosionEvent creeperExplosionEvent : CreeperHealing.SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring()){
 
             creeperExplosionEvent.tickSingleEvent();
 

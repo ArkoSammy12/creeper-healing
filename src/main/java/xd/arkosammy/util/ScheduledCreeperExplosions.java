@@ -58,7 +58,6 @@ public class ScheduledCreeperExplosions implements Serializable {
 
     }
 
-
     //Reschedule the CreeperExplosionEvents read from our file
     public static void reScheduleCreeperExplosionEvents(MinecraftServer server) throws IOException {
 
@@ -129,7 +128,7 @@ public class ScheduledCreeperExplosions implements Serializable {
         //Obtain the result of trying to encode our instance of ScheduledCreeperExplosions into a JsonOps
         //DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, new ScheduledCreeperExplosions(SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosions()));
 
-        DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, new ScheduledCreeperExplosions(this.getScheduledCreeperExplosionsForStoring()));
+        DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, new ScheduledCreeperExplosions(SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring()));
 
 
         if (encodedScheduledExplosions.result().isPresent()){

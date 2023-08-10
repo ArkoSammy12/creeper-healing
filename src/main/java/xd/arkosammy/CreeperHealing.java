@@ -116,13 +116,13 @@ public class CreeperHealing implements ModInitializer {
 
 	private void onServerStarted(MinecraftServer server) throws IOException {
 
-		//ScheduledCreeperExplosions.reScheduleCreeperExplosionEvents(server);
+		ScheduledCreeperExplosions.reScheduleCreeperExplosionEvents(server);
 
 	}
 
 	private void onServerStopping(MinecraftServer server) throws IOException {
 
-		//SCHEDULED_CREEPER_EXPLOSIONS.storeBlockPlacements(server);
+		SCHEDULED_CREEPER_EXPLOSIONS.storeBlockPlacements(server);
 
 
 	}

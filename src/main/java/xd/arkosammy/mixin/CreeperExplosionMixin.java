@@ -50,8 +50,8 @@ public abstract class CreeperExplosionMixin {
 
             //Create a new CreeperExplosionEvent object from the blockInfoList we just obtained
             //Also add it to our list of CreeperExplosionEvents
-            CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), ExplosionHealerHandler.getExplosionDelay()));
-            CreeperHealing.SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), ExplosionHealerHandler.getExplosionDelay()));
+            CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList)));
+            CreeperHealing.SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList)));
 
         }
 
