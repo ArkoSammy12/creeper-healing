@@ -15,22 +15,21 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 
-//This class serves as a way to store both the Position and the State of a block as a single object, improving our quality of life
+//This class serves as a way to store both the Position, the State and the World of a block as a single object,
+//improving our quality of life
 public class BlockInfo implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1212L;
     private BlockPos pos;
     private BlockState blockState;
-
     private long blockPlacementDelay;
-
     private RegistryKey<World> worldRegistryKey;
 
 
-    //Create a CODEC for our BlockInfo. Each BlockInfo CODEC will contain a field for BlockState and BlockPos
-
-
+    //Create a CODEC for our BlockInfo.
+    //Each BlockInfo CODEC will contain a field for BlockState, BlockPos,
+    //and the World Registry Key, from which we will obtain the World instance.
     public static final Codec<BlockInfo> CODEC = RecordCodecBuilder.create(blockInfoInstance -> blockInfoInstance.group(
 
             BlockPos.CODEC.fieldOf("Block_Position").forGetter(BlockInfo::getPos),
@@ -43,7 +42,7 @@ public class BlockInfo implements Serializable {
 
         setPos(pos);
         setBlockState(blockState);
-        setBlockPlacementDelay();
+        setBlockPlacementDelay(ExplosionHealerHandler.getBlockPlacementDelay());
         setWorldRegistryKey(registryKey);
 
     }
@@ -60,9 +59,9 @@ public class BlockInfo implements Serializable {
 
     }
 
-    public void setBlockPlacementDelay(){
+    public void setBlockPlacementDelay(long delay){
 
-        this.blockPlacementDelay = ExplosionHealerHandler.getBlockPlacementDelay() * 20L;
+        this.blockPlacementDelay = delay * 20L;
 
     }
 
@@ -78,8 +77,9 @@ public class BlockInfo implements Serializable {
 
     }
 
-    public World getWorld(MinecraftServer server){
+    public World getWorld(@NotNull MinecraftServer server){
 
+        //Get the World instance from the stored World Registry Key
         return server.getWorld(this.getWorldRegistryKey());
 
     }
@@ -102,7 +102,7 @@ public class BlockInfo implements Serializable {
 
     }
 
-    public static List<BlockInfo> getAsYSorted(@NotNull List<BlockInfo> blockInfoList){
+    public static @NotNull List<BlockInfo> getAsYSorted(@NotNull List<BlockInfo> blockInfoList){
 
         Comparator<BlockInfo> yCoordComparator = Comparator.comparingInt(blockInfo -> blockInfo.getPos().getY());
 

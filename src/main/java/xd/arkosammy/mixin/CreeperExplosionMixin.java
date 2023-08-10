@@ -14,8 +14,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.events.CreeperExplosionEvent;
 
@@ -30,7 +28,8 @@ public abstract class CreeperExplosionMixin {
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     public void getExplodedBlocks(CallbackInfo ci){
 
-        if(this.getEntity() instanceof CreeperEntity) { //Is the explosion from a Creeper entity?
+        //Only check for explosions caused by creepers
+        if(this.getEntity() instanceof CreeperEntity) {
 
             ArrayList<BlockInfo> blockInfoList = new ArrayList<>();
 
@@ -48,10 +47,10 @@ public abstract class CreeperExplosionMixin {
 
             }
 
-            //Create a new CreeperExplosionEvent object from the blockInfoList we just obtained
-            //Also add it to our list of CreeperExplosionEvents
+            //Create a new CreeperExplosionEvent object from the blockInfoList
+            //we just obtained and add it to the queue to be processed.
+            //Also sort the list of BlockInfo from lowest to highest Y position to heal bottom to top.
             CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList)));
-            CreeperHealing.SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList)));
 
         }
 

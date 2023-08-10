@@ -3,6 +3,8 @@ package xd.arkosammy;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class Config {
 
             try {
 
+                //Put a default value into the map then write a new config using the fields of the Config class
                 replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
                 Files.writeString(configPath, GSON.toJson(config));
@@ -43,11 +46,11 @@ public class Config {
             CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one and setting default values.");
             CreeperHealing.LOGGER.info("Change the values in the configuration and restart the server to apply them.");
 
-            return true;
+            return true; //Return true if the config file doesn't already exist
 
         } else {
 
-            return false;
+            return false; //Return false if config file already exists
 
         }
 
@@ -66,6 +69,7 @@ public class Config {
         explosionHealDelay = getIntOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
         blockPlacementDelay = getIntOrDefault(obj, "block_placement_delay", blockPlacementDelay);
 
+        //Parse the JsonObject into a Hashmap
         JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
         replaceMap = gson.fromJson(replaceListJson, HashMap.class);
 
@@ -73,13 +77,13 @@ public class Config {
 
     }
 
-    private Integer getIntOrDefault(JsonObject obj, String name, Integer def){
+    private Integer getIntOrDefault(@NotNull JsonObject obj, String name, Integer def){
 
         return obj.has(name) ? obj.get(name).getAsInt() : def;
 
     }
 
-    private JsonObject getJsonObjectOrDefault(JsonObject obj, String name, JsonObject def){
+    private JsonObject getJsonObjectOrDefault(@NotNull JsonObject obj, String name, JsonObject def){
 
         JsonElement element = obj.get(name);
 

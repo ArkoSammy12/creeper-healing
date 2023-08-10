@@ -1,7 +1,5 @@
 package xd.arkosammy.handlers;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.Registries;
@@ -13,19 +11,16 @@ import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.CreeperExplosionEvent;
-
 import java.util.HashMap;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class ExplosionHealerHandler {
 
-    //Static ScheduledExecutorService to insure this is shared across all instances of the mod, allowing centralized control
-    public static ScheduledExecutorService explosionExecutorService;
-    private static int explosionDelay = CreeperHealing.CONFIG.explosionHealDelay; // Adjust the delay between each explosion restoration (100 ticks = 5 seconds)
-    private static int blockPlacementDelay = CreeperHealing.CONFIG.blockPlacementDelay; // Adjust the delay between each block placement (1 tick = 0.05 seconds)
-    private static HashMap<String, String> customReplaceList = CreeperHealing.CONFIG.replaceMap;
+    // Adjust the delay between each explosion restoration (100 ticks = 5 seconds)
+    private static int explosionDelay = CreeperHealing.CONFIG.explosionHealDelay;
 
-    private static MinecraftServer minecraftServer;
+    // Adjust the delay between each block placement (1 tick = 0.05 seconds)
+    private static int blockPlacementDelay = CreeperHealing.CONFIG.blockPlacementDelay;
+    private static HashMap<String, String> customReplaceList = CreeperHealing.CONFIG.replaceMap;
     public static int getExplosionDelay(){
 
         return explosionDelay;
@@ -35,12 +30,6 @@ public class ExplosionHealerHandler {
     public static int getBlockPlacementDelay(){
 
         return blockPlacementDelay;
-
-    }
-
-    public static MinecraftServer getMinecraftServer(){
-
-        return minecraftServer;
 
     }
 
@@ -64,32 +53,32 @@ public class ExplosionHealerHandler {
 
     }
 
-    //Called by ServerTickEvents.END_WORLD_TICK and is responsible for processing the explosion event after the specified delay
-    public void handleExplosionQueue(MinecraftServer server){
+    //Called at the end of each server tick
+    public static void handleExplosionQueue(MinecraftServer server){
 
+        //Tick each one of CreeperExplosionEvent instances in our list
         CreeperExplosionEvent.tickCreeperExplosionEvents();
 
-
+        //Scary empty check
         if(!CreeperExplosionEvent.getExplosionEventsForUsage().isEmpty()){
 
+            //Iterate through each our CreeperExplosionEvent instances in our list and find any whose delay counter has reached 0
             for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()){
-
-                CreeperHealing.LOGGER.info(String.valueOf(creeperExplosionEvent.getCreeperExplosionDelay()));
 
                 if(creeperExplosionEvent.getCreeperExplosionDelay() < 0){
 
-                    CreeperHealing.LOGGER.info("Found creeper explosion to heal");
-
+                    //The currentBlock that we pick is controlled by the internal currentCounter variable,
+                    // allowing us to iterate
                     BlockInfo currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
 
                     if(currentBlock != null) {
 
+                        //Tick the internal delay counter contained in this BlockInfo instance.
+                        //Once it reaches 0, we can proceed to place it, and increment the internal currentCounter of this
+                        //CreeperExplosionEvent instance to iterate to the next BlockInfo instance
                         currentBlock.tickSingleBlockInfo();
 
                         if (currentBlock.getBlockPlacementDelay() < 0) {
-
-                            CreeperHealing.LOGGER.info("Placing block");
-                            CreeperHealing.LOGGER.info("{} {}",currentBlock.getPos(),currentBlock.getBlockState());
 
                             placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState());
 
@@ -99,11 +88,11 @@ public class ExplosionHealerHandler {
 
                     } else {
 
-                        CreeperHealing.LOGGER.info("Finished healing explosion");
-
+                        //If the BlockInfo instance that we get is null,
+                        //that means that the internal counter has gone above the size of the BlockInfo list
+                        //in our current creeperExplosionEvent,
+                        //meaning this explosion has been fully healed, and we can remove it from the list.
                         CreeperExplosionEvent.getExplosionEventsForUsage().remove(creeperExplosionEvent);
-                        CreeperHealing.SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring().remove(creeperExplosionEvent);
-
 
                     }
 
@@ -112,7 +101,6 @@ public class ExplosionHealerHandler {
 
 
             }
-
 
         }
 
@@ -125,27 +113,19 @@ public class ExplosionHealerHandler {
 
         if(customReplaceList.containsKey(blockString)){
 
-            //Get BlockState via the block registries
+            //Get BlockState via the block registries.
+            //Note that this gets the default state of the block, so stuff like the orientation of the block is lost.
             state = Registries.BLOCK.get(new Identifier(customReplaceList.get(blockString))).getDefaultState();
 
         }
 
+        //Only place the block if where we are about to place it there is no other block.
+        //This way we avoid overriding a block placed by a player.
         if(world.getBlockState(pos).equals(Blocks.AIR.getDefaultState())) {
 
             world.setBlockState(pos, state);
-            CreeperHealing.LOGGER.info("Placed block");
 
         }
-
-
-
-    }
-
-    //Register our new ServerTickEvent, and call this function in our entrypoint over at CreeperHealing.class
-    //At the end of each world tick, call the handleExplosionQueue() function.
-    public void registerTickEventHandler(MinecraftServer server){
-
-        ServerTickEvents.END_SERVER_TICK.register(this::handleExplosionQueue);
 
     }
 
