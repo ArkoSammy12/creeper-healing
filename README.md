@@ -27,4 +27,8 @@ Clone this repository on your PC, then open your command line prompt on the main
 
 ## Credits
 
-Thanks to @_jacg on the Fabric Discord server for helping me out with setting up the custom config file, and thanks to @sulpherstaer for giving me the idea for this mod. This is my first Minecraft server-side mod, so things are probably not going to be best quality. I'm looking to improve on this, so please report any issues you might have :).
+- Thanks to @sulpherstaer for giving me the idea and inspiration for making this mod.
+- Thansk to @_jacg on the Fabric Discord server helping me out with setting up the custom config file.
+- Thanks to @dale8699 for helping me improve and give me ideas for the mod.
+
+ This is my first Minecraft server-side mod, so things are probably not going to be best quality. I'm looking to improve on this, so please report any issues you might have :).
