@@ -14,8 +14,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.handlers.ExplosionHealerHandler;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.events.CreeperExplosionEvent;
+
 import java.util.ArrayList;
 
 @Mixin(Explosion.class)
@@ -37,18 +40,18 @@ public abstract class CreeperExplosionMixin {
             for(BlockPos pos: affectedBlocksPos){
 
                 //Let's not store a bunch of unnecessary air blocks
-
                 if(!world.getBlockState(pos).getBlock().getName().equals(Blocks.AIR.getName())) {
 
-                    blockInfoList.add(new BlockInfo(pos, world.getBlockState(pos)));
+                    blockInfoList.add(new BlockInfo(pos, world.getBlockState(pos), world.getRegistryKey()));
 
                 }
 
             }
 
-            //Offer a new CreeperExplosionEvent to the queue, passing in our blockInfoList
-
-            CreeperExplosionEvent.getExplosionEvents().offer(new CreeperExplosionEvent(blockInfoList));
+            //Create a new CreeperExplosionEvent object from the blockInfoList we just obtained
+            //Also add it to our list of CreeperExplosionEvents
+            CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList)));
+            CreeperHealing.SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList)));
 
         }
 

@@ -3,7 +3,7 @@
 	"id": "creeper-healing",
 	"version": "${version}",
 	"name": "Creeper Healing",
-	"description": "This mod is intended to naturally heal Creeper explosions",
+	"description": "A server and client side, customizable Fabric mod to automatically and naturally heal Creeper explosions.",
 	"authors": [
 		"ArkoSammy12"
 	],
