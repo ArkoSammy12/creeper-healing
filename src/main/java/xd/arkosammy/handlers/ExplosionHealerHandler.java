@@ -2,20 +2,19 @@ package xd.arkosammy.handlers;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.registry.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.CreeperExplosionEvent;
-import xd.arkosammy.runnables.BlockPlacementRunnable;
-import xd.arkosammy.runnables.ExplosionQueueRunnable;
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class ExplosionHealerHandler {
 
@@ -23,8 +22,9 @@ public class ExplosionHealerHandler {
     public static ScheduledExecutorService explosionExecutorService;
     private static int explosionDelay = CreeperHealing.CONFIG.explosionHealDelay; // Adjust the delay between each explosion restoration (100 ticks = 5 seconds)
     private static int blockPlacementDelay = CreeperHealing.CONFIG.blockPlacementDelay; // Adjust the delay between each block placement (1 tick = 0.05 seconds)
-
     private static HashMap<String, String> customReplaceList = CreeperHealing.CONFIG.replaceMap;
+
+    private static MinecraftServer minecraftServer;
     public static int getExplosionDelay(){
 
         return explosionDelay;
@@ -34,6 +34,12 @@ public class ExplosionHealerHandler {
     public static int getBlockPlacementDelay(){
 
         return blockPlacementDelay;
+
+    }
+
+    public static MinecraftServer getMinecraftServer(){
+
+        return minecraftServer;
 
     }
 
@@ -58,32 +64,56 @@ public class ExplosionHealerHandler {
     }
 
     //Called by ServerTickEvents.END_WORLD_TICK and is responsible for processing the explosion event after the specified delay
-    public void handleExplosionQueue(World world){
+    public void handleExplosionQueue(World world, MinecraftServer server){
 
-        //Poll a member of the CreeperExplosionEvent queue and check if it is null. If it's not, go ahead and handle it
-        CreeperExplosionEvent explosionEvent = CreeperExplosionEvent.getExplosionEvents().poll();
+        CreeperExplosionEvent.tickCreeperExplosionEvents();
 
-        if(explosionEvent != null){
+        if(!CreeperExplosionEvent.getExplosionEventsForUsage().isEmpty()){
 
-            //Get our blockInfoList and pass it to the constructor of the ExplosionQueueRunnable
+            for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()){
 
-            ArrayList<BlockInfo> blockInfoList = explosionEvent.getBlockList();
+                if(creeperExplosionEvent.getCreeperExplosionDelay() < 0){
 
-            //Schedule a new ExplosionQueueRunnable to handle our blockInfoList, that is, healing one creeper explosion. Pass in the world, blockInfolist, the delay and our TimeUnit
-            explosionExecutorService.schedule(new ExplosionQueueRunnable(world, blockInfoList), getExplosionDelay(), TimeUnit.SECONDS);
+                    BlockInfo currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
+
+                    if(currentBlock != null) {
+
+                        currentBlock.tickSingleBlockInfo();
+
+                        if (currentBlock.getBlockPlacementDelay() < 0) {
+
+                            CreeperHealing.LOGGER.info("Placing block");
+                            CreeperHealing.LOGGER.info("{} {}",currentBlock.getPos(),currentBlock.getBlockState());
+
+                            placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState());
+
+                            creeperExplosionEvent.incrementCounter();
+
+
+                        }
+
+                    } else {
+
+                        CreeperHealing.LOGGER.info("Finished healing explosion");
+
+                        CreeperExplosionEvent.getExplosionEventsForUsage().remove(creeperExplosionEvent);
+                        CreeperHealing.SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosionsForStoring().remove(creeperExplosionEvent);
+
+
+                    }
+
+
+                }
+
+
+            }
+
 
         }
 
     }
 
-    public static void handleBlockList(World world, ArrayList<BlockInfo> blockInfoList){
-
-        //Schedule a new BlockPlacementRunnable to place back our destroyed blocks. Pass in the world, the blockInfoList, our delay and the Time Unit
-        explosionExecutorService.schedule(new BlockPlacementRunnable(world, blockInfoList), getBlockPlacementDelay(), TimeUnit.SECONDS);
-
-    }
-
-    public static void placeBlock(World world, BlockPos pos, BlockState state){
+    public static void placeBlock(World world, BlockPos pos, @NotNull BlockState state){
 
         //Check if the block string of the block we are about to place is contained in our replaceMap. If it is, switch it for the corresponding block
         String blockString = Registries.BLOCK.getId(state.getBlock()).toString();
@@ -95,17 +125,24 @@ public class ExplosionHealerHandler {
 
         }
 
-        world.setBlockState(pos, state);
+        if(world.getBlockState(pos).equals(Blocks.AIR.getDefaultState())) {
+
+            world.setBlockState(pos, state);
+            CreeperHealing.LOGGER.info("Placed block");
+
+        }
+
+
 
     }
 
     //Register our new ServerTickEvent, and call this function in our entrypoint over at CreeperHealing.class
     //At the end of each world tick, call the handleExplosionQueue() function.
-    public void registerTickEventHandler(){
+    public void registerTickEventHandler(MinecraftServer server){
 
-        explosionExecutorService = Executors.newSingleThreadScheduledExecutor();
+        minecraftServer = server;
 
-        ServerTickEvents.END_WORLD_TICK.register(this::handleExplosionQueue);
+        ServerTickEvents.END_WORLD_TICK.register(world -> handleExplosionQueue(world, server));
 
     }
 

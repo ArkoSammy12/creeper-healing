@@ -6,24 +6,26 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xd.arkosammy.events.CreeperExplosionEvent;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
+import xd.arkosammy.util.ScheduledCreeperExplosions;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import static xd.arkosammy.handlers.ExplosionHealerHandler.explosionExecutorService;
 
 public class CreeperHealing implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("creeper-healing");
-
 	public static final Config CONFIG = new Config();
-
 	private static final ExplosionHealerHandler explosionHealerHandler = new ExplosionHealerHandler();
+
+	public static ScheduledCreeperExplosions SCHEDULED_CREEPER_EXPLOSIONS;
 
 	@Override
 	public void onInitialize() {
-
-		LOGGER.info("I will try my best to heal your creeper explosions :)\nThanks to @sulpherstaer for the idea, and thanks to @_jacg for the help with the config setup\n");
 
 		//Initialize config
 		try {
@@ -37,10 +39,49 @@ public class CreeperHealing implements ModInitializer {
 		}
 
 		//Register a new ServerTickEvent upon server/world starting
-		ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
 
-		//Make sure to stop this ServerTickEvent upon server shutdown
-		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
+			try {
+				onServerStarting(server);
+
+			} catch (IOException e) {
+
+				throw new RuntimeException(e);
+
+			}
+
+		});
+
+		//Read the list of CreeperExplosionEvents stored in our file upon server fully started.
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+
+			try {
+
+				onServerStarted(server);
+
+			} catch (IOException e) {
+
+				throw new RuntimeException(e);
+
+			}
+
+		});
+
+		//Stop our TickEventHandler and store any to-be healed or currently ongoing CreeperExplosionEvents to a file upon server shutdown
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+
+			try {
+				onServerStopping(server);
+
+			} catch (IOException e) {
+
+				throw new RuntimeException(e);
+
+			}
+
+		});
+
+		LOGGER.info("I will try my best to heal your creeper explosions :).Thanks to @sulpherstaer for the idea and inspiration, and thanks to @_jacg for the help with the config setup");
 
 	}
 
@@ -63,31 +104,26 @@ public class CreeperHealing implements ModInitializer {
 
 	}
 
-	private void onServerStarting(MinecraftServer server){
+	private void onServerStarting(MinecraftServer server) throws IOException {
 
-		explosionHealerHandler.registerTickEventHandler();
+		List<CreeperExplosionEvent> list = new ArrayList<>();
+
+		SCHEDULED_CREEPER_EXPLOSIONS = new ScheduledCreeperExplosions(list);
+
+		explosionHealerHandler.registerTickEventHandler(server);
 
 	}
 
-	private void onServerStopping(MinecraftServer server){
+	private void onServerStarted(MinecraftServer server) throws IOException {
 
-		explosionExecutorService.shutdown(); // Initiate a graceful shutdown
+		//ScheduledCreeperExplosions.reScheduleCreeperExplosionEvents(server);
 
-		try {
+	}
 
-			// Wait for the executorService to terminate or timeout after 10 seconds
+	private void onServerStopping(MinecraftServer server) throws IOException {
 
-			if (!explosionExecutorService.awaitTermination(10, TimeUnit.SECONDS)) {
+		//SCHEDULED_CREEPER_EXPLOSIONS.storeBlockPlacements(server);
 
-				explosionExecutorService.shutdownNow(); // If it doesn't terminate in 10 seconds, force shutdown
-
-			}
-
-		} catch (InterruptedException e) {
-
-			explosionExecutorService.shutdownNow(); // Thread interrupted, force shutdown
-
-		}
 
 	}
 
