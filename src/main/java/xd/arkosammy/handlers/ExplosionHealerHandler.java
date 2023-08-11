@@ -56,49 +56,55 @@ public class ExplosionHealerHandler {
     //Called at the end of each server tick
     public static void handleExplosionQueue(MinecraftServer server){
 
-        //Tick each one of CreeperExplosionEvent instances in our list
-        CreeperExplosionEvent.tickCreeperExplosionEvents();
+        //Only start manipulating our list after we've made sure we've read our list. Let's not accidentally throw a
+        //ConcurrentModificationException :v
+        if(CreeperHealing.hasReadConfig()) {
 
-        //Scary empty check
-        if(!CreeperExplosionEvent.getExplosionEventsForUsage().isEmpty()){
+            //Tick each one of CreeperExplosionEvent instances in our list
+            CreeperExplosionEvent.tickCreeperExplosionEvents();
 
-            //Iterate through each our CreeperExplosionEvent instances in our list and find any whose delay counter has reached 0
-            for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()){
+            //Scary empty check
+            if (!CreeperExplosionEvent.getExplosionEventsForUsage().isEmpty()) {
 
-                if(creeperExplosionEvent.getCreeperExplosionDelay() < 0){
+                //Iterate through each our CreeperExplosionEvent instances in our list and find any whose delay counter has reached 0
+                for (CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()) {
 
-                    //The currentBlock that we pick is controlled by the internal currentCounter variable,
-                    // allowing us to iterate
-                    BlockInfo currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
+                    if (creeperExplosionEvent.getCreeperExplosionDelay() < 0) {
 
-                    if(currentBlock != null) {
+                        //The currentBlock that we pick is controlled by the internal currentCounter variable,
+                        // allowing us to iterate
+                        BlockInfo currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
 
-                        //Tick the internal delay counter contained in this BlockInfo instance.
-                        //Once it reaches 0, we can proceed to place it, and increment the internal currentCounter of this
-                        //CreeperExplosionEvent instance to iterate to the next BlockInfo instance
-                        currentBlock.tickSingleBlockInfo();
+                        if (currentBlock != null) {
 
-                        if (currentBlock.getBlockPlacementDelay() < 0) {
+                            //Tick the internal delay counter contained in this BlockInfo instance.
+                            //Once it reaches 0, we can proceed to place it, and increment the internal currentCounter of this
+                            //CreeperExplosionEvent instance to iterate to the next BlockInfo instance
+                            currentBlock.tickSingleBlockInfo();
 
-                            placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState());
+                            if (currentBlock.getBlockPlacementDelay() < 0) {
 
-                            creeperExplosionEvent.incrementCounter();
+                                placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState());
+
+                                creeperExplosionEvent.incrementCounter();
+
+                            }
+
+                        } else {
+
+                            //If the BlockInfo instance that we get is null,
+                            //that means that the internal counter has gone above the size of the BlockInfo list
+                            //in our current creeperExplosionEvent,
+                            //meaning this explosion has been fully healed, and we can remove it from the list.
+                            CreeperExplosionEvent.getExplosionEventsForUsage().remove(creeperExplosionEvent);
 
                         }
 
-                    } else {
-
-                        //If the BlockInfo instance that we get is null,
-                        //that means that the internal counter has gone above the size of the BlockInfo list
-                        //in our current creeperExplosionEvent,
-                        //meaning this explosion has been fully healed, and we can remove it from the list.
-                        CreeperExplosionEvent.getExplosionEventsForUsage().remove(creeperExplosionEvent);
 
                     }
 
 
                 }
-
 
             }
 

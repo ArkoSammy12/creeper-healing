@@ -17,6 +17,7 @@ public class CreeperHealing implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("creeper-healing");
 	public static final Config CONFIG = new Config();
+	private static boolean hasReadConfig;
 
 	@Override
 	public void onInitialize() {
@@ -47,26 +48,15 @@ public class CreeperHealing implements ModInitializer {
 
 		});
 
-		//Register a new ServerTickEvent upon server/world starting
-		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-
-			try {
-
-				onServerStarted();
-
-			} catch (IOException e) {
-
-				throw new RuntimeException(e);
-
-			}
-
-		});
-
 		//Grab our current list of CreeperExplosionEvents and store it
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
 		LOGGER.info("I will try my best to heal your creeper explosions :)");
 		LOGGER.info("Thanks to @sulpherstaer for the idea and inspiration, @_jacg for the help with the config setup, and @dale8689 for the help with improving the mod");
+
+		//Start listening for queued CreeperExplosionEvents once we have read the config
+		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionQueue);
+
 	}
 
 	private void tryInitConfig() throws IOException {
@@ -93,23 +83,32 @@ public class CreeperHealing implements ModInitializer {
 		//Read the contents of our scheduled-explosions.json file and them to the queue, before starting the tick event
 		ScheduledCreeperExplosions.reScheduleCreeperExplosionEvents(server);
 
-	}
-
-	private void onServerStarted() throws IOException {
-
-		//Start listening for queued CreeperExplosionEvents upon server fully started
-		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionQueue);
+		//We can now start listening for explosions in the list
+		hasReadConfig = true;
 
 	}
 
 	private void onServerStopping(MinecraftServer server) {
 
 		//Make a new ScheduledCreeperExplosions object and pass the current list to the constructor
-		ScheduledCreeperExplosions SCHEDULED_CREEPER_EXPLOSIONS = new ScheduledCreeperExplosions(CreeperExplosionEvent.getExplosionEventsForUsage());
+		ScheduledCreeperExplosions scheduledCreeperExplosions = new ScheduledCreeperExplosions(CreeperExplosionEvent.getExplosionEventsForUsage());
 
 		//Encode and store this same object
-		SCHEDULED_CREEPER_EXPLOSIONS.storeBlockPlacements(server);
+		scheduledCreeperExplosions.storeBlockPlacements(server);
 
+		//Once we have stored the list, flush it from memory
+		CreeperExplosionEvent.getExplosionEventsForUsage().clear();
+
+		//Reset the flag
+		hasReadConfig = false;
+
+	}
+
+	//Return whether we have read the config already, to allow for ExplosionHealerHandler.handleExplosionQueue() to start iterating through
+	//the CreeperExplosionList. Just extra security to avoid any concurrency issues
+	public static boolean hasReadConfig(){
+
+		return hasReadConfig;
 
 	}
 
