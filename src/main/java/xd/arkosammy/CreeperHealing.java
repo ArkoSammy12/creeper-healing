@@ -54,7 +54,7 @@ public class CreeperHealing implements ModInitializer {
 		LOGGER.info("I will try my best to heal your creeper explosions :)");
 		LOGGER.info("Thanks to @sulpherstaer for the idea and inspiration, @_jacg for the help with the config setup, and @dale8689 for the help with improving the mod");
 
-		//Start listening for queued CreeperExplosionEvents once we have read the config
+		//Start listening for CreeperExplosionEvents in our list once we have read the config
 		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionQueue);
 
 	}
@@ -65,7 +65,7 @@ public class CreeperHealing implements ModInitializer {
 
 		//writeConfig() will return false if the config file already exists,
 		// in which case we can read the data from the already present one
-		if(!CONFIG.writeConfig(CONFIG)){
+		if(!CONFIG.writeConfig()){
 
 			CONFIG.readConfig(file);
 			ExplosionHealerHandler.setExplosionDelay(CONFIG.explosionHealDelay);

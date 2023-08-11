@@ -23,7 +23,7 @@ public class Config {
     @SerializedName("replace_list")
     public HashMap<String, String> replaceMap = new HashMap<>();
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    public boolean  writeConfig(Config config) {
+    public boolean  writeConfig() {
 
         Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 
@@ -35,7 +35,7 @@ public class Config {
                 //Put a default value into the map then write a new config using the fields of the Config class
                 replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
-                Files.writeString(configPath, GSON.toJson(config));
+                Files.writeString(configPath, GSON.toJson(this));
 
             } catch (IOException e) {
 

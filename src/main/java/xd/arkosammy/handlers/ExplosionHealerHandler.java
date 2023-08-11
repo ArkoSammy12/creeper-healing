@@ -13,21 +13,22 @@ import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.CreeperExplosionEvent;
 import java.util.HashMap;
 
+//Thanks to @dale8689 for helping me figure out how to use tick timers instead of ScheduledFutures
 public class ExplosionHealerHandler {
 
-    // Adjust the delay between each explosion restoration (100 ticks = 5 seconds)
-    private static int explosionDelay = CreeperHealing.CONFIG.explosionHealDelay;
+    // Adjust the delay between each explosion restoration (20 ticks = 1 second)
+    private static long explosionDelay = CreeperHealing.CONFIG.explosionHealDelay;
 
-    // Adjust the delay between each block placement (1 tick = 0.05 seconds)
-    private static int blockPlacementDelay = CreeperHealing.CONFIG.blockPlacementDelay;
+    // Adjust the delay between each block placement (20 tick = 1 second)
+    private static long blockPlacementDelay = CreeperHealing.CONFIG.blockPlacementDelay;
     private static HashMap<String, String> customReplaceList = CreeperHealing.CONFIG.replaceMap;
-    public static int getExplosionDelay(){
+    public static long getExplosionDelay(){
 
         return explosionDelay;
 
     }
 
-    public static int getBlockPlacementDelay(){
+    public static long getBlockPlacementDelay(){
 
         return blockPlacementDelay;
 
@@ -36,14 +37,14 @@ public class ExplosionHealerHandler {
     public static void setExplosionDelay(int delay){
 
         //Do not let the user set this config below 1
-        explosionDelay = Math.max(delay, 1);
+        explosionDelay = Math.max(delay, 1) * 20L;
 
     }
 
     public static void setBlockPlacementDelayTicks(int delay){
 
         //Do not let the user set this config below 1
-        blockPlacementDelay = Math.max(delay, 1);
+        blockPlacementDelay = Math.max(delay, 1) * 20L;
 
     }
 
@@ -100,9 +101,7 @@ public class ExplosionHealerHandler {
 
                         }
 
-
                     }
-
 
                 }
 

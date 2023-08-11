@@ -26,7 +26,6 @@ public class BlockInfo implements Serializable {
     private long blockPlacementDelay;
     private RegistryKey<World> worldRegistryKey;
 
-
     //Create a CODEC for our BlockInfo.
     //Each BlockInfo CODEC will contain a field for BlockState, BlockPos,
     //and the World Registry Key, from which we will obtain the World instance.
@@ -34,15 +33,16 @@ public class BlockInfo implements Serializable {
 
             BlockPos.CODEC.fieldOf("Block_Position").forGetter(BlockInfo::getPos),
             BlockState.CODEC.fieldOf("Block_State").forGetter(BlockInfo::getBlockState),
-            World.CODEC.fieldOf("World").forGetter(BlockInfo::getWorldRegistryKey)
+            World.CODEC.fieldOf("World").forGetter(BlockInfo::getWorldRegistryKey),
+            Codec.LONG.fieldOf("Block_Placement_Delay").forGetter(BlockInfo::getBlockPlacementDelay)
 
     ).apply(blockInfoInstance, BlockInfo::new));
 
-    public BlockInfo(BlockPos pos, BlockState blockState, RegistryKey<World> registryKey){
+    public BlockInfo(BlockPos pos, BlockState blockState, RegistryKey<World> registryKey, long blockPlacementDelay){
 
         setPos(pos);
         setBlockState(blockState);
-        setBlockPlacementDelay(ExplosionHealerHandler.getBlockPlacementDelay());
+        setBlockPlacementDelay(blockPlacementDelay);
         setWorldRegistryKey(registryKey);
 
     }
@@ -61,7 +61,7 @@ public class BlockInfo implements Serializable {
 
     public void setBlockPlacementDelay(long delay){
 
-        this.blockPlacementDelay = delay * 20L;
+        this.blockPlacementDelay = delay;
 
     }
 

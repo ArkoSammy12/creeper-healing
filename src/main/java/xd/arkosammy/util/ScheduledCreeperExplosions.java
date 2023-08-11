@@ -24,12 +24,8 @@ public class ScheduledCreeperExplosions implements Serializable {
     //This private list will receive the actual list of CreeperExplosionEvent instances to be used for storage.
     private List<CreeperExplosionEvent> scheduledCreeperExplosionsForStoring;
 
-    /**
-     * Let's create a CODEC for ScheduledCreeperExplosions using RecordCodecBuilder. Its create method takes two lambdas. One to define the encoding structure
-     * and another to create a new instance of the class being serialized. In our case, Codec.list() creates a codec for a list of CreeperExplosionEvent codecs.
-     * The fieldOf() method associates this field with a name, and forGetter() establishes how to get the data for this field.
-     * After this, the apply() method defines how to create new instances of ScheduledCreeperExplosions after decoding.
-     */
+    //Codec for our ScheduledCreeperExplosion instance that gets created upon server shutdown, and holds
+    //the current CreeperExplosionEvents in the list for usage, and stores them in our private list.
     public static final Codec<ScheduledCreeperExplosions> CODEC = RecordCodecBuilder.create(scheduledCreeperExplosionsInstance -> scheduledCreeperExplosionsInstance.group(
 
             Codec.list(CreeperExplosionEvent.CODEC).fieldOf("Scheduled_Creeper_Explosions").forGetter(ScheduledCreeperExplosions::getScheduledCreeperExplosionsForStoring)
