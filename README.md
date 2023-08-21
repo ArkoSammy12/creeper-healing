@@ -18,11 +18,13 @@ When the server or game is started, the mod will look for an existing `creeper-h
 
 }
 ```
-Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left. Note that the minimum value for both delays is 1. Trying to set either of them below 1, will just set it back to 1.
+Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left. 
 
   - `heal_on_flowing_water`: Change whether or not the mod should heal blocks where there is currently flowing water. Change between `true` and `false`. This setting is `true` by default.
 
-  - `heal_on_flowing_lava`: Change whether or not the mod should heal blocks where there is currently flowing lava. Change between `true` and `false`. This setting is `true` by default. 
+  - `heal_on_flowing_lava`: Change whether or not the mod should heal blocks where there is currently flowing lava. Change between `true` and `false`. This setting is `true` by default.
+
+**Note**: The minimum value for both delays is 1. Trying to set either of them below 1, will just set it back to 1.
 
 ## Building
 
