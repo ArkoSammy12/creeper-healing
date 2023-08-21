@@ -7,7 +7,7 @@ When the server or game is started, the mod will look for an existing `creeper-h
 
 - `"explosion_heal_delay"`: This setting allows you to change the delay in seconds between each creeper explosion and its corresponding healing process. This is 3 by default.
 - `"block_placement_delay"`: This setting allows you to change the delay in seconds between each block placement during the creeper explosion healing process. This is 1 by default.
-- `"replace_list"`: This field allows you to add your own replace settings for choosing what block to use to heal another block. By default, there is one entry for using a Stone block to heal a Diamond block. However, you can add your own entries here. Inside the array (bounded by the `{}`), insert new entries as follows
+- `"replace_list"`: This field allows you to add your own replace settings for choosing what block to use to heal another block. By default, there is one entry for using a Stone block to heal a Diamond block. However, you can add your own entries here. Inside the array (bounded by the `{}`), insert new entries as follows:
 ```
 "replace_list" : {
 
@@ -20,6 +20,9 @@ When the server or game is started, the mod will look for an existing `creeper-h
 ```
 Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left. Note that the minimum value for both delays is 1. Trying to set either of them below 1, will just set it back to 1.
 
+  - `heal_on_flowing_water`: Change whether or not the mod should heal blocks where there is currently flowing water. Change between `true` and `false`. This setting is `true` by default.
+
+  - `heal_on_flowing_lava`: Change whether or not the mod should heal blocks where there is currently flowing lava. Change between `true` and `false`. This setting is `true` by default. 
 
 ## Building
 
