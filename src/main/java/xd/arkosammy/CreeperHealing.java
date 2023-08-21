@@ -68,10 +68,6 @@ public class CreeperHealing implements ModInitializer {
 		if(!CONFIG.writeConfig()){
 
 			CONFIG.readConfig(file);
-			ExplosionHealerHandler.setExplosionDelay(CONFIG.explosionHealDelay);
-			ExplosionHealerHandler.setBlockPlacementDelayTicks(CONFIG.blockPlacementDelay);
-			ExplosionHealerHandler.setCustomReplaceList(CONFIG.replaceMap);
-
 			LOGGER.info("Applied custom configs");
 
 		}

@@ -2,6 +2,7 @@ package xd.arkosammy.handlers;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -11,48 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.CreeperExplosionEvent;
-import java.util.HashMap;
+
+import static xd.arkosammy.CreeperHealing.CONFIG;
 
 //Thanks to @dale8689 for helping me figure out how to use tick timers instead of ScheduledFutures
 public class ExplosionHealerHandler {
-
-    // Adjust the delay between each explosion restoration (20 ticks = 1 second)
-    private static long explosionDelay = CreeperHealing.CONFIG.explosionHealDelay;
-
-    // Adjust the delay between each block placement (20 tick = 1 second)
-    private static long blockPlacementDelay = CreeperHealing.CONFIG.blockPlacementDelay;
-    private static HashMap<String, String> customReplaceList = CreeperHealing.CONFIG.replaceMap;
-    public static long getExplosionDelay(){
-
-        return explosionDelay;
-
-    }
-
-    public static long getBlockPlacementDelay(){
-
-        return blockPlacementDelay;
-
-    }
-
-    public static void setExplosionDelay(int delay){
-
-        //Do not let the user set this config below 1
-        explosionDelay = Math.max(delay, 1) * 20L;
-
-    }
-
-    public static void setBlockPlacementDelayTicks(int delay){
-
-        //Do not let the user set this config below 1
-        blockPlacementDelay = Math.max(delay, 1) * 20L;
-
-    }
-
-    public static void setCustomReplaceList(HashMap<String, String> replaceList){
-
-        customReplaceList = replaceList;
-
-    }
 
     //Called at the end of each server tick
     public static void handleExplosionQueue(MinecraftServer server){
@@ -111,26 +75,43 @@ public class ExplosionHealerHandler {
 
     }
 
-    public static void placeBlock(World world, BlockPos pos, @NotNull BlockState state){
+    private static void placeBlock(World world, BlockPos pos, @NotNull BlockState state){
 
         //Check if the block string of the block we are about to place is contained in our replaceMap. If it is, switch it for the corresponding block
         String blockString = Registries.BLOCK.getId(state.getBlock()).toString();
 
-        if(customReplaceList.containsKey(blockString)){
+        if(CONFIG.getReplaceMap().containsKey(blockString)){
 
             //Get BlockState via the block registries.
             //Note that this gets the default state of the block, so stuff like the orientation of the block is lost.
-            state = Registries.BLOCK.get(new Identifier(customReplaceList.get(blockString))).getDefaultState();
+            state = Registries.BLOCK.get(new Identifier(CONFIG.getReplaceMap().get(blockString))).getDefaultState();
 
         }
 
-        //Only place the block if where we are about to place it there is no other block.
-        //This way we avoid overriding a block placed by a player.
-        if(world.getBlockState(pos).equals(Blocks.AIR.getDefaultState())) {
+        if(shouldPlaceBlock(world, pos)) {
 
             world.setBlockState(pos, state);
 
         }
+
+    }
+
+    private static boolean shouldPlaceBlock(@NotNull World world, BlockPos pos){
+
+        //Place a block if the current coordinate contains an air block, to avoid overriding a player placed block
+        if(world.getBlockState(pos).equals(Blocks.AIR.getDefaultState())) {
+
+            return true;
+
+            //Otherwise, place a block if the current coordinate contains a flowing water block,
+            //and the corresponding setting is enabled
+        } else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && CONFIG.shouldHealOnFlowingWater()){
+
+            return true;
+
+            //Otherwise, place a block if the current coordinate contains a flowing laval block,
+            //and the corresponding setting is enabled
+        } else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && CONFIG.shouldHealOnFlowingLava();
 
     }
 

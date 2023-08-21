@@ -15,14 +15,21 @@ import java.util.HashMap;
 //Huge thanks to @_jacg on the Fabric Discord Server for helping me out with setting the config
 public class Config {
     @SerializedName("explosion_heal_delay")
-    public int explosionHealDelay = 3;
+    private int explosionHealDelay = 3;
 
     @SerializedName("block_placement_delay")
-    public int blockPlacementDelay = 1;
+    private int blockPlacementDelay = 1;
+
+    @SerializedName("heal_on_flowing_water")
+    private boolean shouldHealOnFlowingWater = true;
+
+    @SerializedName("heal_on_flowing_lava")
+    private boolean shouldHealOnFlowingLava = true;
 
     @SerializedName("replace_list")
-    public HashMap<String, String> replaceMap = new HashMap<>();
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private HashMap<String, String> replaceMap = new HashMap<>();
+
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public boolean  writeConfig() {
 
         Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
@@ -65,15 +72,48 @@ public class Config {
 
         //Deserialize our Json file and turn it into a JsonObject
         JsonObject obj = gson.fromJson(reader, JsonObject.class);
+
         //Set the config fields to the values read from our config
         explosionHealDelay = getIntOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
         blockPlacementDelay = getIntOrDefault(obj, "block_placement_delay", blockPlacementDelay);
+        shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
+        shouldHealOnFlowingLava = getBooleanOrDefault(obj, "heal_on_flowing_lava", shouldHealOnFlowingLava);
 
         //Parse the JsonObject into a Hashmap
         JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
         replaceMap = gson.fromJson(replaceListJson, HashMap.class);
 
         reader.close();
+
+    }
+
+    public long getExplosionDelay(){
+
+        return Math.max(this.explosionHealDelay, 1) * 20L;
+
+    }
+
+    public long getBlockPlacementDelay(){
+
+        return Math.max(this.blockPlacementDelay, 1) * 20L;
+
+    }
+
+    public HashMap<String, String> getReplaceMap(){
+
+        return this.replaceMap;
+
+    }
+
+    public boolean shouldHealOnFlowingWater(){
+
+        return this.shouldHealOnFlowingWater;
+
+    }
+
+    public boolean shouldHealOnFlowingLava(){
+
+        return this.shouldHealOnFlowingLava;
 
     }
 
@@ -88,6 +128,12 @@ public class Config {
         JsonElement element = obj.get(name);
 
         return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
+
+    }
+
+    private boolean getBooleanOrDefault(@NotNull JsonObject obj, String name, Boolean def){
+
+        return obj.has(name) ? obj.get(name).getAsBoolean() : def;
 
     }
 

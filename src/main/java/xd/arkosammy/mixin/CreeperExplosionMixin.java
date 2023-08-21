@@ -14,11 +14,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
 import xd.arkosammy.util.BlockInfo;
 import xd.arkosammy.events.CreeperExplosionEvent;
 
 import java.util.ArrayList;
+
+import static xd.arkosammy.CreeperHealing.CONFIG;
 
 @Mixin(Explosion.class)
 public abstract class CreeperExplosionMixin {
@@ -42,7 +43,7 @@ public abstract class CreeperExplosionMixin {
                 //Let's not store a bunch of unnecessary air blocks
                 if(!world.getBlockState(pos).getBlock().getName().equals(Blocks.AIR.getName())) {
 
-                    blockInfoList.add(new BlockInfo(pos, world.getBlockState(pos), world.getRegistryKey(), ExplosionHealerHandler.getBlockPlacementDelay()));
+                    blockInfoList.add(new BlockInfo(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay()));
 
                 }
 
@@ -51,7 +52,7 @@ public abstract class CreeperExplosionMixin {
             //Create a new CreeperExplosionEvent object from the blockInfoList
             //we just obtained and add it to the queue to be processed.
             //Also sort the list of BlockInfo from lowest to highest Y position to heal bottom to top.
-            CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), ExplosionHealerHandler.getExplosionDelay(), 0));
+            CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), CONFIG.getExplosionDelay(), 0));
 
         }
 
