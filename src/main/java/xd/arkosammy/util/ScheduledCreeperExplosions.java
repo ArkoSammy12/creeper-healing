@@ -60,13 +60,13 @@ public class ScheduledCreeperExplosions implements Serializable {
             //Add our read CreeperExplosionEvents back to the list
             CreeperExplosionEvent.getExplosionEventsForUsage().addAll(explosionEvents);
 
-            CreeperHealing.LOGGER.info("Rescheduled " + explosionEvents.size() + " creeper explosion events.");
+            CreeperHealing.LOGGER.info("Rescheduled " + explosionEvents.size() + " creeper explosion event(s).");
 
         }
 
     }
 
-    //Reads the JSON data from our file, then we return a list of the decoded CreeperExplosionEvents
+    //Read the JSON data from our file, then we return a list of the decoded CreeperExplosionEvents
     private static List<CreeperExplosionEvent> readCreeperExplosionEvents(@NotNull MinecraftServer server) throws IOException {
 
         //Obtain the path to the server's world directory
@@ -74,11 +74,13 @@ public class ScheduledCreeperExplosions implements Serializable {
 
         List<CreeperExplosionEvent> scheduledExplosionEvents = new ArrayList<>();
 
-        if (Files.exists(scheduledExplosionsFilePath)) { //If our file does not exist, create it and return an empty list.
+        //If our file does not exist, create it and return an empty list
+        if (Files.exists(scheduledExplosionsFilePath)) {
 
             try (BufferedReader reader = Files.newBufferedReader(scheduledExplosionsFilePath)) {
 
-                JsonElement scheduledExplosionsAsJson = JsonParser.parseReader(reader); //Parse the contents of our file into a JsonElement
+                //Parse the contents of our file into a JsonElement
+                JsonElement scheduledExplosionsAsJson = JsonParser.parseReader(reader);
 
                 //CreeperHealing.LOGGER.info("Read json: {}", scheduledExplosionsAsJson);
 
@@ -109,20 +111,18 @@ public class ScheduledCreeperExplosions implements Serializable {
         return scheduledExplosionEvents;
     }
 
-    //We encode our singular instance of CreeperExplosionEvent object, and we write it to a file
+    //We encode our singular CreeperExplosionEvent object, and we write it to a file
     public void storeBlockPlacements(@NotNull MinecraftServer server) {
 
         //Obtain the path to the server's world directory
         Path scheduledExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
 
         //Obtain the result of trying to encode our instance of ScheduledCreeperExplosions into a JsonOps
-        //DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, new ScheduledCreeperExplosions(SCHEDULED_CREEPER_EXPLOSIONS.getScheduledCreeperExplosions()));
-
         DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, this);
 
         if (encodedScheduledExplosions.result().isPresent()){
 
-            //If the previous step didn't fail, obtain the JsonElement, then turn it into a JsonString, to then write to our file
+            //If the previous step didn't fail, obtain the JsonElement, then turn it into a JsonString, to then write it to our file
             JsonElement scheduledExplosionsAsJson = encodedScheduledExplosions.resultOrPartial(CreeperHealing.LOGGER::error).orElseThrow();
 
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -139,11 +139,11 @@ public class ScheduledCreeperExplosions implements Serializable {
 
             }
 
-            CreeperHealing.LOGGER.info("Stored scheduled creeper explosion events to " + scheduledExplosionsFilePath);
+            CreeperHealing.LOGGER.info("Stored scheduled creeper explosion event(s) to " + scheduledExplosionsFilePath);
 
         } else {
 
-            CreeperHealing.LOGGER.warn("Failed to encode scheduled creeper explosion events.");
+            CreeperHealing.LOGGER.warn("Error storing creeper explosions.");
 
         }
 

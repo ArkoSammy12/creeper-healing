@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public class CreeperHealing implements ModInitializer {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("creeper-healing");
+    public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
 	public static final Config CONFIG = new Config();
 	private static boolean hasReadConfig;
 
@@ -26,48 +26,51 @@ public class CreeperHealing implements ModInitializer {
 
 		//Initialize config
 		try {
-
-			tryInitConfig();
-
+			initConfig();
 		} catch (IOException e) {
-
 			throw new RuntimeException(e);
-
 		}
 
-		//Read the list of CreeperExplosionEvents stored in our file upon server fully started.
+		//Read the list of CreeperExplosionEvents stored in our file once the server has fully started
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
 
 			try {
-
 				onServerStarting(server);
-
 			} catch (IOException e) {
-
 				throw new RuntimeException(e);
-
 			}
 
 		});
 
-		//Grab our current list of CreeperExplosionEvents and store it
-		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
+		//Grab our current list of CreeperExplosionEvents and store it.
+		//Update the config file with new values changed via commands
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+
+			try {
+				onServerStopping(server);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+		});
 
 		LOGGER.info("I will try my best to heal your creeper explosions :)");
 		LOGGER.info("Thanks to @sulpherstaer for the idea and inspiration, @_jacg for the help with the config setup, and @dale8689 for the help with improving the mod");
 
 		//Start listening for CreeperExplosionEvents in our list once we have read the config
 		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionQueue);
+
+		//Register our commands
 		Commands.registerCommands();
 
 	}
 
-	private void tryInitConfig() throws IOException {
+	private void initConfig() throws IOException {
 
 		File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
 
 		//writeConfig() will return false if the config file already exists,
-		// in which case we can read the data from the already present one
+		//in which case we can read the data from the already present one
 		if(!CONFIG.writeConfig()){
 
 			CONFIG.readConfig(file);
@@ -79,27 +82,32 @@ public class CreeperHealing implements ModInitializer {
 
 	private void onServerStarting(MinecraftServer server) throws IOException {
 
-		//Read the contents of our scheduled-explosions.json file and them to the queue, before starting the tick event
+		//Read the contents of our scheduled-explosions.json file and add them to the list
 		ScheduledCreeperExplosions.reScheduleCreeperExplosionEvents(server);
 
 		//We can now start listening for explosions in the list
-		hasReadConfig = true;
+		setHasReadConfig(true);
 
 	}
 
-	private void onServerStopping(MinecraftServer server) {
+	private void onServerStopping(MinecraftServer server) throws IOException {
+
+		//Reset the flag
+		setHasReadConfig(false);
 
 		//Make a new ScheduledCreeperExplosions object and pass the current list to the constructor
 		ScheduledCreeperExplosions scheduledCreeperExplosions = new ScheduledCreeperExplosions(CreeperExplosionEvent.getExplosionEventsForUsage());
 
-		//Encode and store this same object
+		//Store this same object
 		scheduledCreeperExplosions.storeBlockPlacements(server);
 
-		//Once we have stored the list, flush it from memory
+		//Once we have stored the list, clear the current list from memory
 		CreeperExplosionEvent.getExplosionEventsForUsage().clear();
 
-		//Reset the flag
-		hasReadConfig = false;
+		//Update the config by overriding the current values with new ones obtained via commands
+		File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
+
+		CONFIG.updateConfig(file);
 
 	}
 
@@ -108,6 +116,12 @@ public class CreeperHealing implements ModInitializer {
 	public static boolean hasReadConfig(){
 
 		return hasReadConfig;
+
+	}
+
+	public static void setHasReadConfig(boolean val){
+
+		hasReadConfig = val;
 
 	}
 

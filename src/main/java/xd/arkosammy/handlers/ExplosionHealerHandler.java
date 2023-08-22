@@ -80,11 +80,11 @@ public class ExplosionHealerHandler {
         //Check if the block string of the block we are about to place is contained in our replaceMap. If it is, switch it for the corresponding block
         String blockString = Registries.BLOCK.getId(state.getBlock()).toString();
 
-        if(CONFIG.getReplaceMap().containsKey(blockString)){
+        if(CONFIG.getReplaceList().containsKey(blockString)){
 
             //Get BlockState via the block registries.
             //Note that this gets the default state of the block, so stuff like the orientation of the block is lost.
-            state = Registries.BLOCK.get(new Identifier(CONFIG.getReplaceMap().get(blockString))).getDefaultState();
+            state = Registries.BLOCK.get(new Identifier(CONFIG.getReplaceList().get(blockString))).getDefaultState();
 
         }
 

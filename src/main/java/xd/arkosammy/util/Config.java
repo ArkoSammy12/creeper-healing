@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -40,7 +39,7 @@ public class Config {
 
             try {
 
-                //Put a default value into the map then write a new config using the fields of the Config class
+                //Put a default value into the replace list then write a new config using the fields of the Config class
                 replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
                 Files.writeString(configPath, GSON.toJson(this));
@@ -51,14 +50,16 @@ public class Config {
 
             }
 
-            CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one and setting default values.");
-            CreeperHealing.LOGGER.info("Change the values in the configuration and restart the server to apply them.");
+            CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
+            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the /creeper-healing reload_config command in-game.");
 
-            return true; //Return true if the config file doesn't already exist
+            //Return true if the config file doesn't already exist
+            return true;
 
         } else {
 
-            return false; //Return false if config file already exists
+            //Return false if config file already exists
+            return false;
 
         }
 
@@ -74,7 +75,7 @@ public class Config {
         //Deserialize our Json file and turn it into a JsonObject
         JsonObject obj = gson.fromJson(reader, JsonObject.class);
 
-        //Set the config fields to the values read from our config
+        //Set the config fields to the values read from our config file
         explosionHealDelay = getIntOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
         blockPlacementDelay = getIntOrDefault(obj, "block_placement_delay", blockPlacementDelay);
         shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
@@ -124,7 +125,7 @@ public class Config {
 
     }
 
-    public HashMap<String, String> getReplaceMap(){
+    public HashMap<String, String> getReplaceList(){
 
         return this.replaceMap;
 
@@ -159,6 +160,73 @@ public class Config {
     private boolean getBooleanOrDefault(@NotNull JsonObject obj, String name, Boolean def){
 
         return obj.has(name) ? obj.get(name).getAsBoolean() : def;
+
+    }
+
+    public void updateConfig(File file) throws IOException {
+
+        Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
+
+        if(Files.exists(configPath)){
+
+            FileReader reader = new FileReader(file);
+
+            Gson gson = new Gson();
+
+            //If the config file exists, then we should update the replace list in memory before overwriting the config file with our new values changed via the commands.
+            //This is to avoid overriding changes done to the replace list in the config file done while the server or world is running.
+            //We don't do that for the other values since they are supposed to be overwritten
+            JsonObject obj = gson.fromJson(reader, JsonObject.class);
+
+            JsonObject tempReplaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
+            replaceMap = gson.fromJson(tempReplaceListJson, HashMap.class);
+
+            CreeperHealing.LOGGER.info("Updating config file with changed values...");
+
+            reader.close();
+
+        } else {
+
+            //If the config file doesn't exist, set the current values in memory to their default values,
+            //to then write to the new config file
+            explosionHealDelay = 3;
+            blockPlacementDelay = 1;
+            shouldHealOnFlowingWater = true;
+            shouldHealOnFlowingLava = true;
+            replaceMap.clear();
+            replaceMap.put("minecraft:diamond_block", "minecraft:stone");
+
+            CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
+            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the /creeper-healing reload_config command in-game.");
+
+        }
+
+        //We write to the config file even if the config file doesn't already exist.
+        //If it doesn't, then it will just create a config file with the default values
+        Files.writeString(configPath, GSON.toJson(this));
+
+    }
+
+    public boolean reloadConfig() throws IOException {
+
+        File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
+
+        Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
+
+        //If the config file exists, read the config again. Remember to update the "hasReadConfig" flag accordingly
+        if(Files.exists(configPath)){
+
+            CreeperHealing.setHasReadConfig(false);
+
+            this.readConfig(file);
+
+            CreeperHealing.setHasReadConfig(true);
+
+            return true;
+
+        }
+
+        return false;
 
     }
 

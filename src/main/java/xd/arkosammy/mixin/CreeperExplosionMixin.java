@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.BlockInfo;
 import xd.arkosammy.events.CreeperExplosionEvent;
 
@@ -23,6 +24,7 @@ import static xd.arkosammy.CreeperHealing.CONFIG;
 
 @Mixin(Explosion.class)
 public abstract class CreeperExplosionMixin {
+
     @Shadow @Final private ObjectArrayList<BlockPos> affectedBlocks;
     @Shadow @Nullable public abstract Entity getEntity();
     @Shadow @Final private World world;
@@ -53,6 +55,11 @@ public abstract class CreeperExplosionMixin {
             //we just obtained and add it to the queue to be processed.
             //Also sort the list of BlockInfo from lowest to highest Y position to heal bottom to top.
             CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), CONFIG.getExplosionDelay(), 0));
+
+            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.getExplosionDelay()));
+            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.getBlockPlacementDelay()));
+            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.shouldHealOnFlowingWater()));
+            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.shouldHealOnFlowingLava()));
 
         }
 
