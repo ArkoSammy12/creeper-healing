@@ -56,11 +56,6 @@ public abstract class CreeperExplosionMixin {
             //Also sort the list of BlockInfo from lowest to highest Y position to heal bottom to top.
             CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), CONFIG.getExplosionDelay(), 0));
 
-            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.getExplosionDelay()));
-            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.getBlockPlacementDelay()));
-            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.shouldHealOnFlowingWater()));
-            CreeperHealing.LOGGER.info(String.valueOf(CONFIG.shouldHealOnFlowingLava()));
-
         }
 
     }
