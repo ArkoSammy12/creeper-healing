@@ -36,6 +36,8 @@ You can also edit the mod's settings (except the replace list) via in-game comma
  - `/creeper-healing set_heal_on_flowing_lava [true or false]`: Change whether or not the mod should heal blocks where there is currently flowing lava.
   - `/creeper-healing reload_config`: Allows you to change the values of the config file and apply them to the game or server without having to restart. Note that the reloaded changes will only apply for explosions that occur after the command was executed, except for `heal_on_flowing_water` and `heal_on_flowing_lava`.
 
+**Note**: All of these commands require operator permissions.
+
 ## Building
 
 Clone this repository on your PC, then open your command line prompt on the main directory of the mod, and run the command: `gradlew build`. Once the build is successful, you can find the mod under `/creeper-healing/build/libs`. Use the .jar file without the `"sources"`.
