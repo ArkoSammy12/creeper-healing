@@ -1,4 +1,4 @@
-package xd.arkosammy.util;
+package xd.arkosammy.events;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,7 +8,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
 
 import java.io.Serial;
 import java.io.Serializable;

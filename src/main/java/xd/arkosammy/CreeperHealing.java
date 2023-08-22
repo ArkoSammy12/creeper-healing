@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xd.arkosammy.events.CreeperExplosionEvent;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
+import xd.arkosammy.util.Commands;
+import xd.arkosammy.util.Config;
 import xd.arkosammy.util.ScheduledCreeperExplosions;
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +58,7 @@ public class CreeperHealing implements ModInitializer {
 
 		//Start listening for CreeperExplosionEvents in our list once we have read the config
 		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionQueue);
+		Commands.registerCommands();
 
 	}
 

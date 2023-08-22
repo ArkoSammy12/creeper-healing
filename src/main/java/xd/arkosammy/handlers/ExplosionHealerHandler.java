@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import xd.arkosammy.util.BlockInfo;
+import xd.arkosammy.events.BlockInfo;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.CreeperExplosionEvent;
 

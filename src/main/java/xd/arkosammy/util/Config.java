@@ -1,9 +1,10 @@
-package xd.arkosammy;
+package xd.arkosammy.util;
 
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
+import xd.arkosammy.CreeperHealing;
 
 import java.io.File;
 import java.io.FileReader;
@@ -84,6 +85,30 @@ public class Config {
         replaceMap = gson.fromJson(replaceListJson, HashMap.class);
 
         reader.close();
+
+    }
+
+    public void setExplosionHealDelay(int explosionHealDelay){
+
+        this.explosionHealDelay = explosionHealDelay;
+
+    }
+
+    public void setBlockPlacementDelay(int blockPlacementDelay){
+
+        this.blockPlacementDelay = blockPlacementDelay;
+
+    }
+
+    public void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
+
+        this.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
+
+    }
+
+    public void setShouldHealOnFlowingLava(boolean shouldHealOnFlowingLava){
+
+        this.shouldHealOnFlowingLava = shouldHealOnFlowingLava;
 
     }
 
