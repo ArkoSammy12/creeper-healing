@@ -1,6 +1,7 @@
 package xd.arkosammy.util;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
@@ -9,6 +10,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import xd.arkosammy.CreeperHealing;
 
 import java.io.IOException;
@@ -19,30 +21,46 @@ public class Commands {
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
 
+            //Root node
+
             LiteralCommandNode<ServerCommandSource> creeperHealingNode = CommandManager
                     .literal("creeper-healing")
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Explosion Heal Delay node
+
             LiteralCommandNode<ServerCommandSource> explosionHealDelayNode = CommandManager
-                    .literal("set_explosion_heal_delay")
+                    .literal("explosion_heal_delay")
+                    .executes(Commands::getExplosionHealDelayCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
+
+            //Block Placement Delay node
 
             LiteralCommandNode<ServerCommandSource> blockPlacementDelayNode = CommandManager
-                    .literal("set_block_placement_delay")
+                    .literal("block_placement_delay")
+                    .executes(Commands::getBlockPlacementDelayCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
+
+            //Heal on Flowing Water node
 
             LiteralCommandNode<ServerCommandSource> shouldHealOnFlowingWaterNode = CommandManager
-                    .literal("set_heal_on_flowing_water")
+                    .literal("heal_on_flowing_water")
+                    .executes(Commands::getShouldHealOnFlowingWaterCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Heal on Flowing Lava node
+
             LiteralCommandNode<ServerCommandSource> shouldHealOnFlowingLavaNode = CommandManager
-                    .literal("set_heal_on_flowing_lava")
+                    .literal("heal_on_flowing_lava")
+                    .executes(Commands::getShouldHealOnFlowingLavaCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
+
+            //Reload Config node
 
             LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
                     .literal("reload_config")
@@ -60,14 +78,14 @@ public class Commands {
                     })
                     .build();
 
-            ArgumentCommandNode<ServerCommandSource, Integer> healDelayArgumentNode = CommandManager
-                    .argument("seconds", IntegerArgumentType.integer())
+            ArgumentCommandNode<ServerCommandSource, Double> explosionHealDelayArgumentNode = CommandManager
+                    .argument("seconds", DoubleArgumentType.doubleArg())
                     .executes(Commands::setExplosionHealDelayCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
-            ArgumentCommandNode<ServerCommandSource, Integer> blockPlacementDelayArgumentNode = CommandManager
-                    .argument("seconds", IntegerArgumentType.integer())
+            ArgumentCommandNode<ServerCommandSource, Double> blockPlacementDelayArgumentNode = CommandManager
+                    .argument("seconds", DoubleArgumentType.doubleArg())
                     .executes(Commands::setBlockPlacementDelayCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
@@ -84,17 +102,22 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Root connections
             dispatcher.getRoot().addChild(creeperHealingNode);
+
+            //Parent command connections
             creeperHealingNode.addChild(explosionHealDelayNode);
             creeperHealingNode.addChild(blockPlacementDelayNode);
             creeperHealingNode.addChild(shouldHealOnFlowingWaterNode);
             creeperHealingNode.addChild(shouldHealOnFlowingLavaNode);
             creeperHealingNode.addChild(reloadNode);
 
-            explosionHealDelayNode.addChild(healDelayArgumentNode);
+            //Argument node connections
+            explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
             blockPlacementDelayNode.addChild(blockPlacementDelayArgumentNode);
             shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
             shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
+
 
         }));
 
@@ -103,9 +126,25 @@ public class Commands {
 
     private static int setExplosionHealDelayCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
 
-        CreeperHealing.CONFIG.setExplosionHealDelay(IntegerArgumentType.getInteger(serverCommandSourceCommandContext, "seconds"));
+        if(DoubleArgumentType.getDouble(serverCommandSourceCommandContext, "seconds") > 0) {
 
-        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + IntegerArgumentType.getInteger(serverCommandSourceCommandContext, "seconds") + " second(s)"));
+            CreeperHealing.CONFIG.setExplosionHealDelay(DoubleArgumentType.getDouble(serverCommandSourceCommandContext, "seconds"));
+
+            serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(serverCommandSourceCommandContext, "seconds") + " second(s)"));
+
+        } else {
+
+            serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Cannot set explosion heal delay to 0 or fewer seconds").formatted(Formatting.RED));
+
+        }
+
+        return 1;
+
+    }
+
+    private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext){
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)CreeperHealing.CONFIG.getExplosionDelay() / 20) + " second(s)"));
 
         return 1;
 
@@ -113,9 +152,25 @@ public class Commands {
 
     private static int setBlockPlacementDelayCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
 
-        CreeperHealing.CONFIG.setBlockPlacementDelay(IntegerArgumentType.getInteger(serverCommandSourceCommandContext, "seconds"));
+        if(DoubleArgumentType.getDouble(serverCommandSourceCommandContext, "seconds") > 0) {
 
-        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay has been set to to: " + IntegerArgumentType.getInteger(serverCommandSourceCommandContext, "seconds") + " second(s)"));
+            CreeperHealing.CONFIG.setBlockPlacementDelay(DoubleArgumentType.getDouble(serverCommandSourceCommandContext, "seconds"));
+
+            serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay has been set to to: " + DoubleArgumentType.getDouble(serverCommandSourceCommandContext, "seconds") + " second(s)"));
+
+        } else {
+
+            serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Cannot set block placement delay to 0 or fewer seconds").formatted(Formatting.RED));
+
+        }
+
+        return 1;
+
+    }
+
+    private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext){
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double)CreeperHealing.CONFIG.getBlockPlacementDelay() / 20) + " second(s)"));
 
         return 1;
 
@@ -131,6 +186,14 @@ public class Commands {
 
     }
 
+    private static int getShouldHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext){
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingWater()));
+
+        return 1;
+
+    }
+
     private static int setShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
 
         CreeperHealing.CONFIG.setShouldHealOnFlowingLava(BoolArgumentType.getBool(serverCommandSourceCommandContext, "value"));
@@ -141,11 +204,19 @@ public class Commands {
 
     }
 
+    private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext){
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingLava()));
+
+        return 1;
+
+    }
+
     private static void reload(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) throws IOException {
 
         //If this returns true, then the config file exists, and we can update our values from it
         if(CreeperHealing.CONFIG.reloadConfig()) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Config successfully reloaded"));
-        else serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Found no existing config file to reload values from"));
+        else serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
 
     }
 

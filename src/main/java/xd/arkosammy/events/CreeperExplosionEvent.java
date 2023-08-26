@@ -103,7 +103,7 @@ public class CreeperExplosionEvent implements Serializable {
 
     }
 
-    //Iterate through explosionEventsForUsage list and increment each of their delay counters
+    //Iterate through explosionEventsForUsage list and decrement each of their delay counters
     public static void tickCreeperExplosionEvents(){
 
         for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()){
