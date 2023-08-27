@@ -2,7 +2,11 @@ package xd.arkosammy.util;
 
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
+import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import java.io.File;
@@ -88,8 +92,8 @@ public class Config {
         reader.close();
 
         //Warn the user if these delays were set to 0 or fewer seconds
-        if(explosionHealDelay <= 0) CreeperHealing.LOGGER.warn("Explosion heal delay set to 0 or fewer seconds in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
-        if(blockPlacementDelay <= 0) CreeperHealing.LOGGER.warn("Block placement delay set to 0 or fewer seconds in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+        if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+        if(Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
 
     }
 
@@ -211,7 +215,7 @@ public class Config {
 
     }
 
-    public boolean reloadConfig() throws IOException {
+    public boolean reloadConfig(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) throws IOException {
 
         File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
 
@@ -225,6 +229,9 @@ public class Config {
             this.readConfig(file);
 
             CreeperHealing.setHasReadConfig(true);
+
+            if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
+            if(Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
 
             return true;
 
