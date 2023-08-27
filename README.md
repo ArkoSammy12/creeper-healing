@@ -24,16 +24,16 @@ Specify the namespace (in this case `minecraft:`), then the name of the block. T
 
   - `heal_on_flowing_lava`: Change whether or not the mod should heal blocks where there is currently flowing lava. Change between `true` and `false`. This setting is `true` by default.
 
-**Note**: The minimum value for both delays is 1. Trying to set either of them below 1, will just set it back to 1.
+**Note**: Attempting to set a delay to 0, a negative value, or a very small decimal value, will result in a value of 1 being used for that delay instead.
 
 ## Commands
 
 You can also edit the mod's settings (except the replace list) via in-game commands:
 
- - `/creeper-healing set_explosion_heal_delay [integer argument]`: Change the delay in seconds between each creeper explosion and its corresponding healing process. The change will only apply for explosions that occur after this command was executed.
- - `/creeper-healing set_block_placement_delay [integer argument]`: Change the delay in seconds between each block placement during the creeper explosion healing process. The change will only apply for explosions that occur after this command was executed.
- - `/creeper-healing set_heal_on_flowing_water [true or false]`: Change whether or not the mod should heal blocks where there is currently flowing water.
- - `/creeper-healing set_heal_on_flowing_lava [true or false]`: Change whether or not the mod should heal blocks where there is currently flowing lava.
+ - `/creeper-healing explosion_heal_delay [decimal argument]`: Change the delay in seconds between each creeper explosion and its corresponding healing process. The change will only apply for explosions that occur after this command was executed. Use this command without passing a value to see the current value in the config.
+ - `/creeper-healing block_placement_delay [decimal argument]`: Change the delay in seconds between each block placement during the creeper explosion healing process. The change will only apply for explosions that occur after this command was executed. Use this command without passing a value to see the current value in the config.
+ - `/creeper-healing heal_on_flowing_water [true or false]`: Change whether or not the mod should heal blocks where there is currently flowing water. Use this command without passing a value to see the current value in the config.
+ - `/creeper-healing heal_on_flowing_lava [true or false]`: Change whether or not the mod should heal blocks where there is currently flowing lava. Use this command without passing a value to see the current value in the config.
   - `/creeper-healing reload_config`: Allows you to change the values of the config file and apply them to the game or server without having to restart. Note that the reloaded changes will only apply for explosions that occur after the command was executed, except for `heal_on_flowing_water` and `heal_on_flowing_lava`.
 
 **Note**: All of these commands require operator permissions.
