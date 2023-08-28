@@ -50,9 +50,7 @@ public abstract class CreeperExplosionMixin {
 
             }
 
-            //Create a new CreeperExplosionEvent object from the blockInfoList
-            //we just obtained and add it to the queue to be processed.
-            //Also sort the list of BlockInfo from lowest to highest Y position to heal bottom to top.
+            //Add a new CreeperExplosionEvent to the list, passing in a sorted list of BlockInfo objects
             CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), CONFIG.getExplosionDelay(), 0));
 
         }

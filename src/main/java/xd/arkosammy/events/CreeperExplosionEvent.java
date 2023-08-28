@@ -2,19 +2,12 @@ package xd.arkosammy.events;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * CreeperExplosionEvent instances will be created upon an explosion of a creeper.
- * It will contain a list of BlockInfo instances,
- * the delay that this event should wait in ticks before being processed, and
- * an internal counter to iterate through the list of BlockInfo instances as each
- * one of them is placed.
- */
+
 public class CreeperExplosionEvent implements Serializable {
 
     @Serial
@@ -91,32 +84,26 @@ public class CreeperExplosionEvent implements Serializable {
 
     }
 
-    public void incrementCounter(){
-
-        this.currentCounter++;
-
-    }
-
     public static List<CreeperExplosionEvent> getExplosionEventsForUsage(){
 
         return explosionEventsForUsage;
 
     }
 
-    //Iterate through explosionEventsForUsage list and decrement each of their delay counters
+    //Iterate through all the CreeperExplosionEvents in our list and decrement each of their delay counters
     public static void tickCreeperExplosionEvents(){
 
         for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()){
 
-            creeperExplosionEvent.tickSingleEvent();
+            creeperExplosionEvent.creeperExplosionDelay--;
 
         }
 
     }
 
-    private void tickSingleEvent(){
+    public void incrementCounter(){
 
-        this.creeperExplosionDelay--;
+        this.currentCounter++;
 
     }
 

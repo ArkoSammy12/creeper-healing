@@ -82,8 +82,6 @@ public class ScheduledCreeperExplosions implements Serializable {
                 //Parse the contents of our file into a JsonElement
                 JsonElement scheduledExplosionsAsJson = JsonParser.parseReader(reader);
 
-                //CreeperHealing.LOGGER.info("Read json: {}", scheduledExplosionsAsJson);
-
                 DataResult<ScheduledCreeperExplosions> decodedScheduledExplosions = CODEC.parse(JsonOps.INSTANCE, scheduledExplosionsAsJson); //Decode our JsonElement into a DataResult
 
                 if (decodedScheduledExplosions.result().isPresent()) {

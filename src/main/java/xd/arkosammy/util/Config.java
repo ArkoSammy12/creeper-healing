@@ -30,11 +30,100 @@ public class Config {
     @SerializedName("heal_on_flowing_lava")
     private boolean shouldHealOnFlowingLava = true;
 
+    @SerializedName("block_placement_sound_effect")
+    private boolean shouldPlaySoundOnBlockPlacement = true;
+
     @SerializedName("replace_list")
     private HashMap<String, String> replaceMap = new HashMap<>();
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    public boolean  writeConfig() {
+
+    public void setExplosionHealDelay(double explosionHealDelay){
+
+        this.explosionHealDelay = explosionHealDelay;
+
+    }
+
+    public void setBlockPlacementDelay(double blockPlacementDelay){
+
+        this.blockPlacementDelay = blockPlacementDelay;
+
+    }
+
+    public void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
+
+        this.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
+
+    }
+
+    public void setShouldHealOnFlowingLava(boolean shouldHealOnFlowingLava){
+
+        this.shouldHealOnFlowingLava = shouldHealOnFlowingLava;
+
+    }
+
+    public void setShouldPlaySoundOnBlockPlacement(boolean shouldPlaySoundOnBlockPlacement) {
+
+        this.shouldPlaySoundOnBlockPlacement = shouldPlaySoundOnBlockPlacement;
+
+    }
+
+    public long getExplosionDelay(){
+
+        return Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.explosionHealDelay, 0) * 20L);
+
+    }
+
+    public long getBlockPlacementDelay(){
+
+        return Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.blockPlacementDelay, 0) * 20L);
+
+    }
+
+    public HashMap<String, String> getReplaceList(){
+
+        return this.replaceMap;
+
+    }
+
+    public boolean shouldHealOnFlowingWater(){
+
+        return this.shouldHealOnFlowingWater;
+
+    }
+
+    public boolean shouldHealOnFlowingLava(){
+
+        return this.shouldHealOnFlowingLava;
+
+    }
+
+    public boolean shouldPlaySoundOnBlockPlacement(){
+
+        return this.shouldPlaySoundOnBlockPlacement;
+
+    }
+
+    private Double getDoubleOrDefault(@NotNull JsonObject obj, String name, Double def){
+
+        return obj.has(name) ? obj.get(name).getAsDouble() : def;
+
+    }
+
+    private boolean getBooleanOrDefault(@NotNull JsonObject obj, String name, Boolean def){
+
+        return obj.has(name) ? obj.get(name).getAsBoolean() : def;
+
+    }
+
+    private JsonObject getJsonObjectOrDefault(@NotNull JsonObject obj, String name, JsonObject def){
+
+        JsonElement element = obj.get(name);
+
+        return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
+
+    }
+    public boolean writeConfig() {
 
         Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 
@@ -84,6 +173,7 @@ public class Config {
         blockPlacementDelay = getDoubleOrDefault(obj, "block_placement_delay", blockPlacementDelay);
         shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
         shouldHealOnFlowingLava = getBooleanOrDefault(obj, "heal_on_flowing_lava", shouldHealOnFlowingLava);
+        shouldPlaySoundOnBlockPlacement = getBooleanOrDefault(obj, "block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
 
         //Parse the JsonObject into a Hashmap
         JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
@@ -97,80 +187,6 @@ public class Config {
 
     }
 
-    public void setExplosionHealDelay(double explosionHealDelay){
-
-        this.explosionHealDelay = explosionHealDelay;
-
-    }
-
-    public void setBlockPlacementDelay(double blockPlacementDelay){
-
-        this.blockPlacementDelay = blockPlacementDelay;
-
-    }
-
-    public void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
-
-        this.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
-
-    }
-
-    public void setShouldHealOnFlowingLava(boolean shouldHealOnFlowingLava){
-
-        this.shouldHealOnFlowingLava = shouldHealOnFlowingLava;
-
-    }
-
-    public long getExplosionDelay(){
-
-        return Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.explosionHealDelay, 0) * 20L);
-
-    }
-
-    public long getBlockPlacementDelay(){
-
-        return Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.blockPlacementDelay, 0) * 20L);
-
-    }
-
-    public HashMap<String, String> getReplaceList(){
-
-        return this.replaceMap;
-
-    }
-
-    public boolean shouldHealOnFlowingWater(){
-
-        return this.shouldHealOnFlowingWater;
-
-    }
-
-    public boolean shouldHealOnFlowingLava(){
-
-        return this.shouldHealOnFlowingLava;
-
-    }
-
-    private Double getDoubleOrDefault(@NotNull JsonObject obj, String name, Double def){
-
-        return obj.has(name) ? obj.get(name).getAsDouble() : def;
-
-    }
-
-    private JsonObject getJsonObjectOrDefault(@NotNull JsonObject obj, String name, JsonObject def){
-
-        JsonElement element = obj.get(name);
-
-        return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
-
-    }
-
-    private boolean getBooleanOrDefault(@NotNull JsonObject obj, String name, Boolean def){
-
-        return obj.has(name) ? obj.get(name).getAsBoolean() : def;
-
-    }
-
     public void updateConfig(File file) throws IOException {
 
         Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
@@ -181,9 +197,7 @@ public class Config {
 
             Gson gson = new Gson();
 
-            //If the config file exists, then we should update the replace list in memory before overwriting the config file with our new values changed via the commands.
-            //This is to avoid overriding changes done to the replace list in the config file done while the server or world is running.
-            //We don't do that for the other values since they are supposed to be overwritten
+            //Don't override the current replace-list in the config file
             JsonObject obj = gson.fromJson(reader, JsonObject.class);
 
             JsonObject tempReplaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
@@ -195,12 +209,12 @@ public class Config {
 
         } else {
 
-            //If the config file doesn't exist, set the current values in memory to their default values,
-            //to then write to the new config file
+            //If the config doesn't exist already, write a new one with default values
             explosionHealDelay = 3;
             blockPlacementDelay = 1;
             shouldHealOnFlowingWater = true;
             shouldHealOnFlowingLava = true;
+            shouldPlaySoundOnBlockPlacement = true;
             replaceMap.clear();
             replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
@@ -209,8 +223,7 @@ public class Config {
 
         }
 
-        //We write to the config file even if the config file doesn't already exist.
-        //If it doesn't, then it will just create a config file with the default values
+        //Update all values of the config with new ones if the config exists
         Files.writeString(configPath, GSON.toJson(this));
 
     }

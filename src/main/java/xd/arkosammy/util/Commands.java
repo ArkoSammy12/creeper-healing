@@ -54,6 +54,13 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Play sound on block placement node
+            LiteralCommandNode<ServerCommandSource> shouldPlaySoundOnBlockPlacementNode = CommandManager
+                    .literal("block_placement_sound_effect")
+                    .executes(Commands::getShouldPlaySoundOnBlockPlacement)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
             //Reload Config node
             LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
                     .literal("reload_config")
@@ -95,6 +102,12 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            ArgumentCommandNode<ServerCommandSource, Boolean> playSoundOnBlockPlacementArgumentNode = CommandManager
+                    .argument("value", BoolArgumentType.bool())
+                    .executes(Commands::setShouldPlaySoundOnBlockPlacement)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
             //Root connections
             dispatcher.getRoot().addChild(creeperHealingNode);
 
@@ -103,6 +116,7 @@ public class Commands {
             creeperHealingNode.addChild(blockPlacementDelayNode);
             creeperHealingNode.addChild(shouldHealOnFlowingWaterNode);
             creeperHealingNode.addChild(shouldHealOnFlowingLavaNode);
+            creeperHealingNode.addChild(shouldPlaySoundOnBlockPlacementNode);
             creeperHealingNode.addChild(reloadNode);
 
             //Argument node connections
@@ -110,6 +124,7 @@ public class Commands {
             blockPlacementDelayNode.addChild(blockPlacementDelayArgumentNode);
             shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
             shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
+            shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
 
 
         }));
@@ -200,6 +215,24 @@ public class Commands {
     private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext){
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingLava()));
+
+        return 1;
+
+    }
+
+    private static int setShouldPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
+
+        CreeperHealing.CONFIG.setShouldPlaySoundOnBlockPlacement(BoolArgumentType.getBool(serverCommandSourceCommandContext, "value"));
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(serverCommandSourceCommandContext, "value")));
+
+        return 1;
+
+    }
+
+    private static int getShouldPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + CreeperHealing.CONFIG.shouldPlaySoundOnBlockPlacement()));
 
         return 1;
 
