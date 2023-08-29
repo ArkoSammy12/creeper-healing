@@ -45,7 +45,7 @@ public class ExplosionHealerHandler {
 
                             if (currentBlock.getBlockPlacementDelay() < 0) {
 
-                                placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState());
+                                placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState(), creeperExplosionEvent);
 
                                 //Increment this event's internal counter to move on to the next block
                                 creeperExplosionEvent.incrementCounter();
@@ -70,7 +70,7 @@ public class ExplosionHealerHandler {
 
     }
 
-    private static void placeBlock(World world, BlockPos pos, @NotNull BlockState state){
+    private static void placeBlock(World world, BlockPos pos, @NotNull BlockState state, CreeperExplosionEvent creeperExplosionEvent){
 
         //Check if the block we are about to place is in the replace-list.
         //If it is, switch the state for the corresponding one in the replace-list.
@@ -83,17 +83,17 @@ public class ExplosionHealerHandler {
 
         }
 
-        if(shouldPlaceBlock(world, pos)) {
+        if(!SpecialBlockHandler.isSpecialBlock(world, state, pos)) {
 
-            world.setBlockState(pos, state);
+            if(shouldPlaceBlock(world, pos)) {
 
-            //The first argument being null tells the server to play the sound to all nearby players
-            if(shouldPlaySound(world, state)) world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
+                world.setBlockState(pos, state);
 
-            //if(state.contains(Properties.DOUBLE_BLOCK_HALF)) CreeperHealing.LOGGER.info("Block: " + state.getBlock().getName().toString() + " has the double block half property");
-            //if(state.contains(Properties.BED_PART)) CreeperHealing.LOGGER.info("Block: " + state.getBlock().getName().toString() + " has the part properties");
+                //The first argument being null tells the server to play the sound to all nearby players
+                if(shouldPlaySound(world, state)) world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
 
 
+            }
 
         }
 
@@ -118,7 +118,7 @@ public class ExplosionHealerHandler {
 
     }
 
-    private static boolean shouldPlaySound(World world, BlockState state) {
+    static boolean shouldPlaySound(World world, BlockState state) {
 
         //Make sure we are on the logical server and avoid placing an air block,
         //since they too produce a sound effect when "placed"

@@ -101,7 +101,7 @@ public class CreeperExplosionEvent implements Serializable {
 
     }
 
-    public void incrementCounter(){
+    public void incrementCounter() {
 
         this.currentCounter++;
 
