@@ -181,12 +181,9 @@ public class Config {
 
         reader.close();
 
-        //Warn the user if these delays were set to 0 or fewer seconds
-        if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
-        if(Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
-
     }
 
+    //Called upon server shutdown
     public void updateConfig(File file) throws IOException {
 
         Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
@@ -194,16 +191,12 @@ public class Config {
         if(Files.exists(configPath)){
 
             FileReader reader = new FileReader(file);
-
             Gson gson = new Gson();
 
             //Don't override the current replace-list in the config file
             JsonObject obj = gson.fromJson(reader, JsonObject.class);
-
             JsonObject tempReplaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
             replaceMap = gson.fromJson(tempReplaceListJson, HashMap.class);
-
-            CreeperHealing.LOGGER.info("Updating config file with changed values...");
 
             reader.close();
 
@@ -234,15 +227,17 @@ public class Config {
 
         Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 
-        //If the config file exists, read the config again. Remember to update the "hasReadConfig" flag accordingly
+        //If the config file exists, read the config again.
+        // Remember to update the "isExplosionHandlingUnlocked" flag accordingly
         if(Files.exists(configPath)){
 
-            CreeperHealing.setHasReadConfig(false);
+            CreeperHealing.setHealerHandlerLock(false);
 
             this.readConfig(file);
 
-            CreeperHealing.setHasReadConfig(true);
+            CreeperHealing.setHealerHandlerLock(true);
 
+            //Warn the user if these delays were set to 0 or fewer seconds
             if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
             if(Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
 

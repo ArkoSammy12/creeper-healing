@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import xd.arkosammy.events.BlockInfo;
+import xd.arkosammy.events.AffectedBlock;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.CreeperExplosionEvent;
 
@@ -23,40 +23,52 @@ public class ExplosionHealerHandler {
     public static void handleExplosionQueue(MinecraftServer server){
 
         //Safety lock for avoiding any potential issues with concurrency
-        if(CreeperHealing.hasReadConfig()) {
+        if(CreeperHealing.isExplosionHandlingUnlocked()) {
 
             //Tick each one of CreeperExplosionEvent instances in our list
             CreeperExplosionEvent.tickCreeperExplosionEvents();
 
-            if (!CreeperExplosionEvent.getExplosionEventsForUsage().isEmpty()) {
+            if (!CreeperExplosionEvent.getExplosionEventList().isEmpty()) {
 
                 //Find a CreeperExplosionEvent in our list whose delay has reached 0
-                for (CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventsForUsage()) {
+                for (CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventList()) {
 
                     if (creeperExplosionEvent.getCreeperExplosionDelay() < 0) {
 
                         //Get the current block to heal based on the event's internal block counter
-                        BlockInfo currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
+                        AffectedBlock currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
 
+                        //If the currentBlock is null, there are no more blocks to heal.
+                        // We can remove this CreeperExplosionEvent from the list
                         if (currentBlock != null) {
 
-                            //Tick the current block place and check if its delay is less than 0
-                            currentBlock.tickSingleBlockInfo();
+                            //If the current block has already been placed, increment the counter to skip it
+                            if(!currentBlock.hasBeenPlaced()) {
 
-                            if (currentBlock.getBlockPlacementDelay() < 0) {
+                                //Tick the current block place and check if its delay is less than 0
+                                currentBlock.tickSingleBlockInfo();
 
-                                placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState(), creeperExplosionEvent);
+                                if (currentBlock.getBlockPlacementDelay() < 0) {
 
-                                //Increment this event's internal counter to move on to the next block
-                                creeperExplosionEvent.incrementCounter();
+                                    placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState(), creeperExplosionEvent);
+
+                                    //Increment this event's internal counter to move on to the next block
+                                    creeperExplosionEvent.incrementIndex();
+
+                                    //Mark the block as placed
+                                    currentBlock.setHasBeenPlaced(true);
+
+                                }
+
+                            } else {
+
+                                creeperExplosionEvent.incrementIndex();
 
                             }
 
                         } else {
 
-                            //If the currentBlock is null, there are no more blocks to heal.
-                            //We can remove this CreeperExplosionEvent from the list
-                            CreeperExplosionEvent.getExplosionEventsForUsage().remove(creeperExplosionEvent);
+                            CreeperExplosionEvent.getExplosionEventList().remove(creeperExplosionEvent);
 
                         }
 
@@ -83,7 +95,8 @@ public class ExplosionHealerHandler {
 
         }
 
-        if(!SpecialBlockHandler.isSpecialBlock(world, state, pos)) {
+        //If the block we are about to place is "special", handle it separately
+        if(!SpecialBlockHandler.isSpecialBlock(world, state, pos, creeperExplosionEvent)) {
 
             if(shouldPlaceBlock(world, pos)) {
 
@@ -125,5 +138,6 @@ public class ExplosionHealerHandler {
         return !world.isClient && !state.equals(Blocks.AIR.getDefaultState()) && CONFIG.shouldPlaySoundOnBlockPlacement();
 
     }
+
 
 }

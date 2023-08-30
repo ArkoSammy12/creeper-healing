@@ -8,41 +8,39 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Comparator;
-import java.util.List;
 
-//This class serves as a way to store both the Position, the State and the World of a block as a single object,
-//improving our quality of life
-public class BlockInfo implements Serializable {
+public class AffectedBlock implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1212L;
     private BlockPos pos;
     private BlockState blockState;
-    private long blockPlacementDelay;
     private RegistryKey<World> worldRegistryKey;
+    private long blockPlacementDelay;
+    private boolean hasBeenPlaced;
 
-    //Create a CODEC for our BlockInfo.
-    //Each BlockInfo CODEC will contain a field for BlockState, BlockPos,
+    //Create a CODEC for our AffectedBlock.
+    //Each AffectedBlock CODEC will contain a field for BlockState, BlockPos,
     //and the World Registry Key, from which we will obtain the World instance.
-    public static final Codec<BlockInfo> CODEC = RecordCodecBuilder.create(blockInfoInstance -> blockInfoInstance.group(
+    public static final Codec<AffectedBlock> CODEC = RecordCodecBuilder.create(blockInfoInstance -> blockInfoInstance.group(
 
-            BlockPos.CODEC.fieldOf("Block_Position").forGetter(BlockInfo::getPos),
-            BlockState.CODEC.fieldOf("Block_State").forGetter(BlockInfo::getBlockState),
-            World.CODEC.fieldOf("World").forGetter(BlockInfo::getWorldRegistryKey),
-            Codec.LONG.fieldOf("Block_Placement_Delay").forGetter(BlockInfo::getBlockPlacementDelay)
+            BlockPos.CODEC.fieldOf("Block_Position").forGetter(AffectedBlock::getPos),
+            BlockState.CODEC.fieldOf("Block_State").forGetter(AffectedBlock::getBlockState),
+            World.CODEC.fieldOf("World").forGetter(AffectedBlock::getWorldRegistryKey),
+            Codec.LONG.fieldOf("Block_Placement_Delay").forGetter(AffectedBlock::getBlockPlacementDelay),
+            Codec.BOOL.fieldOf("Placed").forGetter(AffectedBlock::hasBeenPlaced)
 
-    ).apply(blockInfoInstance, BlockInfo::new));
+    ).apply(blockInfoInstance, AffectedBlock::new));
 
-    public BlockInfo(BlockPos pos, BlockState blockState, RegistryKey<World> registryKey, long blockPlacementDelay){
+    public AffectedBlock(BlockPos pos, BlockState blockState, RegistryKey<World> registryKey, long blockPlacementDelay, boolean hasBeenPlaced){
 
         setPos(pos);
         setBlockState(blockState);
         setBlockPlacementDelay(blockPlacementDelay);
         setWorldRegistryKey(registryKey);
+        setHasBeenPlaced(hasBeenPlaced);
 
     }
 
@@ -67,6 +65,12 @@ public class BlockInfo implements Serializable {
     public void setWorldRegistryKey(RegistryKey<World> registryKey){
 
         this.worldRegistryKey = registryKey;
+
+    }
+
+    public void setHasBeenPlaced(boolean hasBeenPlaced){
+
+        this.hasBeenPlaced = hasBeenPlaced;
 
     }
 
@@ -101,13 +105,9 @@ public class BlockInfo implements Serializable {
 
     }
 
-    public static @NotNull List<BlockInfo> getAsYSorted(@NotNull List<BlockInfo> blockInfoList){
+    public boolean hasBeenPlaced(){
 
-        Comparator<BlockInfo> yCoordComparator = Comparator.comparingInt(blockInfo -> blockInfo.getPos().getY());
-
-        blockInfoList.sort(yCoordComparator);
-
-        return blockInfoList;
+        return this.hasBeenPlaced;
 
     }
 

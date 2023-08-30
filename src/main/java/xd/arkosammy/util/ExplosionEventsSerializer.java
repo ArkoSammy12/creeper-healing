@@ -16,37 +16,37 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScheduledCreeperExplosions implements Serializable {
+public class ExplosionEventsSerializer implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1212L;
 
     //This private list will receive the actual list of CreeperExplosionEvent instances to be used for storage.
-    private List<CreeperExplosionEvent> scheduledCreeperExplosionsForStoring;
+    private List<CreeperExplosionEvent> storedCreeperExplosionEvents;
 
     //Codec for our ScheduledCreeperExplosion instance that gets created upon server shutdown, and holds
     //the current CreeperExplosionEvents in the list for usage, and stores them in our private list.
-    public static final Codec<ScheduledCreeperExplosions> CODEC = RecordCodecBuilder.create(scheduledCreeperExplosionsInstance -> scheduledCreeperExplosionsInstance.group(
+    public static final Codec<ExplosionEventsSerializer> CODEC = RecordCodecBuilder.create(scheduledCreeperExplosionsInstance -> scheduledCreeperExplosionsInstance.group(
 
-            Codec.list(CreeperExplosionEvent.CODEC).fieldOf("Scheduled_Creeper_Explosions").forGetter(ScheduledCreeperExplosions::getScheduledCreeperExplosionsForStoring)
+            Codec.list(CreeperExplosionEvent.CODEC).fieldOf("Scheduled_Creeper_Explosions").forGetter(ExplosionEventsSerializer::getStoredCreeperExplosionEvents)
 
-    ).apply(scheduledCreeperExplosionsInstance, ScheduledCreeperExplosions::new));
+    ).apply(scheduledCreeperExplosionsInstance, ExplosionEventsSerializer::new));
 
-    public ScheduledCreeperExplosions(List<CreeperExplosionEvent> events){
+    public ExplosionEventsSerializer(List<CreeperExplosionEvent> events){
 
-        setScheduledCreeperExplosionsForStoring(events);
-
-    }
-
-    private void setScheduledCreeperExplosionsForStoring(List<CreeperExplosionEvent> events){
-
-        this.scheduledCreeperExplosionsForStoring = events;
+        setStoredCreeperExplosionEvents(events);
 
     }
 
-    private List<CreeperExplosionEvent> getScheduledCreeperExplosionsForStoring() {
+    private void setStoredCreeperExplosionEvents(List<CreeperExplosionEvent> events){
 
-        return this.scheduledCreeperExplosionsForStoring;
+        this.storedCreeperExplosionEvents = events;
+
+    }
+
+    private List<CreeperExplosionEvent> getStoredCreeperExplosionEvents() {
+
+        return this.storedCreeperExplosionEvents;
         
     }
 
@@ -58,7 +58,7 @@ public class ScheduledCreeperExplosions implements Serializable {
         if (!explosionEvents.isEmpty()) {
 
             //Add our read CreeperExplosionEvents back to the list
-            CreeperExplosionEvent.getExplosionEventsForUsage().addAll(explosionEvents);
+            CreeperExplosionEvent.getExplosionEventList().addAll(explosionEvents);
 
             CreeperHealing.LOGGER.info("Rescheduled " + explosionEvents.size() + " creeper explosion event(s).");
 
@@ -82,11 +82,11 @@ public class ScheduledCreeperExplosions implements Serializable {
                 //Parse the contents of our file into a JsonElement
                 JsonElement scheduledExplosionsAsJson = JsonParser.parseReader(reader);
 
-                DataResult<ScheduledCreeperExplosions> decodedScheduledExplosions = CODEC.parse(JsonOps.INSTANCE, scheduledExplosionsAsJson); //Decode our JsonElement into a DataResult
+                DataResult<ExplosionEventsSerializer> decodedScheduledExplosions = CODEC.parse(JsonOps.INSTANCE, scheduledExplosionsAsJson); //Decode our JsonElement into a DataResult
 
                 if (decodedScheduledExplosions.result().isPresent()) {
 
-                    return decodedScheduledExplosions.resultOrPartial(error -> CreeperHealing.LOGGER.error("Error reading json: " + error)).orElseThrow().getScheduledCreeperExplosionsForStoring(); //If the DataResult does contain our result, then obtain our instance of ScheduledCreeperExplosion, then obtain its list of CreeperExplosionEvents
+                    return decodedScheduledExplosions.resultOrPartial(error -> CreeperHealing.LOGGER.error("Error reading json: " + error)).orElseThrow().getStoredCreeperExplosionEvents(); //If the DataResult does contain our result, then obtain our instance of ScheduledCreeperExplosion, then obtain its list of CreeperExplosionEvents
 
                 } else {
 
@@ -109,20 +109,19 @@ public class ScheduledCreeperExplosions implements Serializable {
         return scheduledExplosionEvents;
     }
 
-    //We encode our singular CreeperExplosionEvent object, and we write it to a file
+    //We encode our singular ExplosionEventSerializer object, and we write it to a file
     public void storeBlockPlacements(@NotNull MinecraftServer server) {
 
         //Obtain the path to the server's world directory
         Path scheduledExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
 
-        //Obtain the result of trying to encode our instance of ScheduledCreeperExplosions into a JsonOps
+        //Obtain the result of trying to encode our instance of ExplosionEventsSerializer into a JsonOps
         DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, this);
 
         if (encodedScheduledExplosions.result().isPresent()){
 
             //If the previous step didn't fail, obtain the JsonElement, then turn it into a JsonString, to then write it to our file
             JsonElement scheduledExplosionsAsJson = encodedScheduledExplosions.resultOrPartial(CreeperHealing.LOGGER::error).orElseThrow();
-
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
             String scheduledExplosionsAsJsonString = gson.toJson(scheduledExplosionsAsJson);

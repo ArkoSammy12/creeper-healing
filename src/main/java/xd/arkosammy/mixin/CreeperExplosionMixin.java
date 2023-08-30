@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.events.BlockInfo;
+import xd.arkosammy.events.AffectedBlock;
 import xd.arkosammy.events.CreeperExplosionEvent;
 
 import java.util.ArrayList;
@@ -34,9 +34,9 @@ public abstract class CreeperExplosionMixin {
         //Only check for explosions caused by creepers
         if(this.getEntity() instanceof CreeperEntity) {
 
-            ArrayList<BlockInfo> blockInfoList = new ArrayList<>();
+            ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
 
-            //Get our list of affectedBlocks straight from the Explosion class
+            //Get our list of affected block positions straight from the Explosion class
             ObjectArrayList<BlockPos> affectedBlocksPos = (ObjectArrayList<BlockPos>) ((Explosion) (Object) this).getAffectedBlocks();
 
             for(BlockPos pos: affectedBlocksPos){
@@ -44,14 +44,14 @@ public abstract class CreeperExplosionMixin {
                 //Let's not store a bunch of unnecessary air blocks
                 if(!world.getBlockState(pos).getBlock().getName().equals(Blocks.AIR.getName())) {
 
-                    blockInfoList.add(new BlockInfo(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay()));
+                    affectedBlocks.add(new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay(), false));
 
                 }
 
             }
 
-            //Add a new CreeperExplosionEvent to the list, passing in a sorted list of BlockInfo objects
-            CreeperExplosionEvent.getExplosionEventsForUsage().add(new CreeperExplosionEvent(BlockInfo.getAsYSorted(blockInfoList), CONFIG.getExplosionDelay(), 0));
+            //Add a new CreeperExplosionEvent to the list, passing in our list of affected blocks
+            CreeperExplosionEvent.getExplosionEventList().add(new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0));
 
         }
 
