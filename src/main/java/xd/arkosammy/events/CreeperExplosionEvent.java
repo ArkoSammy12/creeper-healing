@@ -27,8 +27,8 @@ public class CreeperExplosionEvent implements Serializable {
     //Create codec for our CreeperExplosionEvent, which will contain a list of AffectedBlock codecs.
     public static final Codec<CreeperExplosionEvent> CODEC = RecordCodecBuilder.create(creeperExplosionEventInstance -> creeperExplosionEventInstance.group(
 
-            Codec.list(AffectedBlock.CODEC).fieldOf("Block_Info_List").forGetter(CreeperExplosionEvent::getAffectedBlocksList),
-            Codec.LONG.fieldOf("Creeper_Explosion_Delay").forGetter(CreeperExplosionEvent::getCreeperExplosionTimer),
+            Codec.list(AffectedBlock.CODEC).fieldOf("Affected_Blocks_List").forGetter(CreeperExplosionEvent::getAffectedBlocksList),
+            Codec.LONG.fieldOf("Creeper_Explosion_Timer").forGetter(CreeperExplosionEvent::getCreeperExplosionTimer),
             Codec.INT.fieldOf("Current_Block_Counter").forGetter(CreeperExplosionEvent::getCurrentIndex)
 
     ).apply(creeperExplosionEventInstance, CreeperExplosionEvent::new));
