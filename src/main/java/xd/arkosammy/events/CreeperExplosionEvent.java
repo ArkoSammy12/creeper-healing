@@ -20,37 +20,37 @@ public class CreeperExplosionEvent implements Serializable {
     @Serial
     private static final long serialVersionUID = 1212L;
     private static List<CreeperExplosionEvent> explosionEventList = new CopyOnWriteArrayList<>();
-    private List<AffectedBlock> blockList;
-    private long creeperExplosionDelay;
+    private List<AffectedBlock> affectedBlockList;
+    private long creeperExplosionTimer;
     private int currentIndex;
 
     //Create codec for our CreeperExplosionEvent, which will contain a list of AffectedBlock codecs.
     public static final Codec<CreeperExplosionEvent> CODEC = RecordCodecBuilder.create(creeperExplosionEventInstance -> creeperExplosionEventInstance.group(
 
-            Codec.list(AffectedBlock.CODEC).fieldOf("Block_Info_List").forGetter(CreeperExplosionEvent::getAffectedBlocks),
-            Codec.LONG.fieldOf("Creeper_Explosion_Delay").forGetter(CreeperExplosionEvent::getCreeperExplosionDelay),
+            Codec.list(AffectedBlock.CODEC).fieldOf("Block_Info_List").forGetter(CreeperExplosionEvent::getAffectedBlocksList),
+            Codec.LONG.fieldOf("Creeper_Explosion_Delay").forGetter(CreeperExplosionEvent::getCreeperExplosionTimer),
             Codec.INT.fieldOf("Current_Block_Counter").forGetter(CreeperExplosionEvent::getCurrentIndex)
 
     ).apply(creeperExplosionEventInstance, CreeperExplosionEvent::new));
 
-    public CreeperExplosionEvent(List<AffectedBlock> blockList, long creeperExplosionDelay, int currentIndex){
+    public CreeperExplosionEvent(List<AffectedBlock> affectedBlockList, long creeperExplosionTimer, int currentIndex){
 
-        setBlockList(blockList);
-        setCreeperExplosionDelay(creeperExplosionDelay);
+        setAffectedBlockList(affectedBlockList);
+        setCreeperExplosionTimer(creeperExplosionTimer);
         setCurrentIndex(currentIndex);
 
     }
 
-    private void setBlockList(List<AffectedBlock> blockList){
+    private void setAffectedBlockList(List<AffectedBlock> affectedBlockList){
 
         //Sort our list of affected blocks according to their Y and transparency values
-        this.blockList = customSort(blockList, CreeperHealing.getServerInstance());
+        this.affectedBlockList = customSort(affectedBlockList, CreeperHealing.getServerInstance());
 
     }
 
-    private void setCreeperExplosionDelay(long delay){
+    private void setCreeperExplosionTimer(long delay){
 
-        this.creeperExplosionDelay = delay;
+        this.creeperExplosionTimer = delay;
 
     }
 
@@ -60,17 +60,17 @@ public class CreeperExplosionEvent implements Serializable {
 
     }
 
-    public List<AffectedBlock> getAffectedBlocks(){
+    public List<AffectedBlock> getAffectedBlocksList(){
 
-        return this.blockList;
+        return this.affectedBlockList;
 
     }
 
-    public AffectedBlock getCurrentBlockInfo(){
+    public AffectedBlock getCurrentAffectedBlock(){
 
-        if(this.currentIndex < this.getAffectedBlocks().size()){
+        if(this.currentIndex < this.getAffectedBlocksList().size()){
 
-            return this.getAffectedBlocks().get(currentIndex);
+            return this.getAffectedBlocksList().get(currentIndex);
 
         }
 
@@ -78,9 +78,9 @@ public class CreeperExplosionEvent implements Serializable {
 
     }
 
-    public long getCreeperExplosionDelay(){
+    public long getCreeperExplosionTimer(){
 
-        return this.creeperExplosionDelay;
+        return this.creeperExplosionTimer;
 
     }
 
@@ -101,7 +101,7 @@ public class CreeperExplosionEvent implements Serializable {
 
         for(CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventList()){
 
-            creeperExplosionEvent.creeperExplosionDelay--;
+            creeperExplosionEvent.creeperExplosionTimer--;
 
         }
 
@@ -115,7 +115,7 @@ public class CreeperExplosionEvent implements Serializable {
 
     public void markSecondHalfAsPlaced(BlockState secondHalfState, BlockPos secondBlockPos, World world){
 
-        for(AffectedBlock affectedBlock : this.getAffectedBlocks()) {
+        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()) {
 
             if(affectedBlock.getBlockState().equals(secondHalfState) && affectedBlock.getPos().equals(secondBlockPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
 

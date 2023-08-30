@@ -18,7 +18,7 @@ public class AffectedBlock implements Serializable {
     private BlockPos pos;
     private BlockState blockState;
     private RegistryKey<World> worldRegistryKey;
-    private long blockPlacementDelay;
+    private long affectedBlockTimer;
     private boolean hasBeenPlaced;
 
     //Create a CODEC for our AffectedBlock.
@@ -29,16 +29,16 @@ public class AffectedBlock implements Serializable {
             BlockPos.CODEC.fieldOf("Block_Position").forGetter(AffectedBlock::getPos),
             BlockState.CODEC.fieldOf("Block_State").forGetter(AffectedBlock::getBlockState),
             World.CODEC.fieldOf("World").forGetter(AffectedBlock::getWorldRegistryKey),
-            Codec.LONG.fieldOf("Block_Placement_Delay").forGetter(AffectedBlock::getBlockPlacementDelay),
+            Codec.LONG.fieldOf("Block_Timer").forGetter(AffectedBlock::getAffectedBlockTimer),
             Codec.BOOL.fieldOf("Placed").forGetter(AffectedBlock::hasBeenPlaced)
 
     ).apply(blockInfoInstance, AffectedBlock::new));
 
-    public AffectedBlock(BlockPos pos, BlockState blockState, RegistryKey<World> registryKey, long blockPlacementDelay, boolean hasBeenPlaced){
+    public AffectedBlock(BlockPos pos, BlockState blockState, RegistryKey<World> registryKey, long affectedBlockTimer, boolean hasBeenPlaced){
 
         setPos(pos);
         setBlockState(blockState);
-        setBlockPlacementDelay(blockPlacementDelay);
+        setAffectedBlockTimer(affectedBlockTimer);
         setWorldRegistryKey(registryKey);
         setHasBeenPlaced(hasBeenPlaced);
 
@@ -56,9 +56,9 @@ public class AffectedBlock implements Serializable {
 
     }
 
-    public void setBlockPlacementDelay(long delay){
+    public void setAffectedBlockTimer(long delay){
 
-        this.blockPlacementDelay = delay;
+        this.affectedBlockTimer = delay;
 
     }
 
@@ -99,9 +99,9 @@ public class AffectedBlock implements Serializable {
 
     }
 
-    public long getBlockPlacementDelay(){
+    public long getAffectedBlockTimer(){
 
-        return this.blockPlacementDelay;
+        return this.affectedBlockTimer;
 
     }
 
@@ -113,7 +113,7 @@ public class AffectedBlock implements Serializable {
 
     public void tickSingleBlockInfo(){
 
-        this.blockPlacementDelay--;
+        this.affectedBlockTimer--;
 
     }
 

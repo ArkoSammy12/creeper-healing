@@ -33,10 +33,10 @@ public class ExplosionHealerHandler {
                 //Find a CreeperExplosionEvent in our list whose delay has reached 0
                 for (CreeperExplosionEvent creeperExplosionEvent : CreeperExplosionEvent.getExplosionEventList()) {
 
-                    if (creeperExplosionEvent.getCreeperExplosionDelay() < 0) {
+                    if (creeperExplosionEvent.getCreeperExplosionTimer() < 0) {
 
                         //Get the current block to heal based on the event's internal block counter
-                        AffectedBlock currentBlock = creeperExplosionEvent.getCurrentBlockInfo();
+                        AffectedBlock currentBlock = creeperExplosionEvent.getCurrentAffectedBlock();
 
                         //If the currentBlock is null, there are no more blocks to heal.
                         // We can remove this CreeperExplosionEvent from the list
@@ -48,7 +48,7 @@ public class ExplosionHealerHandler {
                                 //Tick the current block place and check if its delay is less than 0
                                 currentBlock.tickSingleBlockInfo();
 
-                                if (currentBlock.getBlockPlacementDelay() < 0) {
+                                if (currentBlock.getAffectedBlockTimer() < 0) {
 
                                     placeBlock(currentBlock.getWorld(server), currentBlock.getPos(), currentBlock.getBlockState(), creeperExplosionEvent);
 

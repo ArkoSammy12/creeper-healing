@@ -86,6 +86,7 @@ public class CreeperHealing implements ModInitializer {
 
 	private void onServerStarting(MinecraftServer server) throws IOException {
 
+		//Capture the server instance
 		serverInstance = server;
 
 		//Read the contents of our scheduled-explosions.json file and add them to the list
