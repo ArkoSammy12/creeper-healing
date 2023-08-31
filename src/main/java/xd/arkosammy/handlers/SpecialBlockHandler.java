@@ -103,7 +103,7 @@ public class SpecialBlockHandler {
             BlockState secondHalfState = originalPlant.getDefaultState().with(Properties.DOUBLE_BLOCK_HALF, secondPlantHalf);
 
             //Obtain the opposite coordinate of the current half of the plwant
-            BlockPos secondHalfPos = secondHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? new BlockPos(firstHalfPos.getX(), firstHalfPos.getY() + 1, firstHalfPos.getZ()) :  new BlockPos(firstHalfPos.getX(), firstHalfPos.getY() - 1, firstHalfPos.getZ());
+            BlockPos secondHalfPos = secondHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? firstHalfPos.offset(Direction.Axis.Y, 1) :  firstHalfPos.offset(Direction.Axis.Y, -1);
 
             if(canPlaceBothHalves(world, firstHalfPos, secondHalfPos)) {
 
