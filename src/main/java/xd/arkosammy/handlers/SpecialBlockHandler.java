@@ -196,7 +196,7 @@ public class SpecialBlockHandler {
     private static boolean canPlaceBothHalves(@NotNull World world, BlockPos firstHalfPos, BlockPos secondHalfPos){
 
         //Place both halves if both halves' coordinates are empty
-        if(world.getBlockState(firstHalfPos).equals(Blocks.AIR.getDefaultState()) && world.getBlockState(secondHalfPos).equals(Blocks.AIR.getDefaultState())) {
+        if(world.isAir(firstHalfPos) && world.isAir(secondHalfPos)) {
 
             return true;
 
@@ -205,10 +205,10 @@ public class SpecialBlockHandler {
             // - First half air, second half flowing water or,
             // - Both halves are flowing water
             //and the corresponding setting is enabled
-        } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).equals(Blocks.AIR.getDefaultState()))
-                || (world.getBlockState(firstHalfPos).equals(Blocks.AIR.getDefaultState()) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER))
-                || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER)))
-                && CONFIG.shouldHealOnFlowingWater()){
+        } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.isAir(secondHalfPos))
+                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER))
+                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER)))
+                 && CONFIG.shouldHealOnFlowingWater()){
 
             return true;
 
@@ -217,10 +217,10 @@ public class SpecialBlockHandler {
             // - First half air, second half flowing lava or,
             // - Both halves are flowing lava
             //and the corresponding setting is enabled
-        } else return ((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).equals(Blocks.AIR.getDefaultState()))
-                || (world.getBlockState(firstHalfPos).equals(Blocks.AIR.getDefaultState()) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
-                || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA)))
-                && CONFIG.shouldHealOnFlowingLava();
+        } else return ((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
+                    || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
+                    || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA)))
+                    && CONFIG.shouldHealOnFlowingLava();
 
     }
 }

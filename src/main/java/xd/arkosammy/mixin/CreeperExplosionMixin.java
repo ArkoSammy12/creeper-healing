@@ -42,7 +42,7 @@ public abstract class CreeperExplosionMixin {
             for(BlockPos pos: affectedBlocksPos){
 
                 //Let's not store a bunch of unnecessary air blocks
-                if(!world.getBlockState(pos).getBlock().getName().equals(Blocks.AIR.getName())) {
+                if(!world.getBlockState(pos).isAir()) {
 
                     affectedBlocks.add(new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay(), false));
 

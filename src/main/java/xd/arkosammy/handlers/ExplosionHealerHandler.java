@@ -83,7 +83,7 @@ public class ExplosionHealerHandler {
     }
 
     private static void placeBlock(World world, BlockPos pos, @NotNull BlockState state, CreeperExplosionEvent creeperExplosionEvent){
-
+        
         //Check if the block we are about to place is in the replace-list.
         //If it is, switch the state for the corresponding one in the replace-list.
         String blockString = Registries.BLOCK.getId(state.getBlock()).toString();
@@ -115,7 +115,7 @@ public class ExplosionHealerHandler {
     private static boolean shouldPlaceBlock(@NotNull World world, BlockPos pos){
 
         //Place a block if the current coordinate contains an air block, to avoid overriding a block placed by a player
-        if(world.getBlockState(pos).equals(Blocks.AIR.getDefaultState())) {
+        if(world.isAir(pos)) {
 
             return true;
 
@@ -135,7 +135,7 @@ public class ExplosionHealerHandler {
 
         //Make sure we are on the logical server and avoid placing an air block,
         //since they too produce a sound effect when "placed"
-        return !world.isClient && !state.equals(Blocks.AIR.getDefaultState()) && CONFIG.shouldPlaySoundOnBlockPlacement();
+        return !world.isClient && !state.isAir() && CONFIG.shouldPlaySoundOnBlockPlacement();
 
     }
 
