@@ -40,27 +40,32 @@ public abstract class CreeperExplosionMixin {
             //Get our list of affected block positions straight from the Explosion class
             ObjectArrayList<BlockPos> affectedBlocksPos = (ObjectArrayList<BlockPos>) ((Explosion) (Object) this).getAffectedBlocks();
 
-            for(BlockPos pos: affectedBlocksPos){
+            //Don't store empty explosions
+            if(!affectedBlocksPos.isEmpty()) {
 
-                //Let's not store a bunch of unnecessary air blocks
-                if(!world.getBlockState(pos).isAir()) {
+                for (BlockPos pos : affectedBlocksPos) {
 
-                    affectedBlocks.add(new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay(), false));
+                    //Let's not store a bunch of unnecessary air blocks
+                    if (!world.getBlockState(pos).isAir()) {
+
+                        affectedBlocks.add(new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay(), false));
+
+                    }
 
                 }
 
+                CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0);
+
+                if (CONFIG.isDaytimeHealingEnabled()) {
+
+                    creeperExplosionEvent.setupDayTimeHealing(world);
+
+                }
+
+                //Add a new CreeperExplosionEvent to the list, passing in our list of affected blocks
+                CreeperExplosionEvent.getExplosionEventList().add(creeperExplosionEvent);
+
             }
-
-            CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0);
-
-            if(CONFIG.isDaytimeHealingEnabled()){
-
-                creeperExplosionEvent.setupDayTimeHealing(world);
-
-            }
-
-            //Add a new CreeperExplosionEvent to the list, passing in our list of affected blocks
-            CreeperExplosionEvent.getExplosionEventList().add(creeperExplosionEvent);
 
         }
 

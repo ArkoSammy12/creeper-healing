@@ -160,7 +160,7 @@ public class CreeperExplosionEvent implements Serializable {
 
         this.setCreeperExplosionTimer(24000 - world.getTimeOfDay());
 
-        int daylightBasedBlockPlacementDelay = 13000/this.getAffectedBlocksList().size();
+        int daylightBasedBlockPlacementDelay = 13000/Math.max(this.getAffectedBlocksList().size(), 1);
 
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
 
