@@ -20,7 +20,7 @@ import java.util.HashMap;
 public class Config {
 
     @SerializedName("enable_daytime_healing")
-    private boolean daytimeHealing = true; //TODO: Remember to set back to false as default
+    private boolean daytimeHealing = false;
 
     @SerializedName("explosion_heal_delay")
     private double explosionHealDelay = 3;
