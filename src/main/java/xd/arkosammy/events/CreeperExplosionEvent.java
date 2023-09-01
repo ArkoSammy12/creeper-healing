@@ -158,7 +158,7 @@ public class CreeperExplosionEvent implements Serializable {
 
     public void setupDayTimeHealing(World world){
 
-        this.setCreeperExplosionTimer(24000 - world.getTimeOfDay());
+        this.setCreeperExplosionTimer(24000 - (world.getTimeOfDay() % 24000));
 
         int daylightBasedBlockPlacementDelay = 13000/Math.max(this.getAffectedBlocksList().size(), 1);
 

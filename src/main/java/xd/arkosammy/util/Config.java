@@ -190,6 +190,7 @@ public class Config {
         shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
         shouldHealOnFlowingLava = getBooleanOrDefault(obj, "heal_on_flowing_lava", shouldHealOnFlowingLava);
         shouldPlaySoundOnBlockPlacement = getBooleanOrDefault(obj, "block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
+        daytimeHealing = getBooleanOrDefault(obj, "enable_daytime_healing", daytimeHealing);
 
         //Parse the JsonObject into a Hashmap
         JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
@@ -224,6 +225,7 @@ public class Config {
             shouldHealOnFlowingWater = true;
             shouldHealOnFlowingLava = true;
             shouldPlaySoundOnBlockPlacement = true;
+            daytimeHealing = false;
             replaceMap.clear();
             replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
