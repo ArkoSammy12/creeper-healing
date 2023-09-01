@@ -1,5 +1,6 @@
 package xd.arkosammy.util;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -61,6 +62,13 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Daytime healing node
+            LiteralCommandNode<ServerCommandSource> doDayTimeHealingNode = CommandManager
+                    .literal("enable_daytime_healing")
+                    .executes(Commands::getDoDayLightHealingCommand)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
             //Reload Config node
             LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
                     .literal("reload_config")
@@ -73,7 +81,7 @@ public class Commands {
                             throw new RuntimeException(e);
                         }
 
-                        return 1;
+                        return Command.SINGLE_SUCCESS;
 
                     })
                     .build();
@@ -108,6 +116,12 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            ArgumentCommandNode<ServerCommandSource, Boolean> doDayLightHealingArgumentNode = CommandManager
+                    .argument("value", BoolArgumentType.bool())
+                    .executes(Commands::setDoDayLightHealingCommand)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
             //Root connections
             dispatcher.getRoot().addChild(creeperHealingNode);
 
@@ -117,6 +131,7 @@ public class Commands {
             creeperHealingNode.addChild(shouldHealOnFlowingWaterNode);
             creeperHealingNode.addChild(shouldHealOnFlowingLavaNode);
             creeperHealingNode.addChild(shouldPlaySoundOnBlockPlacementNode);
+            creeperHealingNode.addChild(doDayTimeHealingNode);
             creeperHealingNode.addChild(reloadNode);
 
             //Argument node connections
@@ -125,6 +140,7 @@ public class Commands {
             shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
             shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
             shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
+            doDayTimeHealingNode.addChild(doDayLightHealingArgumentNode);
 
 
         }));
@@ -146,7 +162,7 @@ public class Commands {
 
         }
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -154,7 +170,7 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)CreeperHealing.CONFIG.getExplosionDelay() / 20) + " second(s)"));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -172,7 +188,7 @@ public class Commands {
 
         }
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -180,7 +196,7 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double)CreeperHealing.CONFIG.getBlockPlacementDelay() / 20) + " second(s)"));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -190,7 +206,7 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Heal on flowing water has been set to: " + BoolArgumentType.getBool(serverCommandSourceCommandContext, "value")));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -198,7 +214,7 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingWater()));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -208,7 +224,7 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Heal on flowing lava has been set to: " + BoolArgumentType.getBool(serverCommandSourceCommandContext, "value")));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -216,7 +232,25 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingLava()));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int setDoDayLightHealingCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext){
+
+        CreeperHealing.CONFIG.setDaytimeHealing(BoolArgumentType.getBool(serverCommandSourceCommandContext, "value"));
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Daylight healing mode has been set to: " + BoolArgumentType.getBool(serverCommandSourceCommandContext, "value")));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int getDoDayLightHealingCommand(CommandContext<ServerCommandSource> serverCommandSourceCommandContext){
+
+        serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Daylight healing mode currently set to: " + CreeperHealing.CONFIG.isDaytimeHealingEnabled()));
+
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -226,7 +260,7 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(serverCommandSourceCommandContext, "value")));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 
@@ -234,7 +268,7 @@ public class Commands {
 
         serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + CreeperHealing.CONFIG.shouldPlaySoundOnBlockPlacement()));
 
-        return 1;
+        return Command.SINGLE_SUCCESS;
 
     }
 

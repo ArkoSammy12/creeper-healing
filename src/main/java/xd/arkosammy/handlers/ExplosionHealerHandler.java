@@ -1,7 +1,6 @@
 package xd.arkosammy.handlers;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -83,7 +82,7 @@ public class ExplosionHealerHandler {
     }
 
     private static void placeBlock(World world, BlockPos pos, @NotNull BlockState state, CreeperExplosionEvent creeperExplosionEvent){
-        
+
         //Check if the block we are about to place is in the replace-list.
         //If it is, switch the state for the corresponding one in the replace-list.
         String blockString = Registries.BLOCK.getId(state.getBlock()).toString();

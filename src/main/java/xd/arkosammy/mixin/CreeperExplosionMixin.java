@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.AffectedBlock;
 import xd.arkosammy.events.CreeperExplosionEvent;
 
@@ -50,8 +51,16 @@ public abstract class CreeperExplosionMixin {
 
             }
 
+            CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0);
+
+            if(CONFIG.isDaytimeHealingEnabled()){
+
+                creeperExplosionEvent.setupDayTimeHealing(world);
+
+            }
+
             //Add a new CreeperExplosionEvent to the list, passing in our list of affected blocks
-            CreeperExplosionEvent.getExplosionEventList().add(new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0));
+            CreeperExplosionEvent.getExplosionEventList().add(creeperExplosionEvent);
 
         }
 

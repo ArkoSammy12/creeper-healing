@@ -18,6 +18,10 @@ import java.util.HashMap;
 
 //Huge thanks to @_jacg on the Fabric Discord Server for helping me out with setting the config
 public class Config {
+
+    @SerializedName("enable_daytime_healing")
+    private boolean daytimeHealing = true; //TODO: Remember to set back to false as default
+
     @SerializedName("explosion_heal_delay")
     private double explosionHealDelay = 3;
 
@@ -68,6 +72,12 @@ public class Config {
 
     }
 
+    public void setDaytimeHealing(boolean daytimeHealing){
+
+        this.daytimeHealing = daytimeHealing;
+
+    }
+
     public long getExplosionDelay(){
 
         return Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.explosionHealDelay, 0) * 20L);
@@ -101,6 +111,12 @@ public class Config {
     public boolean shouldPlaySoundOnBlockPlacement(){
 
         return this.shouldPlaySoundOnBlockPlacement;
+
+    }
+
+    public boolean isDaytimeHealingEnabled(){
+
+        return this.daytimeHealing;
 
     }
 
