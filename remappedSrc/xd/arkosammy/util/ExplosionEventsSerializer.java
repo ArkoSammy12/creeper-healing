@@ -31,11 +31,15 @@ public class ExplosionEventsSerializer {
     ).apply(scheduledCreeperExplosionsInstance, ExplosionEventsSerializer::new));
 
     public ExplosionEventsSerializer(List<CreeperExplosionEvent> events){
+
         this.storedCreeperExplosionEvents = events;
+
     }
 
     private List<CreeperExplosionEvent> getStoredCreeperExplosionEvents() {
+
         return this.storedCreeperExplosionEvents;
+        
     }
 
     //Reschedule the CreeperExplosionEvents read from our file

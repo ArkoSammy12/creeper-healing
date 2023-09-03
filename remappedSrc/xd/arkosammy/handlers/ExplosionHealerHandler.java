@@ -91,11 +91,15 @@ public class ExplosionHealerHandler {
     // or whether we should tryPlacing one where there is currently flowing water or flowing lava
     public static boolean shouldPlaceBlock(@NotNull World world, BlockPos pos){
 
-        if(world.isAir(pos)) return true;
+        if(world.isAir(pos)) {
 
-        else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && CONFIG.shouldHealOnFlowingWater()) return true;
+            return true;
 
-        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && CONFIG.shouldHealOnFlowingLava();
+        } else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && CONFIG.shouldHealOnFlowingWater()){
+
+            return true;
+
+        } else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && CONFIG.shouldHealOnFlowingLava();
 
     }
 

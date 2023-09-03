@@ -34,6 +34,7 @@ public class Commands {
                     .build();
 
             //Mode node
+
             LiteralCommandNode<ServerCommandSource> modeMode = CommandManager
                     .literal("mode")
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
@@ -266,7 +267,7 @@ public class Commands {
 
     private static int getDoDayLightHealingCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode currently set to: " + CreeperHealing.CONFIG.isDaytimeHealingEnabled()));
+        ctx.getSource().sendMessage(Text.literal("Daylight healing mode currently set to: " + CreeperHealing.CONFIG.isDaytimeHealingEnabled()));
 
         return Command.SINGLE_SUCCESS;
 

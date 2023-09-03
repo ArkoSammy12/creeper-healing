@@ -1,5 +1,7 @@
 package xd.arkosammy.mixin;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +30,7 @@ public abstract class CreeperExplosionMixin {
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
     @Shadow public abstract List<BlockPos> getAffectedBlocks();
 
-    @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
+    @Inject(method = "collectBlocksAndDamageEntities", at = @At("TAIL"))
     private void getExplodedBlocks(CallbackInfo ci){
 
         //Only check for explosions caused by creepers

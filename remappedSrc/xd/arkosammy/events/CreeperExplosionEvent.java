@@ -33,7 +33,7 @@ public class CreeperExplosionEvent {
 
         //Sort our list of affected blocks according to their Y and transparency values
         this.affectedBlockCounter = currentIndex;
-        this.affectedBlocksList = sortAffectedBlocksList(affectedBlocksList, CreeperHealing.getServerInstance());
+        this.affectedBlocksList = sortAffectedBlocksList(affectedBlocksList, CreeperHealing.getServerInstance());;
         setCreeperExplosionTimer(creeperExplosionTimer);
 
     }
