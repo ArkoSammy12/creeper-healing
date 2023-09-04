@@ -28,10 +28,10 @@ public class ExplosionHealerHandler {
         //Safety lock for avoiding any potential issues with concurrency
         if(CreeperHealing.isExplosionHandlingUnlocked()) {
 
+            if (!getExplosionEventList().isEmpty()) {
+
             //Tick each one of CreeperExplosionEvent instances in our list
             CreeperExplosionEvent.tickCreeperExplosionEvents();
-
-            if (!getExplosionEventList().isEmpty()) {
 
                 //Find a CreeperExplosionEvent in our list whose delay has reached 0
                 for (CreeperExplosionEvent creeperExplosionEvent : getExplosionEventList()) {
@@ -43,7 +43,7 @@ public class ExplosionHealerHandler {
 
                         if (currentBlock != null) {
 
-                            if(!currentBlock.isPlaced()) {
+                            if (!currentBlock.isPlaced()) {
 
                                 //Tick the current block tryPlacing and check if its delay is less than 0
                                 currentBlock.tickAffectedBlock();
@@ -103,6 +103,41 @@ public class ExplosionHealerHandler {
     //since they too produce a sound effect when "placed"
     public static boolean shouldPlaySound(World world, BlockState state) {
         return !world.isClient && !state.isAir() && CONFIG.shouldPlaySoundOnBlockPlacement();
+    }
+    /*
+    public static void updateExplosionTimers(){
+
+        CreeperHealing.setHealerHandlerLock(false);
+        for(CreeperExplosionEvent creeperExplosionEvent : getExplosionEventList()){
+            creeperExplosionEvent.setCreeperExplosionTimer((long) MathHelper.clamp(creeperExplosionEvent.getCreeperExplosionTimer(), 1, CONFIG.getExplosionDelay()));
+
+            long minDelay = Math.max(creeperExplosionEvent.getCreeperExplosionTimer(), CONFIG.getExplosionDelay());
+            long maxDelay = Math.max(creeperExplosionEvent.getCreeperExplosionTimer(), CONFIG.getExplosionDelay());
+
+            creeperExplosionEvent.setCreeperExplosionTimer(maxDelay - minDelay);
+
+        }
+        CreeperHealing.setHealerHandlerLock(true);
+
+    }
+    */
+
+    public static void updateAffectedBlocksTimers(){
+
+        CreeperHealing.setHealerHandlerLock(false);
+        for(CreeperExplosionEvent creeperExplosionEvent : getExplosionEventList()){
+
+            //The current block's timer will get clamped according to the new block placement delay.
+            // All subsequent ones will have their delays changed to the new one,
+            // as their timers have yet to be ticked down
+            //if(creeperExplosionEvent.getAffectedBlockCounter() < creeperExplosionEvent.getAffectedBlocksList().size())
+                //creeperExplosionEvent.getAffectedBlocksList().get(creeperExplosionEvent.getAffectedBlockCounter()).setAffectedBlockTimer((long) MathHelper.clamp(creeperExplosionEvent.getAffectedBlocksList().get(creeperExplosionEvent.getAffectedBlockCounter()).getAffectedBlockTimer(), 1, CONFIG.getBlockPlacementDelay()));
+            for(int i = creeperExplosionEvent.getAffectedBlockCounter() + 1; i < creeperExplosionEvent.getAffectedBlocksList().size(); i++){
+                creeperExplosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(CONFIG.getBlockPlacementDelay());
+            }
+        }
+        CreeperHealing.setHealerHandlerLock(true);
+
     }
 
 }

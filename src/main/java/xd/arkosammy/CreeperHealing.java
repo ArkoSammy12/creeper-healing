@@ -14,11 +14,14 @@ import xd.arkosammy.util.ExplosionEventsSerializer;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class CreeperHealing implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
 	public static final Config CONFIG = new Config();
+	public static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
+	public static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 	private static boolean healerHandlerLock;
 	private static MinecraftServer serverInstance;
 
@@ -67,12 +70,10 @@ public class CreeperHealing implements ModInitializer {
 
 	private void initConfig() throws IOException {
 
-		File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
-
 		//If the config file already exists, read the data from it
 		if(!CONFIG.writeConfig()){
 
-			CONFIG.readConfig(file);
+			CONFIG.readConfig(CONFIG_FILE);
 
 			//Warn the user if these delays were set to 0 or fewer seconds
 			if(Math.round(Math.max(CONFIG.getExplosionDelay(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
@@ -94,6 +95,9 @@ public class CreeperHealing implements ModInitializer {
 		//We can now start listening for explosions in the list
 		setHealerHandlerLock(true);
 
+		//ExplosionHealerHandler.updateExplosionTimers();
+		ExplosionHealerHandler.updateAffectedBlocksTimers();
+
 	}
 
 	private void onServerStopping(MinecraftServer server) throws IOException {
@@ -109,9 +113,7 @@ public class CreeperHealing implements ModInitializer {
 		ExplosionHealerHandler.getExplosionEventList().clear();
 
 		//Update the config by overriding the current values with new ones obtained via commands
-		File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
-
-		CONFIG.updateConfig(file);
+		CONFIG.updateConfig(CONFIG_FILE);
 
 	}
 

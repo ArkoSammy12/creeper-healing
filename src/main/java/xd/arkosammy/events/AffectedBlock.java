@@ -48,7 +48,7 @@ public class AffectedBlock {
 
     }
 
-    void setAffectedBlockTimer(long delay){
+    public void setAffectedBlockTimer(long delay){
         this.affectedBlockTimer = delay;
     }
 

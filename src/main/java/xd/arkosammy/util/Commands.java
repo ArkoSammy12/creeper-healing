@@ -12,6 +12,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.handlers.ExplosionHealerHandler;
 
 import java.io.IOException;
 
@@ -50,6 +51,13 @@ public class Commands {
             LiteralCommandNode<ServerCommandSource> blockPlacementDelayNode = CommandManager
                     .literal("block_placement_delay")
                     .executes(Commands::getBlockPlacementDelayCommand)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
+            //Requires light node
+            LiteralCommandNode<ServerCommandSource> requiresLightNode = CommandManager
+                    .literal("requires_light")
+                    .executes(Commands::getRequiresLightCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -98,36 +106,49 @@ public class Commands {
                     })
                     .build();
 
+            //Explosion heal delay argument node
             ArgumentCommandNode<ServerCommandSource, Double> explosionHealDelayArgumentNode = CommandManager
                     .argument("seconds", DoubleArgumentType.doubleArg())
                     .executes(Commands::setExplosionHealDelayCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Block placement delay argument node
             ArgumentCommandNode<ServerCommandSource, Double> blockPlacementDelayArgumentNode = CommandManager
                     .argument("seconds", DoubleArgumentType.doubleArg())
                     .executes(Commands::setBlockPlacementDelayCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Requires light argument node
+            ArgumentCommandNode<ServerCommandSource, Boolean> requiresLightArgumentNode = CommandManager
+                    .argument("value", BoolArgumentType.bool())
+                    .executes(Commands::setRequiresLightCommand)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
+            //Heal on flowing water argument node
             ArgumentCommandNode<ServerCommandSource, Boolean> healOnFlowingWaterArgumentNode = CommandManager
                     .argument("value", BoolArgumentType.bool())
                     .executes(Commands::setHealOnFlowingWaterCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Heal on flowing lava argument node
             ArgumentCommandNode<ServerCommandSource, Boolean> healOnFlowingLavaArgumentNode = CommandManager
                     .argument("value", BoolArgumentType.bool())
                     .executes(Commands::setHealOnFlowingLavaCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Play sound on block placement argument node
             ArgumentCommandNode<ServerCommandSource, Boolean> playSoundOnBlockPlacementArgumentNode = CommandManager
                     .argument("value", BoolArgumentType.bool())
                     .executes(Commands::setPlaySoundOnBlockPlacement)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
+            //Daytime healing mode argument node
             ArgumentCommandNode<ServerCommandSource, Boolean> doDayLightHealingArgumentNode = CommandManager
                     .argument("value", BoolArgumentType.bool())
                     .executes(Commands::setDoDayTimeHealingCommand)
@@ -144,6 +165,7 @@ public class Commands {
             //Settings command connections
             settingsNode.addChild(explosionHealDelayNode);
             settingsNode.addChild(blockPlacementDelayNode);
+            settingsNode.addChild(requiresLightNode);
             settingsNode.addChild(shouldHealOnFlowingWaterNode);
             settingsNode.addChild(shouldHealOnFlowingLavaNode);
             settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
@@ -155,6 +177,7 @@ public class Commands {
             //Argument node connections
             explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
             blockPlacementDelayNode.addChild(blockPlacementDelayArgumentNode);
+            requiresLightNode.addChild(requiresLightArgumentNode);
             shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
             shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
             shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
@@ -171,6 +194,8 @@ public class Commands {
         if(Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
 
             CreeperHealing.CONFIG.setExplosionHealDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
+
+            //ExplosionHealerHandler.updateExplosionTimers();
 
             ctx.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
 
@@ -198,6 +223,8 @@ public class Commands {
 
             CreeperHealing.CONFIG.setBlockPlacementDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
 
+            ExplosionHealerHandler.updateAffectedBlocksTimers();
+
             ctx.getSource().sendMessage(Text.literal("Block placement delay has been set to to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
 
         } else {
@@ -213,6 +240,24 @@ public class Commands {
     private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
 
         ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double)CreeperHealing.CONFIG.getBlockPlacementDelay() / 20) + " second(s)"));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int setRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
+
+        CreeperHealing.CONFIG.setRequiresLight(BoolArgumentType.getBool(ctx, "value"));
+
+        ctx.getSource().sendMessage(Text.literal("Requires light has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int getRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
+
+        ctx.getSource().sendMessage(Text.literal("Requires light currently set to: " + CreeperHealing.CONFIG.getRequiresLight()));
 
         return Command.SINGLE_SUCCESS;
 

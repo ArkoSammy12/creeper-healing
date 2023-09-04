@@ -9,6 +9,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.handlers.ExplosionHealerHandler;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -27,6 +29,9 @@ public class Config {
 
     @SerializedName("block_placement_delay")
     private double blockPlacementDelay = 1;
+
+    @SerializedName("requires_light")
+    private boolean requiresLight = false;
 
     @SerializedName("heal_on_flowing_water")
     private boolean shouldHealOnFlowingWater = true;
@@ -50,6 +55,9 @@ public class Config {
         this.blockPlacementDelay = blockPlacementDelay;
     }
 
+    public void setRequiresLight(boolean requiresLight){
+        this.requiresLight = requiresLight;
+    }
     public void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
         this.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
     }
@@ -76,6 +84,10 @@ public class Config {
 
     public HashMap<String, String> getReplaceList(){
         return this.replaceMap;
+    }
+
+    public boolean getRequiresLight(){
+        return this.requiresLight;
     }
 
     public boolean shouldHealOnFlowingWater(){
@@ -111,17 +123,15 @@ public class Config {
     }
     public boolean writeConfig() {
 
-        Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
-
         //If no config file is found, write a new one
-        if(!Files.exists(configPath)) {
+        if(!Files.exists(CreeperHealing.CONFIG_PATH)) {
 
             try {
 
                 //Put a default value into the replace list then write a new config using the fields of the Config class
                 replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
-                Files.writeString(configPath, GSON.toJson(this));
+                Files.writeString(CreeperHealing.CONFIG_PATH, GSON.toJson(this));
 
             } catch (IOException e) {
 
@@ -157,6 +167,7 @@ public class Config {
         //Set the config fields to the values read from our config file
         explosionHealDelay = getDoubleOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
         blockPlacementDelay = getDoubleOrDefault(obj, "block_placement_delay", blockPlacementDelay);
+        requiresLight = getBooleanOrDefault(obj, "requires_light", requiresLight);
         shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
         shouldHealOnFlowingLava = getBooleanOrDefault(obj, "heal_on_flowing_lava", shouldHealOnFlowingLava);
         shouldPlaySoundOnBlockPlacement = getBooleanOrDefault(obj, "block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
@@ -173,9 +184,7 @@ public class Config {
     //Called upon server shutdown
     public void updateConfig(File file) throws IOException {
 
-        Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
-
-        if(Files.exists(configPath)){
+        if(Files.exists(CreeperHealing.CONFIG_PATH)){
 
             FileReader reader = new FileReader(file);
             Gson gson = new Gson();
@@ -192,6 +201,7 @@ public class Config {
             //If the config doesn't exist already, write a new one with default values
             explosionHealDelay = 3;
             blockPlacementDelay = 1;
+            requiresLight = false;
             shouldHealOnFlowingWater = true;
             shouldHealOnFlowingLava = true;
             shouldPlaySoundOnBlockPlacement = true;
@@ -205,25 +215,23 @@ public class Config {
         }
 
         //Update all values of the config with new ones if the config exists
-        Files.writeString(configPath, GSON.toJson(this));
+        Files.writeString(CreeperHealing.CONFIG_PATH, GSON.toJson(this));
 
     }
 
      boolean reloadConfig(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) throws IOException {
 
-        File file = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
-
-        Path configPath = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
-
         //If the config file exists, read the config again.
         // Remember to update the "isExplosionHandlingUnlocked" flag accordingly
-        if(Files.exists(configPath)){
+        if(Files.exists(CreeperHealing.CONFIG_PATH)){
 
             CreeperHealing.setHealerHandlerLock(false);
 
-            this.readConfig(file);
+            this.readConfig(CreeperHealing.CONFIG_FILE);
 
             CreeperHealing.setHealerHandlerLock(true);
+
+            ExplosionHealerHandler.updateAffectedBlocksTimers();
 
             //Warn the user if these delays were set to 0 or fewer seconds
             if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
