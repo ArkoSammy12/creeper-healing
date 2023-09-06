@@ -1,248 +1,235 @@
 package xd.arkosammy.util;
 
-import com.google.gson.*;
-import com.google.gson.annotations.SerializedName;
-import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 
-//Huge thanks to @_jacg on the Fabric Discord Server for helping me out with setting the config
+import static xd.arkosammy.CreeperHealing.LOGGER;
+import static xd.arkosammy.CreeperHealing.CONFIG;
+
 public class Config {
 
-    @SerializedName("daytime_healing_mode")
-    private boolean daytimeHealing = false;
 
-    @SerializedName("explosion_heal_delay")
-    private double explosionHealDelay = 3;
+    private static boolean daytimeHealing = false;
+    private static double explosionHealDelay = 3;
+    private static double blockPlacementDelay = 1;
+    private static boolean requiresLight = false;
+    private static boolean shouldHealOnFlowingWater = true;
+    private static boolean shouldHealOnFlowingLava = true;
+    private static boolean shouldPlaySoundOnBlockPlacement = true;
+    private static HashMap<String, String> replaceMap = new HashMap<>();
 
-    @SerializedName("block_placement_delay")
-    private double blockPlacementDelay = 1;
-
-    @SerializedName("requires_light")
-    private boolean requiresLight = false;
-
-    @SerializedName("heal_on_flowing_water")
-    private boolean shouldHealOnFlowingWater = true;
-
-    @SerializedName("heal_on_flowing_lava")
-    private boolean shouldHealOnFlowingLava = true;
-
-    @SerializedName("block_placement_sound_effect")
-    private boolean shouldPlaySoundOnBlockPlacement = true;
-
-    @SerializedName("replace_list")
-    private HashMap<String, String> replaceMap = new HashMap<>();
-
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
-    public void setExplosionHealDelay(double explosionHealDelay){
-        this.explosionHealDelay = explosionHealDelay;
+    public static void setExplosionHealDelay(double explosionHealDelay){
+        Config.explosionHealDelay = explosionHealDelay;
+        CONFIG.set("delays.explosion_heal_delay", explosionHealDelay);
     }
 
-    public void setBlockPlacementDelay(double blockPlacementDelay){
-        this.blockPlacementDelay = blockPlacementDelay;
+    public static void setBlockPlacementDelay(double blockPlacementDelay){
+        Config.blockPlacementDelay = blockPlacementDelay;
+        CONFIG.set("delays.block_placement_delay", blockPlacementDelay);
     }
 
-    public void setRequiresLight(boolean requiresLight){
-        this.requiresLight = requiresLight;
-    }
-    public void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
-        this.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
+    public static void setRequiresLight(boolean requiresLight){
+        Config.requiresLight = requiresLight;
+        CONFIG.set("preferences.requires_light", requiresLight);
     }
 
-    public void setShouldHealOnFlowingLava(boolean shouldHealOnFlowingLava){
-        this.shouldHealOnFlowingLava = shouldHealOnFlowingLava;
+    public static void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
+        Config.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
+        CONFIG.set("preferences.heal_on_flowing_water", shouldHealOnFlowingWater);
     }
 
-    public void setShouldPlaySoundOnBlockPlacement(boolean shouldPlaySoundOnBlockPlacement) {
-        this.shouldPlaySoundOnBlockPlacement = shouldPlaySoundOnBlockPlacement;
+    public static void setShouldHealOnFlowingLava(boolean shouldHealOnFlowingLava){
+        Config.shouldHealOnFlowingLava = shouldHealOnFlowingLava;
+        CONFIG.set("preferences.heal_on_flowing_lava", shouldHealOnFlowingLava);
     }
 
-    public void setDaytimeHealing(boolean daytimeHealing){
-        this.daytimeHealing = daytimeHealing;
+    public static void setShouldPlaySoundOnBlockPlacement(boolean shouldPlaySoundOnBlockPlacement) {
+        Config.shouldPlaySoundOnBlockPlacement = shouldPlaySoundOnBlockPlacement;
+        CONFIG.set("preferences.block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
     }
 
-    public long getExplosionDelay(){
-        return Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.explosionHealDelay, 0) * 20L);
+    public static void setDaytimeHealing(boolean daytimeHealing){
+        Config.daytimeHealing = daytimeHealing;
+        CONFIG.set("mode.daytime_healing_mode", daytimeHealing);
     }
 
-    public long getBlockPlacementDelay(){
-        return Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.blockPlacementDelay, 0) * 20L);
+    public static long getExplosionDelay(){
+        return Math.round(Math.max(explosionHealDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(explosionHealDelay, 0) * 20L);
     }
 
-    public HashMap<String, String> getReplaceList(){
-        return this.replaceMap;
+    public static long getBlockPlacementDelay(){
+        return Math.round(Math.max(blockPlacementDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(blockPlacementDelay, 0) * 20L);
     }
 
-    public boolean getRequiresLight(){
-        return this.requiresLight;
+    public static HashMap<String, String> getReplaceList(){
+        return replaceMap;
     }
 
-    public boolean shouldHealOnFlowingWater(){
-        return this.shouldHealOnFlowingWater;
+    public static boolean getRequiresLight(){
+        return requiresLight;
     }
 
-    public boolean shouldHealOnFlowingLava(){
-        return this.shouldHealOnFlowingLava;
+    public static boolean shouldHealOnFlowingWater(){
+        return shouldHealOnFlowingWater;
     }
 
-    public boolean shouldPlaySoundOnBlockPlacement(){
-        return this.shouldPlaySoundOnBlockPlacement;
+    public static boolean shouldHealOnFlowingLava(){
+        return shouldHealOnFlowingLava;
+    }
+
+    public static boolean shouldPlaySoundOnBlockPlacement(){
+        return shouldPlaySoundOnBlockPlacement;
 
     }
 
-    public boolean isDaytimeHealingEnabled(){
-        return this.daytimeHealing;
+    public static boolean isDaytimeHealingEnabled(){
+        return daytimeHealing;
     }
 
-    private Double getDoubleOrDefault(@NotNull JsonObject obj, String name, Double def){
-        return obj.has(name) ? obj.get(name).getAsDouble() : def;
+    public static void writeFreshConfig(){
+
+        LOGGER.info("Writing a default configuration file...");
+
+        explosionHealDelay = 3;
+        blockPlacementDelay = 1;
+        shouldHealOnFlowingWater = true;
+        shouldHealOnFlowingLava = true;
+        shouldPlaySoundOnBlockPlacement = true;
+        requiresLight = false;
+        daytimeHealing = false;
+        replaceMap.clear();
+        replaceMap.put("minecraft:diamond_block", "minecraft:stone");
+
+        writeAllNewToConfig(); // Populate the FileConfig with your configuration values
+
+
     }
 
-    private boolean getBooleanOrDefault(@NotNull JsonObject obj, String name, Boolean def){
-        return obj.has(name) ? obj.get(name).getAsBoolean() : def;
+    public static void readConfig() {
+
+        readAllFromConfig(); // Extract your configuration values from FileConfig
+
+        if(Math.round(Math.max(Config.getExplosionDelay(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+        if(Math.round(Math.max(Config.getBlockPlacementDelay(), 0) * 20L) == 0) LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+
+        LOGGER.info("Applied custom configs");
+
     }
 
-    private JsonObject getJsonObjectOrDefault(@NotNull JsonObject obj, String name, JsonObject def){
+    public static void updateConfig() {
 
-        JsonElement element = obj.get(name);
-        return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
+        if(CreeperHealing.CONFIG_FILE_PATH.exists()) {
 
-    }
-    public boolean writeConfig() {
-
-        //If no config file is found, write a new one
-        if(!Files.exists(CreeperHealing.CONFIG_PATH)) {
-
-            try {
-
-                //Put a default value into the replace list then write a new config using the fields of the Config class
-                replaceMap.put("minecraft:diamond_block", "minecraft:stone");
-
-                Files.writeString(CreeperHealing.CONFIG_PATH, GSON.toJson(this));
-
-            } catch (IOException e) {
-
-                throw new RuntimeException(e);
-
-            }
-
-            CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
-            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the /creeper-healing reload_config command in-game.");
-
-            //Return true if the config file doesn't already exist
-            return true;
+            setAllToConfig(); // Extract your configuration values from FileConfig
 
         } else {
 
-            //Return false if config file already exists
-            return false;
+            writeFreshConfig();
 
         }
 
     }
 
+    public static boolean reloadConfig() {
 
-    public void readConfig(File file) throws IOException{
+        if (CreeperHealing.CONFIG_FILE_PATH.exists()) {
 
-        FileReader reader = new FileReader(file);
+            readAllFromConfig(); // Extract your configuration values from FileConfig
+            return true;
 
-        Gson gson = new Gson();
+        }
 
-        //Deserialize our Json file and turn it into a JsonObject
-        JsonObject obj = gson.fromJson(reader, JsonObject.class);
+        writeFreshConfig();
 
-        //Set the config fields to the values read from our config file
-        explosionHealDelay = getDoubleOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
-        blockPlacementDelay = getDoubleOrDefault(obj, "block_placement_delay", blockPlacementDelay);
-        requiresLight = getBooleanOrDefault(obj, "requires_light", requiresLight);
-        shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
-        shouldHealOnFlowingLava = getBooleanOrDefault(obj, "heal_on_flowing_lava", shouldHealOnFlowingLava);
-        shouldPlaySoundOnBlockPlacement = getBooleanOrDefault(obj, "block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
-        daytimeHealing = getBooleanOrDefault(obj, "enable_daytime_healing", daytimeHealing);
-
-        //Parse the JsonObject into a Hashmap
-        JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
-        replaceMap = gson.fromJson(replaceListJson, HashMap.class);
-
-        reader.close();
-
+        return false;
     }
 
-    //Called upon server shutdown
-    public void updateConfig(File file) throws IOException {
+    private static void writeAllNewToConfig() {
 
-        if(Files.exists(CreeperHealing.CONFIG_PATH)){
+        CONFIG.add("mode.daytime_healing_mode", daytimeHealing);
 
-            FileReader reader = new FileReader(file);
-            Gson gson = new Gson();
+        CONFIG.add("delays.explosion_heal_delay", explosionHealDelay);
+        CONFIG.add("delays.block_placement_delay", blockPlacementDelay);
 
-            //Don't override the current replace-list in the config file
-            JsonObject obj = gson.fromJson(reader, JsonObject.class);
-            JsonObject tempReplaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
-            replaceMap = gson.fromJson(tempReplaceListJson, HashMap.class);
+        CONFIG.add("preferences.requires_light", requiresLight);
+        CONFIG.add("preferences.heal_on_flowing_water", shouldHealOnFlowingWater);
+        CONFIG.add("preferences.heal_on_flowing_lava", shouldHealOnFlowingLava);
+        CONFIG.add("preferences.block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
 
-            reader.close();
+        // To handle the replace_list hashmap, iterate through it and set individual entries
+        for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
+            CONFIG.add("replace_list." + entry.getKey(), entry.getValue());
+        }
+
+        CONFIG.save();
+    }
+
+    private static void setAllToConfig() {
+
+        CONFIG.set("mode.daytime_healing_mode", daytimeHealing);
+
+        CONFIG.set("delays.explosion_heal_delay", explosionHealDelay);
+        CONFIG.set("delays.block_placement_delay", blockPlacementDelay);
+
+        CONFIG.set("preferences.requires_light", requiresLight);
+        CONFIG.set("preferences.heal_on_flowing_water", shouldHealOnFlowingWater);
+        CONFIG.set("preferences.heal_on_flowing_lava", shouldHealOnFlowingLava);
+        CONFIG.set("preferences.block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
+
+        // To handle the replace_list hashmap, iterate through it and set individual entries
+        for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
+            CONFIG.set("replace_list." + entry.getKey(), entry.getValue());
+        }
+
+        CONFIG.save();
+    }
+
+    private static void readAllFromConfig() {
+        CONFIG.load();
+        daytimeHealing = CONFIG.getOrElse("daytime_healing_mode", false);
+        explosionHealDelay = CONFIG.getOrElse("explosion_heal_delay", 3);
+        blockPlacementDelay = CONFIG.getOrElse("block_placement_delay", 1);
+        requiresLight = CONFIG.getOrElse("requires_light", false);
+        shouldHealOnFlowingWater = CONFIG.getOrElse("heal_on_flowing_water", true);
+        shouldHealOnFlowingLava = CONFIG.getOrElse("heal_on_flowing_lava", true);
+        shouldPlaySoundOnBlockPlacement = CONFIG.getOrElse("block_placement_sound_effect", true);
+
+        if(CONFIG.contains("replace_list")) {
+
+            // Create a temporary map to store new entries
+            Map<String, String> tempReplaceMap = new HashMap<>();
+
+            // To handle the replace_list hashmap, iterate through the entries and populate the temporary map
+            com.electronwill.nightconfig.core.Config replaceListConfig = CONFIG.get("replace_list");
+
+            for (com.electronwill.nightconfig.core.Config.Entry entry : replaceListConfig.entrySet()) {
+                if (entry.getValue() instanceof String) {
+                    tempReplaceMap.put(entry.getKey(), entry.getValue());
+
+                    LOGGER.info("Key: " + entry.getKey() + ". " + "Value: " + entry.getValue());
+
+                }
+            }
+
+            // Update the replaceMap after the iteration is complete
+            replaceMap.clear();
+            replaceMap.putAll(tempReplaceMap);
 
         } else {
 
-            //If the config doesn't exist already, write a new one with default values
-            explosionHealDelay = 3;
-            blockPlacementDelay = 1;
-            requiresLight = false;
-            shouldHealOnFlowingWater = true;
-            shouldHealOnFlowingLava = true;
-            shouldPlaySoundOnBlockPlacement = true;
-            daytimeHealing = false;
             replaceMap.clear();
             replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
-            CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
-            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the /creeper-healing reload_config command in-game.");
+            for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
+                CONFIG.set("replace_list." + entry.getKey(), entry.getValue());
+            }
 
         }
 
-        //Update all values of the config with new ones if the config exists
-        Files.writeString(CreeperHealing.CONFIG_PATH, GSON.toJson(this));
+        CONFIG.save();
 
     }
-
-     boolean reloadConfig(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) throws IOException {
-
-        //If the config file exists, read the config again.
-        // Remember to update the "isExplosionHandlingUnlocked" flag accordingly
-        if(Files.exists(CreeperHealing.CONFIG_PATH)){
-
-            CreeperHealing.setHealerHandlerLock(false);
-
-            this.readConfig(CreeperHealing.CONFIG_FILE);
-
-            CreeperHealing.setHealerHandlerLock(true);
-
-            ExplosionHealerHandler.updateAffectedBlocksTimers();
-
-            //Warn the user if these delays were set to 0 or fewer seconds
-            if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
-            if(Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
-
-            return true;
-
-        }
-
-        return false;
-
-    }
-
 }
+

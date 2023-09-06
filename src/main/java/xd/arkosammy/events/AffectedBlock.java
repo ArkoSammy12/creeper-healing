@@ -12,8 +12,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.handlers.SpecialBlockHandler;
+import xd.arkosammy.util.Config;
 
-import static xd.arkosammy.CreeperHealing.CONFIG;
 import static xd.arkosammy.handlers.ExplosionHealerHandler.shouldPlaceBlock;
 import static xd.arkosammy.handlers.ExplosionHealerHandler.shouldPlaySound;
 
@@ -95,10 +95,10 @@ public class AffectedBlock {
         //If it is, switch the state for the corresponding one in the replace-list.
         String blockString = Registries.BLOCK.getId(state.getBlock()).toString();
 
-        if(CONFIG.getReplaceList().containsKey(blockString)){
+        if(Config.getReplaceList().containsKey(blockString)){
 
             //The downside of this is that we only get the default state of the block
-            state = Registries.BLOCK.get(new Identifier(CONFIG.getReplaceList().get(blockString))).getDefaultState();
+            state = Registries.BLOCK.get(new Identifier(Config.getReplaceList().get(blockString))).getDefaultState();
 
         }
 

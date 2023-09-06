@@ -10,6 +10,8 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
+import xd.arkosammy.util.Config;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -122,7 +124,7 @@ public class CreeperExplosionEvent {
 
     public boolean checkLightLevel(MinecraftServer server){
 
-        if(!CreeperHealing.CONFIG.getRequiresLight()) return true;
+        if(!Config.getRequiresLight()) return true;
 
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
 

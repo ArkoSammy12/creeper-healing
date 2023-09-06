@@ -11,7 +11,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.events.CreeperExplosionEvent;
-import static xd.arkosammy.CreeperHealing.CONFIG;
+import xd.arkosammy.util.Config;
+
 import static xd.arkosammy.handlers.ExplosionHealerHandler.shouldPlaySound;
 
 public class SpecialBlockHandler {
@@ -208,7 +209,7 @@ public class SpecialBlockHandler {
         } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.isAir(secondHalfPos))
                  || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER))
                  || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER)))
-                 && CONFIG.shouldHealOnFlowingWater()){
+                 && Config.shouldHealOnFlowingWater()){
 
             return true;
 
@@ -220,7 +221,7 @@ public class SpecialBlockHandler {
         } else return ((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
                     || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
                     || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA)))
-                    && CONFIG.shouldHealOnFlowingLava();
+                    && Config.shouldHealOnFlowingLava();
 
     }
 }

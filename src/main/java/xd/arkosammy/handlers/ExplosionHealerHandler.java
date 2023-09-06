@@ -9,9 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.events.AffectedBlock;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.events.CreeperExplosionEvent;
+import xd.arkosammy.util.Config;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import static xd.arkosammy.CreeperHealing.CONFIG;
 
 //Thanks to @dale8689 for helping me figure out how to use tick timers instead of ScheduledFutures
 public class ExplosionHealerHandler {
@@ -93,26 +94,26 @@ public class ExplosionHealerHandler {
 
         if(world.isAir(pos)) return true;
 
-        else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && CONFIG.shouldHealOnFlowingWater()) return true;
+        else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && Config.shouldHealOnFlowingWater()) return true;
 
-        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && CONFIG.shouldHealOnFlowingLava();
+        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && Config.shouldHealOnFlowingLava();
 
     }
 
     //Make sure we are on the logical server and avoid placing an air block,
     //since they too produce a sound effect when "placed"
     public static boolean shouldPlaySound(World world, BlockState state) {
-        return !world.isClient && !state.isAir() && CONFIG.shouldPlaySoundOnBlockPlacement();
+        return !world.isClient && !state.isAir() && Config.shouldPlaySoundOnBlockPlacement();
     }
     /*
     public static void updateExplosionTimers(){
 
         CreeperHealing.setHealerHandlerLock(false);
         for(CreeperExplosionEvent creeperExplosionEvent : getExplosionEventList()){
-            creeperExplosionEvent.setCreeperExplosionTimer((long) MathHelper.clamp(creeperExplosionEvent.getCreeperExplosionTimer(), 1, CONFIG.getExplosionDelay()));
+            creeperExplosionEvent.setCreeperExplosionTimer((long) MathHelper.clamp(creeperExplosionEvent.getCreeperExplosionTimer(), 1, CONFIGURATION.getExplosionDelay()));
 
-            long minDelay = Math.max(creeperExplosionEvent.getCreeperExplosionTimer(), CONFIG.getExplosionDelay());
-            long maxDelay = Math.max(creeperExplosionEvent.getCreeperExplosionTimer(), CONFIG.getExplosionDelay());
+            long minDelay = Math.max(creeperExplosionEvent.getCreeperExplosionTimer(), CONFIGURATION.getExplosionDelay());
+            long maxDelay = Math.max(creeperExplosionEvent.getCreeperExplosionTimer(), CONFIGURATION.getExplosionDelay());
 
             creeperExplosionEvent.setCreeperExplosionTimer(maxDelay - minDelay);
 
@@ -131,9 +132,9 @@ public class ExplosionHealerHandler {
             // All subsequent ones will have their delays changed to the new one,
             // as their timers have yet to be ticked down
             //if(creeperExplosionEvent.getAffectedBlockCounter() < creeperExplosionEvent.getAffectedBlocksList().size())
-                //creeperExplosionEvent.getAffectedBlocksList().get(creeperExplosionEvent.getAffectedBlockCounter()).setAffectedBlockTimer((long) MathHelper.clamp(creeperExplosionEvent.getAffectedBlocksList().get(creeperExplosionEvent.getAffectedBlockCounter()).getAffectedBlockTimer(), 1, CONFIG.getBlockPlacementDelay()));
+                //creeperExplosionEvent.getAffectedBlocksList().get(creeperExplosionEvent.getAffectedBlockCounter()).setAffectedBlockTimer((long) MathHelper.clamp(creeperExplosionEvent.getAffectedBlocksList().get(creeperExplosionEvent.getAffectedBlockCounter()).getAffectedBlockTimer(), 1, CONFIGURATION.getBlockPlacementDelay()));
             for(int i = creeperExplosionEvent.getAffectedBlockCounter() + 1; i < creeperExplosionEvent.getAffectedBlocksList().size(); i++){
-                creeperExplosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(CONFIG.getBlockPlacementDelay());
+                creeperExplosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(Config.getBlockPlacementDelay());
             }
         }
         CreeperHealing.setHealerHandlerLock(true);

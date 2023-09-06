@@ -15,11 +15,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.events.AffectedBlock;
 import xd.arkosammy.events.CreeperExplosionEvent;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
+import xd.arkosammy.util.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static xd.arkosammy.CreeperHealing.CONFIG;
+
 
 @Mixin(Explosion.class)
 public abstract class CreeperExplosionMixin {
@@ -47,15 +48,15 @@ public abstract class CreeperExplosionMixin {
                     //Let's not store a bunch of unnecessary air blocks
                     if (!world.getBlockState(pos).isAir()) {
 
-                        affectedBlocks.add(new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay(), false));
+                        affectedBlocks.add(new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), Config.getBlockPlacementDelay(), false));
 
                     }
 
                 }
 
-                CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0);
+                CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, Config.getExplosionDelay(), 0);
 
-                if (CONFIG.isDaytimeHealingEnabled()) {
+                if (Config.isDaytimeHealingEnabled()) {
 
                     creeperExplosionEvent.setupDayTimeHealing(world);
 
