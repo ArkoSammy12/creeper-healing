@@ -55,9 +55,9 @@ public class Commands {
                     .build();
 
             //Requires light node
-            LiteralCommandNode<ServerCommandSource> requiresLightNode = CommandManager
-                    .literal("requires_light")
-                    .executes(Commands::getRequiresLightCommand)
+            LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
+                    .literal("drop_items_on_creeper_explosions")
+                    .executes(Commands::getDropItemsOnCreeperExplosionsCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -121,9 +121,9 @@ public class Commands {
                     .build();
 
             //Requires light argument node
-            ArgumentCommandNode<ServerCommandSource, Boolean> requiresLightArgumentNode = CommandManager
+            ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
                     .argument("value", BoolArgumentType.bool())
-                    .executes(Commands::setRequiresLightCommand)
+                    .executes(Commands::setDropItemsOnCreeperExplosionsCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -165,7 +165,7 @@ public class Commands {
             //Settings command connections
             settingsNode.addChild(explosionHealDelayNode);
             settingsNode.addChild(blockPlacementDelayNode);
-            settingsNode.addChild(requiresLightNode);
+            settingsNode.addChild(dropItemsOnCreeperExplosionsNode);
             settingsNode.addChild(shouldHealOnFlowingWaterNode);
             settingsNode.addChild(shouldHealOnFlowingLavaNode);
             settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
@@ -177,7 +177,7 @@ public class Commands {
             //Argument node connections
             explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
             blockPlacementDelayNode.addChild(blockPlacementDelayArgumentNode);
-            requiresLightNode.addChild(requiresLightArgumentNode);
+            dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
             shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
             shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
             shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
@@ -245,19 +245,19 @@ public class Commands {
 
     }
 
-    private static int setRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
+    private static int setDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
 
-        CreeperHealing.CONFIG.setRequiresLight(BoolArgumentType.getBool(ctx, "value"));
+        CreeperHealing.CONFIG.setDropItemsOnCreeperExplosions(BoolArgumentType.getBool(ctx, "value"));
 
-        ctx.getSource().sendMessage(Text.literal("Requires light has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
         return Command.SINGLE_SUCCESS;
 
     }
 
-    private static int getRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
+    private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Requires light currently set to: " + CreeperHealing.CONFIG.getRequiresLight()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions currently set to: " + CreeperHealing.CONFIG.getDropItemsOnCreeperExplosions()));
 
         return Command.SINGLE_SUCCESS;
 

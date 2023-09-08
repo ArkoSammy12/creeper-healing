@@ -73,7 +73,7 @@ public class CreeperHealing implements ModInitializer {
 		//If the config file already exists, read the data from it
 		if(!CONFIG.writeConfig()){
 
-			CONFIG.readConfig(CONFIG_FILE);
+			CONFIG.readConfig();
 
 			//Warn the user if these delays were set to 0 or fewer seconds
 			if(Math.round(Math.max(CONFIG.getExplosionDelay(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
@@ -113,7 +113,7 @@ public class CreeperHealing implements ModInitializer {
 		ExplosionHealerHandler.getExplosionEventList().clear();
 
 		//Update the config by overriding the current values with new ones obtained via commands
-		CONFIG.updateConfig(CONFIG_FILE);
+		CONFIG.updateConfig();
 
 	}
 

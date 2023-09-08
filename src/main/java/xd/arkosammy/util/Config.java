@@ -3,7 +3,6 @@ package xd.arkosammy.util;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -11,11 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 //Huge thanks to @_jacg on the Fabric Discord Server for helping me out with setting the config
@@ -30,9 +27,6 @@ public class Config {
     @SerializedName("block_placement_delay")
     private double blockPlacementDelay = 1;
 
-    @SerializedName("requires_light")
-    private boolean requiresLight = false;
-
     @SerializedName("heal_on_flowing_water")
     private boolean shouldHealOnFlowingWater = true;
 
@@ -42,10 +36,13 @@ public class Config {
     @SerializedName("block_placement_sound_effect")
     private boolean shouldPlaySoundOnBlockPlacement = true;
 
+    @SerializedName("drop_items_on_creeper_explosions")
+    private boolean dropItemsOnCreeperExplosions = true;
+
     @SerializedName("replace_list")
     private HashMap<String, String> replaceMap = new HashMap<>();
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
     public void setExplosionHealDelay(double explosionHealDelay){
         this.explosionHealDelay = explosionHealDelay;
@@ -55,8 +52,8 @@ public class Config {
         this.blockPlacementDelay = blockPlacementDelay;
     }
 
-    public void setRequiresLight(boolean requiresLight){
-        this.requiresLight = requiresLight;
+    public void setDropItemsOnCreeperExplosions(boolean dropItemsOnCreeperExplosions){
+        this.dropItemsOnCreeperExplosions = dropItemsOnCreeperExplosions;
     }
     public void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
         this.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
@@ -86,8 +83,8 @@ public class Config {
         return this.replaceMap;
     }
 
-    public boolean getRequiresLight(){
-        return this.requiresLight;
+    public boolean getDropItemsOnCreeperExplosions(){
+        return this.dropItemsOnCreeperExplosions;
     }
 
     public boolean shouldHealOnFlowingWater(){
@@ -105,21 +102,6 @@ public class Config {
 
     public boolean isDaytimeHealingEnabled(){
         return this.daytimeHealing;
-    }
-
-    private Double getDoubleOrDefault(@NotNull JsonObject obj, String name, Double def){
-        return obj.has(name) ? obj.get(name).getAsDouble() : def;
-    }
-
-    private boolean getBooleanOrDefault(@NotNull JsonObject obj, String name, Boolean def){
-        return obj.has(name) ? obj.get(name).getAsBoolean() : def;
-    }
-
-    private JsonObject getJsonObjectOrDefault(@NotNull JsonObject obj, String name, JsonObject def){
-
-        JsonElement element = obj.get(name);
-        return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
-
     }
     public boolean writeConfig() {
 
@@ -155,57 +137,57 @@ public class Config {
     }
 
 
-    public void readConfig(File file) throws IOException{
+    public void readConfig() throws IOException{
 
-        FileReader reader = new FileReader(file);
+        FileReader reader = new FileReader(CreeperHealing.CONFIG_FILE);
 
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
 
         //Deserialize our Json file and turn it into a JsonObject
-        JsonObject obj = gson.fromJson(reader, JsonObject.class);
+        JsonObject obj = GSON.fromJson(reader, JsonObject.class);
 
         //Set the config fields to the values read from our config file
         explosionHealDelay = getDoubleOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
         blockPlacementDelay = getDoubleOrDefault(obj, "block_placement_delay", blockPlacementDelay);
-        requiresLight = getBooleanOrDefault(obj, "requires_light", requiresLight);
         shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
         shouldHealOnFlowingLava = getBooleanOrDefault(obj, "heal_on_flowing_lava", shouldHealOnFlowingLava);
         shouldPlaySoundOnBlockPlacement = getBooleanOrDefault(obj, "block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
         daytimeHealing = getBooleanOrDefault(obj, "enable_daytime_healing", daytimeHealing);
+        dropItemsOnCreeperExplosions = getBooleanOrDefault(obj, "drop_items_on_creeper_explosions", dropItemsOnCreeperExplosions);
 
         //Parse the JsonObject into a Hashmap
         JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
-        replaceMap = gson.fromJson(replaceListJson, HashMap.class);
+        replaceMap = GSON.fromJson(replaceListJson, HashMap.class);
 
         reader.close();
 
     }
 
     //Called upon server shutdown
-    public void updateConfig(File file) throws IOException {
+    public void updateConfig() throws IOException {
 
         if(Files.exists(CreeperHealing.CONFIG_PATH)){
 
-            FileReader reader = new FileReader(file);
-            Gson gson = new Gson();
+            FileReader reader = new FileReader(CreeperHealing.CONFIG_FILE);
+            //Gson gson = new Gson();
 
             //Don't override the current replace-list in the config file
-            JsonObject obj = gson.fromJson(reader, JsonObject.class);
+            JsonObject obj = GSON.fromJson(reader, JsonObject.class);
             JsonObject tempReplaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
-            replaceMap = gson.fromJson(tempReplaceListJson, HashMap.class);
+            replaceMap = GSON.fromJson(tempReplaceListJson, HashMap.class);
 
             reader.close();
 
         } else {
 
             //If the config doesn't exist already, write a new one with default values
+            daytimeHealing = false;
             explosionHealDelay = 3;
             blockPlacementDelay = 1;
-            requiresLight = false;
             shouldHealOnFlowingWater = true;
             shouldHealOnFlowingLava = true;
             shouldPlaySoundOnBlockPlacement = true;
-            daytimeHealing = false;
+            dropItemsOnCreeperExplosions = true;
             replaceMap.clear();
             replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
@@ -227,7 +209,7 @@ public class Config {
 
             CreeperHealing.setHealerHandlerLock(false);
 
-            this.readConfig(CreeperHealing.CONFIG_FILE);
+            this.readConfig();
 
             CreeperHealing.setHealerHandlerLock(true);
 
@@ -242,6 +224,21 @@ public class Config {
         }
 
         return false;
+
+    }
+
+    private Double getDoubleOrDefault(@NotNull JsonObject obj, String name, Double def){
+        return obj.has(name) ? obj.get(name).getAsDouble() : def;
+    }
+
+    private boolean getBooleanOrDefault(@NotNull JsonObject obj, String name, Boolean def){
+        return obj.has(name) ? obj.get(name).getAsBoolean() : def;
+    }
+
+    private JsonObject getJsonObjectOrDefault(@NotNull JsonObject obj, String name, JsonObject def){
+
+        JsonElement element = obj.get(name);
+        return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
 
     }
 
