@@ -140,7 +140,7 @@ public class CreeperExplosionEvent {
 
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
 
-            if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 1 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 1) {
+            if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0) {
 
                 return true;
 
