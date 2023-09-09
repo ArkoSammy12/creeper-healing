@@ -46,6 +46,9 @@ public class Config {
     @SerializedName("drop_items_on_creeper_explosions")
     private boolean dropItemsOnCreeperExplosions = true;
 
+    @SerializedName("requires_light")
+    private boolean requiresLight = false;
+
     @SerializedName("replace_list")
     private HashMap<String, String> replaceMap = new HashMap<>();
 
@@ -75,6 +78,10 @@ public class Config {
 
     public void setShouldPlaySoundOnBlockPlacement(boolean shouldPlaySoundOnBlockPlacement) {
         this.shouldPlaySoundOnBlockPlacement = shouldPlaySoundOnBlockPlacement;
+    }
+
+    public void setRequiresLight(boolean requiresLight){
+        this.requiresLight = requiresLight;
     }
 
     public boolean isDaytimeHealingEnabled(){
@@ -111,6 +118,10 @@ public class Config {
 
     public boolean getDropItemsOnCreeperExplosions(){
         return this.dropItemsOnCreeperExplosions;
+    }
+
+    public boolean getRequiresLight(){
+        return this.requiresLight;
     }
 
     public HashMap<String, String> getReplaceList(){
@@ -166,6 +177,7 @@ public class Config {
         shouldPlaySoundOnBlockPlacement = getBooleanOrDefault(obj, "block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
         daytimeHealing = getBooleanOrDefault(obj, "enable_daytime_healing", daytimeHealing);
         dropItemsOnCreeperExplosions = getBooleanOrDefault(obj, "drop_items_on_creeper_explosions", dropItemsOnCreeperExplosions);
+        requiresLight = getBooleanOrDefault(obj, "requires_light", requiresLight);
 
         //Parse the JsonObject into a Hashmap
         JsonObject replaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
@@ -200,6 +212,7 @@ public class Config {
             shouldHealOnFlowingLava = true;
             shouldPlaySoundOnBlockPlacement = true;
             dropItemsOnCreeperExplosions = true;
+            requiresLight = false;
             replaceMap.clear();
             replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 

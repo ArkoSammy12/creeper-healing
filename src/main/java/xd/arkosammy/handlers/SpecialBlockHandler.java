@@ -14,7 +14,9 @@ import xd.arkosammy.events.CreeperExplosionEvent;
 import static xd.arkosammy.CreeperHealing.CONFIG;
 import static xd.arkosammy.handlers.ExplosionHealerHandler.shouldPlaySound;
 
-public class SpecialBlockHandler {
+public final class SpecialBlockHandler {
+
+    private SpecialBlockHandler(){}
 
     public static boolean isSpecialBlock(World world, BlockState state, BlockPos pos, CreeperExplosionEvent creeperExplosionEvent){
 

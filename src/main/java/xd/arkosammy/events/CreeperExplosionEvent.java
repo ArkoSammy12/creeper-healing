@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
@@ -133,7 +134,23 @@ public class CreeperExplosionEvent {
 
     }
 
-    //TODO: Implement "requiresLight" feature
+    public boolean canHealIfRequiresLight(MinecraftServer server){
+
+        if (!CreeperHealing.CONFIG.getRequiresLight() || this.getAffectedBlockCounter() > 0) return true;
+
+        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
+
+            if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 1 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 1) {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
 
     private static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
 

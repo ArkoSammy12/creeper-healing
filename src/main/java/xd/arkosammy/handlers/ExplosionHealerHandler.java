@@ -14,8 +14,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static xd.arkosammy.CreeperHealing.CONFIG;
 
 //Thanks to @dale8689 for helping me figure out how to use tick timers instead of ScheduledFutures
-public class ExplosionHealerHandler {
+public final class ExplosionHealerHandler {
 
+    private ExplosionHealerHandler(){}
     private static final List<CreeperExplosionEvent> explosionEventList = new CopyOnWriteArrayList<>();
     public static List<CreeperExplosionEvent> getExplosionEventList(){
         return explosionEventList;
@@ -49,15 +50,23 @@ public class ExplosionHealerHandler {
 
                                 if (currentBlock.getAffectedBlockTimer() < 0) {
 
-                                    //Pass in the current creeperExplosionEvent
-                                    // that this AffectedBlock instance belongs to
-                                    currentBlock.tryPlacing(server, creeperExplosionEvent);
+                                    if(creeperExplosionEvent.canHealIfRequiresLight(server)) {
 
-                                    //Increment this event's internal counter to move on to the next block
-                                    creeperExplosionEvent.incrementCounter();
+                                        //Pass in the current creeperExplosionEvent
+                                        // that this AffectedBlock instance belongs to
+                                        currentBlock.tryPlacing(server, creeperExplosionEvent);
 
-                                    //Mark the block as placed
-                                    currentBlock.setPlaced(true);
+                                        //Increment this event's internal counter to move on to the next block
+                                        creeperExplosionEvent.incrementCounter();
+
+                                        //Mark the block as placed
+                                        currentBlock.setPlaced(true);
+
+                                    } else {
+
+                                        getExplosionEventList().remove(creeperExplosionEvent);
+
+                                    }
 
                                 }
 

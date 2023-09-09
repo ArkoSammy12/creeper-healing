@@ -1,6 +1,7 @@
 package xd.arkosammy;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
@@ -56,7 +57,7 @@ public class CreeperHealing implements ModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionEventList);
 
 		//Register our commands
-		Commands.registerCommands();
+		CommandRegistrationCallback.EVENT.register(Commands::registerCommands);
 
 		LOGGER.info("I will try my best to heal your creeper explosions :)");
 
