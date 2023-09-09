@@ -3,7 +3,6 @@ package xd.arkosammy;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,17 +10,12 @@ import xd.arkosammy.handlers.ExplosionHealerHandler;
 import xd.arkosammy.util.Commands;
 import xd.arkosammy.util.Config;
 import xd.arkosammy.util.ExplosionEventsSerializer;
-
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class CreeperHealing implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
 	public static final Config CONFIG = new Config();
-	public static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
-	public static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 	private static boolean healerHandlerLock;
 	private static MinecraftServer serverInstance;
 
@@ -76,8 +70,8 @@ public class CreeperHealing implements ModInitializer {
 			CONFIG.readConfig();
 
 			//Warn the user if these delays were set to 0 or fewer seconds
-			if(Math.round(Math.max(CONFIG.getExplosionDelay(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
-			if(Math.round(Math.max(CONFIG.getBlockPlacementDelay(), 0) * 20L) == 0) LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+			if(Math.round(Math.max(CONFIG.getExplosionDelayRaw(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+			if(Math.round(Math.max(CONFIG.getBlockPlacementDelayRaw(), 0) * 20L) == 0) LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
 			LOGGER.info("Applied custom configs");
 
 		}
@@ -107,7 +101,7 @@ public class CreeperHealing implements ModInitializer {
 
 		//Make a new ExplosionEventsSerializer object and pass the current list to the constructor, then store it
 		ExplosionEventsSerializer explosionEventsSerializer = new ExplosionEventsSerializer(ExplosionHealerHandler.getExplosionEventList());
-		explosionEventsSerializer.storeBlockPlacements(server);
+		explosionEventsSerializer.storeCreeperExplosionList(server);
 
 		//Once we have stored the list, clear the current list from memory
 		ExplosionHealerHandler.getExplosionEventList().clear();

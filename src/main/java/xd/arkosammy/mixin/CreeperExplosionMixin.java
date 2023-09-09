@@ -37,10 +37,10 @@ public abstract class CreeperExplosionMixin {
             //Get our list of affected block positions after they have been created by the target method
             List<BlockPos> affectedBlocksPos = this.getAffectedBlocks();
 
-            ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
-
             //Don't store empty explosions
             if(!affectedBlocksPos.isEmpty()) {
+
+                ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
 
                 for (BlockPos pos : affectedBlocksPos) {
 

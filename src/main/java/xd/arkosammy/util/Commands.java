@@ -13,7 +13,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
-
 import java.io.IOException;
 
 public class Commands {
@@ -28,15 +27,22 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
-            //Settings node
-            LiteralCommandNode<ServerCommandSource> settingsNode = CommandManager
-                    .literal("settings")
-                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                    .build();
-
             //Mode node
             LiteralCommandNode<ServerCommandSource> modeMode = CommandManager
                     .literal("mode")
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
+            //Daytime healing node
+            LiteralCommandNode<ServerCommandSource> doDayTimeHealingNode = CommandManager
+                    .literal("daytime_healing_mode")
+                    .executes(Commands::getDoDayLightHealingCommand)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
+            //Settings node
+            LiteralCommandNode<ServerCommandSource> settingsNode = CommandManager
+                    .literal("settings")
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -51,13 +57,6 @@ public class Commands {
             LiteralCommandNode<ServerCommandSource> blockPlacementDelayNode = CommandManager
                     .literal("block_placement_delay")
                     .executes(Commands::getBlockPlacementDelayCommand)
-                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                    .build();
-
-            //Requires light node
-            LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
-                    .literal("drop_items_on_creeper_explosions")
-                    .executes(Commands::getDropItemsOnCreeperExplosionsCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -82,10 +81,10 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
-            //Daytime healing node
-            LiteralCommandNode<ServerCommandSource> doDayTimeHealingNode = CommandManager
-                    .literal("daytime_healing_mode")
-                    .executes(Commands::getDoDayLightHealingCommand)
+            //Drop items on creeper explosions node
+            LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
+                    .literal("drop_items_on_creeper_explosions")
+                    .executes(Commands::getDropItemsOnCreeperExplosionsCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -106,6 +105,13 @@ public class Commands {
                     })
                     .build();
 
+            //Daytime healing mode argument node
+            ArgumentCommandNode<ServerCommandSource, Boolean> doDayLightHealingArgumentNode = CommandManager
+                    .argument("value", BoolArgumentType.bool())
+                    .executes(Commands::setDoDayTimeHealingCommand)
+                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                    .build();
+
             //Explosion heal delay argument node
             ArgumentCommandNode<ServerCommandSource, Double> explosionHealDelayArgumentNode = CommandManager
                     .argument("seconds", DoubleArgumentType.doubleArg())
@@ -117,13 +123,6 @@ public class Commands {
             ArgumentCommandNode<ServerCommandSource, Double> blockPlacementDelayArgumentNode = CommandManager
                     .argument("seconds", DoubleArgumentType.doubleArg())
                     .executes(Commands::setBlockPlacementDelayCommand)
-                    .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                    .build();
-
-            //Requires light argument node
-            ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
-                    .argument("value", BoolArgumentType.bool())
-                    .executes(Commands::setDropItemsOnCreeperExplosionsCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -148,10 +147,10 @@ public class Commands {
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
-            //Daytime healing mode argument node
-            ArgumentCommandNode<ServerCommandSource, Boolean> doDayLightHealingArgumentNode = CommandManager
+            //Requires light argument node
+            ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
                     .argument("value", BoolArgumentType.bool())
-                    .executes(Commands::setDoDayTimeHealingCommand)
+                    .executes(Commands::setDropItemsOnCreeperExplosionsCommand)
                     .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                     .build();
 
@@ -188,14 +187,25 @@ public class Commands {
 
     }
 
+    /*
+    ======================================= COMMAND SETTERS =======================================
+     */
+
+    private static int setDoDayTimeHealingCommand(CommandContext<ServerCommandSource> ctx){
+
+        CreeperHealing.CONFIG.setDaytimeHealing(BoolArgumentType.getBool(ctx, "value"));
+
+        ctx.getSource().sendMessage(Text.literal("Daytime healing mode has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
 
     private static int setExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx) {
 
         if(Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
 
             CreeperHealing.CONFIG.setExplosionHealDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
-
-            //ExplosionHealerHandler.updateExplosionTimers();
 
             ctx.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
 
@@ -204,14 +214,6 @@ public class Commands {
             ctx.getSource().sendMessage(Text.literal("Cannot set explosion heal delay to a very low value").formatted(Formatting.RED));
 
         }
-
-        return Command.SINGLE_SUCCESS;
-
-    }
-
-    private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
-
-        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)CreeperHealing.CONFIG.getExplosionDelay() / 20) + " second(s)"));
 
         return Command.SINGLE_SUCCESS;
 
@@ -237,45 +239,11 @@ public class Commands {
 
     }
 
-    private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
-
-        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double)CreeperHealing.CONFIG.getBlockPlacementDelay() / 20) + " second(s)"));
-
-        return Command.SINGLE_SUCCESS;
-
-    }
-
-    private static int setDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-
-        CreeperHealing.CONFIG.setDropItemsOnCreeperExplosions(BoolArgumentType.getBool(ctx, "value"));
-
-        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-
-        return Command.SINGLE_SUCCESS;
-
-    }
-
-    private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-
-        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions currently set to: " + CreeperHealing.CONFIG.getDropItemsOnCreeperExplosions()));
-
-        return Command.SINGLE_SUCCESS;
-
-    }
-
     private static int setHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx) {
 
         CreeperHealing.CONFIG.setShouldHealOnFlowingWater(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Heal on flowing water has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-
-        return Command.SINGLE_SUCCESS;
-
-    }
-
-    private static int getShouldHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx){
-
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingWater()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -291,23 +259,29 @@ public class Commands {
 
     }
 
-    private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx){
+    private static int setPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
 
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingLava()));
+        CreeperHealing.CONFIG.setShouldPlaySoundOnBlockPlacement(BoolArgumentType.getBool(ctx, "value"));
+
+        ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int setDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+
+        CreeperHealing.CONFIG.setDropItemsOnCreeperExplosions(BoolArgumentType.getBool(ctx, "value"));
+
+        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
         return Command.SINGLE_SUCCESS;
 
     }
 
-    private static int setDoDayTimeHealingCommand(CommandContext<ServerCommandSource> ctx){
-
-        CreeperHealing.CONFIG.setDaytimeHealing(BoolArgumentType.getBool(ctx, "value"));
-
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-
-        return Command.SINGLE_SUCCESS;
-
-    }
+        /*
+    ======================================= COMMAND GETTERS =======================================
+     */
 
     private static int getDoDayLightHealingCommand(CommandContext<ServerCommandSource> ctx){
 
@@ -317,11 +291,33 @@ public class Commands {
 
     }
 
-    private static int setPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
+    private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
 
-        CreeperHealing.CONFIG.setShouldPlaySoundOnBlockPlacement(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)CreeperHealing.CONFIG.getExplosionDelay() / 20) + " second(s)"));
 
-        ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
+
+        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double)CreeperHealing.CONFIG.getBlockPlacementDelay() / 20) + " second(s)"));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int getShouldHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx){
+
+        ctx.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingWater()));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+    private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx){
+
+        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingLava()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -335,6 +331,18 @@ public class Commands {
 
     }
 
+    private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+
+        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions currently set to: " + CreeperHealing.CONFIG.getDropItemsOnCreeperExplosions()));
+
+        return Command.SINGLE_SUCCESS;
+
+    }
+
+            /*
+    ======================================= RELOAD COMMAND =======================================
+     */
+
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
 
         //If this returns true, then the config file exists, and we can update our values from it
@@ -342,5 +350,6 @@ public class Commands {
         else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
 
     }
+
 
 }

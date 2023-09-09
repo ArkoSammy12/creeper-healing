@@ -3,6 +3,7 @@ package xd.arkosammy.util;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.mojang.brigadier.context.CommandContext;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -10,13 +11,19 @@ import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 //Huge thanks to @_jacg on the Fabric Discord Server for helping me out with setting the config
 public class Config {
+
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.json");
+    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.json");
 
     @SerializedName("daytime_healing_mode")
     private boolean daytimeHealing = false;
@@ -42,7 +49,9 @@ public class Config {
     @SerializedName("replace_list")
     private HashMap<String, String> replaceMap = new HashMap<>();
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+    public void setDaytimeHealing(boolean daytimeHealing){
+        this.daytimeHealing = daytimeHealing;
+    }
 
     public void setExplosionHealDelay(double explosionHealDelay){
         this.explosionHealDelay = explosionHealDelay;
@@ -55,6 +64,7 @@ public class Config {
     public void setDropItemsOnCreeperExplosions(boolean dropItemsOnCreeperExplosions){
         this.dropItemsOnCreeperExplosions = dropItemsOnCreeperExplosions;
     }
+
     public void setShouldHealOnFlowingWater(boolean shouldHealOnFlowingWater){
         this.shouldHealOnFlowingWater = shouldHealOnFlowingWater;
     }
@@ -67,24 +77,24 @@ public class Config {
         this.shouldPlaySoundOnBlockPlacement = shouldPlaySoundOnBlockPlacement;
     }
 
-    public void setDaytimeHealing(boolean daytimeHealing){
-        this.daytimeHealing = daytimeHealing;
+    public boolean isDaytimeHealingEnabled(){
+        return this.daytimeHealing;
     }
 
     public long getExplosionDelay(){
         return Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.explosionHealDelay, 0) * 20L);
     }
 
+    public double getExplosionDelayRaw(){
+        return this.explosionHealDelay;
+    }
+
     public long getBlockPlacementDelay(){
         return Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0 ? 20L : Math.round(Math.max(this.blockPlacementDelay, 0) * 20L);
     }
 
-    public HashMap<String, String> getReplaceList(){
-        return this.replaceMap;
-    }
-
-    public boolean getDropItemsOnCreeperExplosions(){
-        return this.dropItemsOnCreeperExplosions;
+    public double getBlockPlacementDelayRaw(){
+        return this.blockPlacementDelay;
     }
 
     public boolean shouldHealOnFlowingWater(){
@@ -97,23 +107,27 @@ public class Config {
 
     public boolean shouldPlaySoundOnBlockPlacement(){
         return this.shouldPlaySoundOnBlockPlacement;
-
     }
 
-    public boolean isDaytimeHealingEnabled(){
-        return this.daytimeHealing;
+    public boolean getDropItemsOnCreeperExplosions(){
+        return this.dropItemsOnCreeperExplosions;
     }
+
+    public HashMap<String, String> getReplaceList(){
+        return this.replaceMap;
+    }
+
     public boolean writeConfig() {
 
         //If no config file is found, write a new one
-        if(!Files.exists(CreeperHealing.CONFIG_PATH)) {
+        if(!Files.exists(CONFIG_PATH)) {
 
             try {
 
                 //Put a default value into the replace list then write a new config using the fields of the Config class
                 replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
-                Files.writeString(CreeperHealing.CONFIG_PATH, GSON.toJson(this));
+                Files.writeString(CONFIG_PATH, GSON.toJson(this));
 
             } catch (IOException e) {
 
@@ -122,7 +136,7 @@ public class Config {
             }
 
             CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
-            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the /creeper-healing reload_config command in-game.");
+            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the \"/creeper-healing settings reload\" command in-game.");
 
             //Return true if the config file doesn't already exist
             return true;
@@ -136,12 +150,10 @@ public class Config {
 
     }
 
-
+    @SuppressWarnings("unchecked")
     public void readConfig() throws IOException{
 
-        FileReader reader = new FileReader(CreeperHealing.CONFIG_FILE);
-
-        //Gson gson = new Gson();
+        FileReader reader = new FileReader(CONFIG_FILE);
 
         //Deserialize our Json file and turn it into a JsonObject
         JsonObject obj = GSON.fromJson(reader, JsonObject.class);
@@ -164,14 +176,14 @@ public class Config {
     }
 
     //Called upon server shutdown
+    @SuppressWarnings("unchecked")
     public void updateConfig() throws IOException {
 
-        if(Files.exists(CreeperHealing.CONFIG_PATH)){
+        if(Files.exists(CONFIG_PATH)){
 
-            FileReader reader = new FileReader(CreeperHealing.CONFIG_FILE);
-            //Gson gson = new Gson();
+            FileReader reader = new FileReader(CONFIG_FILE);
 
-            //Don't override the current replace-list in the config file
+            //Update the replace-list before updating the config file
             JsonObject obj = GSON.fromJson(reader, JsonObject.class);
             JsonObject tempReplaceListJson = getJsonObjectOrDefault(obj, "replace_list", new JsonObject());
             replaceMap = GSON.fromJson(tempReplaceListJson, HashMap.class);
@@ -192,12 +204,11 @@ public class Config {
             replaceMap.put("minecraft:diamond_block", "minecraft:stone");
 
             CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
-            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the /creeper-healing reload_config command in-game.");
+            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the \"/creeper-healing settings reload\" command in-game.");
 
         }
 
-        //Update all values of the config with new ones if the config exists
-        Files.writeString(CreeperHealing.CONFIG_PATH, GSON.toJson(this));
+        Files.writeString(CONFIG_PATH, GSON.toJson(this));
 
     }
 
@@ -205,7 +216,7 @@ public class Config {
 
         //If the config file exists, read the config again.
         // Remember to update the "isExplosionHandlingUnlocked" flag accordingly
-        if(Files.exists(CreeperHealing.CONFIG_PATH)){
+        if(Files.exists(CONFIG_PATH)){
 
             CreeperHealing.setHealerHandlerLock(false);
 
@@ -236,10 +247,8 @@ public class Config {
     }
 
     private JsonObject getJsonObjectOrDefault(@NotNull JsonObject obj, String name, JsonObject def){
-
         JsonElement element = obj.get(name);
         return element != null && element.isJsonObject() ? element.getAsJsonObject() : def;
-
     }
 
 }

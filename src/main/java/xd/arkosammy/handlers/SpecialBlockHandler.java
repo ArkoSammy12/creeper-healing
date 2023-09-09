@@ -180,10 +180,10 @@ public class SpecialBlockHandler {
 
                 }
 
-            }
+                //To avoid potentially placing back the special block if it is broken before the opposite half is reached
+                creeperExplosionEvent.markSecondHalfAsPlaced(secondHalfState, secondHalfPos, world);
 
-            //To avoid potentially placing back the special block if it is broken before the opposite half is reached
-            creeperExplosionEvent.markSecondHalfAsPlaced(secondHalfState, secondHalfPos, world);
+            }
 
             return true;
 

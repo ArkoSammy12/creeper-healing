@@ -55,7 +55,7 @@ public class ExplosionEventsSerializer {
     }
 
     //We encode our singular ExplosionEventSerializer object, and we write it to a file
-    public void storeBlockPlacements(@NotNull MinecraftServer server) {
+    public void storeCreeperExplosionList(@NotNull MinecraftServer server) {
 
         //Obtain the path to the server's world directory
         Path scheduledExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");

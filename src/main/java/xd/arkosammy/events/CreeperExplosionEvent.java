@@ -140,18 +140,6 @@ public class CreeperExplosionEvent {
             };
 
             sortedAffectedBlocks.sort(transparencyComparator);
-            /*
-            Comparator<AffectedBlock> transparencyTopToBottomComparator = (affectedBlock1, affectedBlock2) -> {
-
-                boolean isBlockInfo1Transparent = affectedBlock1.getState().isTransparent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
-                boolean isBlockInfo2Transparent = affectedBlock2.getState().isTransparent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
-                return Boolean.compare(affectedBlock1.getPos().getY() < affectedBlock2.getPos().getY() && isBlockInfo1Transparent,  affectedBlock2.getPos().getY() < affectedBlock1.getPos().getY() && isBlockInfo2Transparent);
-
-            };
-
-            sortedAffectedBlocks.sort(transparencyTopToBottomComparator);
-
-             */
 
         }
 
