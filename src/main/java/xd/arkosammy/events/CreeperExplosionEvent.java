@@ -19,27 +19,34 @@ public class CreeperExplosionEvent {
     private final List<AffectedBlock> affectedBlocksList;
     private long creeperExplosionTimer;
     private int affectedBlockCounter;
+    private boolean dayTimeHealingMode;
 
     //Create codec for our CreeperExplosionEvent, which will contain a list of AffectedBlock codecs.
     public static final Codec<CreeperExplosionEvent> CODEC = RecordCodecBuilder.create(creeperExplosionEventInstance -> creeperExplosionEventInstance.group(
 
             Codec.list(AffectedBlock.CODEC).fieldOf("Affected_Blocks_List").forGetter(CreeperExplosionEvent::getAffectedBlocksList),
             Codec.LONG.fieldOf("Creeper_Explosion_Timer").forGetter(CreeperExplosionEvent::getCreeperExplosionTimer),
-            Codec.INT.fieldOf("Current_Block_Counter").forGetter(CreeperExplosionEvent::getCurrentAffectedBlockCounter)
+            Codec.INT.fieldOf("Current_Block_Counter").forGetter(CreeperExplosionEvent::getCurrentAffectedBlockCounter),
+            Codec.BOOL.fieldOf("DayTime_Healing_Mode").forGetter(CreeperExplosionEvent::isMarkedWithDayTimeHealingMode)
 
     ).apply(creeperExplosionEventInstance, CreeperExplosionEvent::new));
 
-    public CreeperExplosionEvent(List<AffectedBlock> affectedBlocksList, long creeperExplosionTimer, int currentIndex){
+    public CreeperExplosionEvent(List<AffectedBlock> affectedBlocksList, long creeperExplosionTimer, int currentIndex, boolean dayTimeHealingMode){
 
         //Sort our list of affected blocks according to their Y and transparency values
         this.affectedBlockCounter = currentIndex;
         this.affectedBlocksList = sortAffectedBlocksList(affectedBlocksList, CreeperHealing.getServerInstance());
         setCreeperExplosionTimer(creeperExplosionTimer);
+        setDayTimeHealingMode(dayTimeHealingMode);
 
     }
 
     public void setCreeperExplosionTimer(long delay){
         this.creeperExplosionTimer = delay;
+    }
+
+    public void setDayTimeHealingMode(boolean dayTimeHealingMode) {
+        this.dayTimeHealingMode = dayTimeHealingMode;
     }
 
     public void incrementCounter() {
@@ -58,9 +65,14 @@ public class CreeperExplosionEvent {
         return this.affectedBlockCounter;
     }
 
+    public boolean isMarkedWithDayTimeHealingMode(){
+        return this.dayTimeHealingMode;
+    }
+
     private int getCurrentAffectedBlockCounter(){
         return this.affectedBlockCounter;
     }
+
 
     public AffectedBlock getCurrentAffectedBlock(){
 
@@ -106,6 +118,8 @@ public class CreeperExplosionEvent {
     //Set up daytime healing mode for this explosion by making the explosion start healing at the next sunrise,
     // and make it finish healing when the next night falls
     public void setupDayTimeHealing(World world){
+
+        this.setDayTimeHealingMode(true);
 
         this.setCreeperExplosionTimer(24000 - (world.getTimeOfDay() % 24000));
 

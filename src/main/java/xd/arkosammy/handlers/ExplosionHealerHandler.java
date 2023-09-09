@@ -107,8 +107,10 @@ public class ExplosionHealerHandler {
     public static void updateAffectedBlocksTimers(){
         CreeperHealing.setHealerHandlerLock(false);
         for(CreeperExplosionEvent creeperExplosionEvent : getExplosionEventList()){
-            for(int i = creeperExplosionEvent.getAffectedBlockCounter() + 1; i < creeperExplosionEvent.getAffectedBlocksList().size(); i++){
-                creeperExplosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(CONFIG.getBlockPlacementDelay());
+            if(!creeperExplosionEvent.isMarkedWithDayTimeHealingMode()) {
+                for (int i = creeperExplosionEvent.getAffectedBlockCounter() + 1; i < creeperExplosionEvent.getAffectedBlocksList().size(); i++) {
+                    creeperExplosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(CONFIG.getBlockPlacementDelay());
+                }
             }
         }
         CreeperHealing.setHealerHandlerLock(true);

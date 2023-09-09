@@ -53,7 +53,7 @@ public abstract class CreeperExplosionMixin {
 
                 }
 
-                CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0);
+                CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, CONFIG.getExplosionDelay(), 0, false);
 
                 if (CONFIG.isDaytimeHealingEnabled()) {
 
