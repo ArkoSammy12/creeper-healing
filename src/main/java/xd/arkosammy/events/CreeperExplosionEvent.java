@@ -158,6 +158,13 @@ public class CreeperExplosionEvent {
 
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
 
+        int centerX = calculateMidXCoord(affectedBlocksList);
+        int centerZ = calculateMidZCoord(affectedBlocksList);
+
+        Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.sqrt(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
+
+        sortedAffectedBlocks.sort(distanceToCenterComparator);
+
         Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());
 
         sortedAffectedBlocks.sort(yLevelComparator);
@@ -176,8 +183,40 @@ public class CreeperExplosionEvent {
 
         }
 
+
         return sortedAffectedBlocks;
 
     }
+
+    private static int calculateMidXCoord(List<AffectedBlock> affectedBlocks){
+
+        int maxX = affectedBlocks.stream()
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getX()) // Assuming block center
+                .max()
+                .orElse(0);
+
+        int minX = affectedBlocks.stream()
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getX()) // Assuming block center
+                .min()
+                .orElse(0); // Default value if the list is empty
+
+        return (maxX + minX) / 2;
+    }
+
+    private static int calculateMidZCoord(List<AffectedBlock> affectedBlocks){
+
+        int maxX = affectedBlocks.stream()
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ()) // Assuming block center
+                .max()
+                .orElse(0);
+
+        int minX = affectedBlocks.stream()
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ()) // Assuming block center
+                .min()
+                .orElse(0); // Default value if the list is empty
+
+        return (maxX + minX) / 2;
+    }
+
 
 }
