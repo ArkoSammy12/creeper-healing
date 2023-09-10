@@ -136,6 +136,8 @@ public class CreeperExplosionEvent {
 
     public boolean canHealIfRequiresLight(MinecraftServer server){
 
+        //We return true if the current block counter is greater than 0,
+        // since we want to allow explosions to heal completely if the light conditions were only met initially
         if (!CreeperHealing.CONFIG.getRequiresLight() || this.getAffectedBlockCounter() > 0) return true;
 
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){

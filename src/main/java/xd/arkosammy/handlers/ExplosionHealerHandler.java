@@ -64,6 +64,8 @@ public final class ExplosionHealerHandler {
 
                                     } else {
 
+                                        //Remove the current explosion if the light conditions are not met,
+                                        // and the "requiresLight" setting is enabled
                                         getExplosionEventList().remove(creeperExplosionEvent);
 
                                     }

@@ -170,12 +170,12 @@ public class Config {
         JsonObject obj = GSON.fromJson(reader, JsonObject.class);
 
         //Set the config fields to the values read from our config file
+        daytimeHealing = getBooleanOrDefault(obj, "enable_daytime_healing", daytimeHealing);
         explosionHealDelay = getDoubleOrDefault(obj, "explosion_heal_delay", explosionHealDelay);
         blockPlacementDelay = getDoubleOrDefault(obj, "block_placement_delay", blockPlacementDelay);
         shouldHealOnFlowingWater = getBooleanOrDefault(obj, "heal_on_flowing_water", shouldHealOnFlowingWater);
         shouldHealOnFlowingLava = getBooleanOrDefault(obj, "heal_on_flowing_lava", shouldHealOnFlowingLava);
         shouldPlaySoundOnBlockPlacement = getBooleanOrDefault(obj, "block_placement_sound_effect", shouldPlaySoundOnBlockPlacement);
-        daytimeHealing = getBooleanOrDefault(obj, "enable_daytime_healing", daytimeHealing);
         dropItemsOnCreeperExplosions = getBooleanOrDefault(obj, "drop_items_on_creeper_explosions", dropItemsOnCreeperExplosions);
         requiresLight = getBooleanOrDefault(obj, "requires_light", requiresLight);
 
