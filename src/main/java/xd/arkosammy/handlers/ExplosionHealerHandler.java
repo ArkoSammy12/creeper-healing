@@ -52,15 +52,23 @@ public final class ExplosionHealerHandler {
 
                                     if(creeperExplosionEvent.canHealIfRequiresLight(server)) {
 
-                                        //Pass in the current creeperExplosionEvent
-                                        // that this AffectedBlock instance belongs to
-                                        currentBlock.tryPlacing(server, creeperExplosionEvent);
+                                        if(currentBlock.canBePlaced(server)) {
 
-                                        //Increment this event's internal counter to move on to the next block
-                                        creeperExplosionEvent.incrementCounter();
+                                            //Pass in the current creeperExplosionEvent
+                                            // that this AffectedBlock instance belongs to
+                                            currentBlock.tryPlacing(server, creeperExplosionEvent);
 
-                                        //Mark the block as placed
-                                        currentBlock.setPlaced(true);
+                                            currentBlock.setPlaced(true);
+
+                                            creeperExplosionEvent.incrementCounter();
+
+                                        } else {
+
+                                            creeperExplosionEvent.postponeBlock(currentBlock, server);
+
+                                        }
+
+                                        CreeperHealing.LOGGER.info("Tried placing block: " + currentBlock.getState().getBlock().getName());
 
                                     } else {
 
@@ -106,6 +114,7 @@ public final class ExplosionHealerHandler {
         else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && CONFIG.shouldHealOnFlowingWater()) return true;
 
         else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && CONFIG.shouldHealOnFlowingLava();
+
 
     }
 

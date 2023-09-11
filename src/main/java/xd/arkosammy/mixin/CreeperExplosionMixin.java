@@ -15,9 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.events.AffectedBlock;
 import xd.arkosammy.events.CreeperExplosionEvent;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static xd.arkosammy.CreeperHealing.CONFIG;
 
@@ -40,7 +39,7 @@ public abstract class CreeperExplosionMixin {
             //Don't store empty explosions
             if(!affectedBlocksPos.isEmpty()) {
 
-                ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
+                List<AffectedBlock> affectedBlocks = new CopyOnWriteArrayList<>();
 
                 for (BlockPos pos : affectedBlocksPos) {
 

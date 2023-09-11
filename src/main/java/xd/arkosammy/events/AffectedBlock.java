@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import xd.arkosammy.handlers.SpecialBlockHandler;
+import xd.arkosammy.handlers.DoubleBlockHandler;
 
 import static xd.arkosammy.CreeperHealing.CONFIG;
 import static xd.arkosammy.handlers.ExplosionHealerHandler.shouldPlaceBlock;
@@ -57,15 +57,15 @@ public class AffectedBlock {
     }
 
     //Get the World instance from the stored World Registry Key
-    World getWorld(@NotNull MinecraftServer server){
+    public World getWorld(@NotNull MinecraftServer server){
         return server.getWorld(this.getWorldRegistryKey());
     }
 
-     BlockPos getPos(){
+     public BlockPos getPos(){
         return this.pos;
     }
 
-     BlockState getState(){
+     public BlockState getState(){
         return this.state;
     }
 
@@ -85,6 +85,12 @@ public class AffectedBlock {
         this.affectedBlockTimer--;
     }
 
+    public boolean canBePlaced(MinecraftServer server){
+
+        return this.getState().canPlaceAt(this.getWorld(server), this.getPos());
+
+    }
+
     public void tryPlacing(MinecraftServer server, CreeperExplosionEvent creeperExplosionEvent){
 
         BlockState state = this.getState();
@@ -97,13 +103,12 @@ public class AffectedBlock {
 
         if(CONFIG.getReplaceList().containsKey(blockString)){
 
-            //The downside of this is that we only get the default state of the block
-            state = Registries.BLOCK.get(new Identifier(CONFIG.getReplaceList().get(blockString))).getDefaultState();
+            state = Registries.BLOCK.get(new Identifier(CONFIG.getReplaceList().get(blockString))).getStateWithProperties(state);
 
         }
 
         //If the block we are about to try placing is "special", handle it separately
-        if(!SpecialBlockHandler.isSpecialBlock(world, state, pos, creeperExplosionEvent)) {
+        if(!DoubleBlockHandler.isDoubleBlock(world, state, pos, creeperExplosionEvent)) {
 
             if(shouldPlaceBlock(world, pos)) {
 

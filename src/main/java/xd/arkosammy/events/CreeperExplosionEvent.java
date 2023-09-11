@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -154,6 +155,64 @@ public class CreeperExplosionEvent {
 
     }
 
+    public void postponeBlock(AffectedBlock affectedBlock, MinecraftServer server){
+
+        if (this.getAffectedBlocksList().contains(affectedBlock)){
+
+            int indexOfPostponed = this.getAffectedBlocksList().indexOf(affectedBlock);
+
+            if(indexOfPostponed >= 0 && indexOfPostponed < this.getAffectedBlocksList().size()){
+
+                AffectedBlock nextBlock = this.findNextPlaceableBlock(server);
+
+                if(nextBlock != null){
+
+                    AffectedBlock postponedBlock = this.getAffectedBlocksList().get(indexOfPostponed);
+
+                    int indexOfNextBlock = this.getAffectedBlocksList().indexOf(nextBlock);
+
+                    this.affectedBlocksList.set(indexOfPostponed, nextBlock);
+                    this.affectedBlocksList.set(indexOfNextBlock, postponedBlock);
+
+
+                } else {
+
+                    this.incrementCounter();
+
+                    affectedBlock.setPlaced(true);
+
+                }
+
+
+            } else {
+
+                this.incrementCounter();
+
+                affectedBlock.setPlaced(true);
+
+            }
+
+        }
+
+
+    }
+
+    private AffectedBlock findNextPlaceableBlock(MinecraftServer server){
+
+        for(int i = this.getCurrentAffectedBlockCounter(); i < this.getAffectedBlocksList().size(); i++){
+
+            if(this.getAffectedBlocksList().get(i).canBePlaced(server)) {
+
+                return this.getAffectedBlocksList().get(i);
+
+            }
+
+        }
+
+        return null;
+
+    }
+
     private static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
 
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
@@ -183,7 +242,6 @@ public class CreeperExplosionEvent {
 
         }
 
-
         return sortedAffectedBlocks;
 
     }
@@ -191,14 +249,14 @@ public class CreeperExplosionEvent {
     private static int calculateMidXCoord(List<AffectedBlock> affectedBlocks){
 
         int maxX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getX()) // Assuming block center
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getX()) 
                 .max()
                 .orElse(0);
 
         int minX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getX()) // Assuming block center
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getX()) 
                 .min()
-                .orElse(0); // Default value if the list is empty
+                .orElse(0); 
 
         return (maxX + minX) / 2;
     }
@@ -206,14 +264,14 @@ public class CreeperExplosionEvent {
     private static int calculateMidZCoord(List<AffectedBlock> affectedBlocks){
 
         int maxX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ()) // Assuming block center
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ())
                 .max()
                 .orElse(0);
 
         int minX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ()) // Assuming block center
+                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ())
                 .min()
-                .orElse(0); // Default value if the list is empty
+                .orElse(0);
 
         return (maxX + minX) / 2;
     }
