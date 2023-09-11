@@ -155,45 +155,39 @@ public class CreeperExplosionEvent {
 
     }
 
-    public void postponeBlock(AffectedBlock affectedBlock, MinecraftServer server){
+    public void postponeBlock(AffectedBlock currentAffectedBlock, MinecraftServer server){
 
-        if (this.getAffectedBlocksList().contains(affectedBlock)){
+        int indexOfPostponed = this.getAffectedBlocksList().indexOf(currentAffectedBlock);
 
-            int indexOfPostponed = this.getAffectedBlocksList().indexOf(affectedBlock);
+        if(indexOfPostponed != 1) {
 
-            if(indexOfPostponed >= 0 && indexOfPostponed < this.getAffectedBlocksList().size()){
+            AffectedBlock nextBlock = this.findNextPlaceableBlock(server);
 
-                AffectedBlock nextBlock = this.findNextPlaceableBlock(server);
+            if (nextBlock != null) {
 
-                if(nextBlock != null){
+                AffectedBlock postponedBlock = this.getAffectedBlocksList().get(indexOfPostponed);
 
-                    AffectedBlock postponedBlock = this.getAffectedBlocksList().get(indexOfPostponed);
+                int indexOfNextBlock = this.getAffectedBlocksList().indexOf(nextBlock);
 
-                    int indexOfNextBlock = this.getAffectedBlocksList().indexOf(nextBlock);
-
-                    this.affectedBlocksList.set(indexOfPostponed, nextBlock);
-                    this.affectedBlocksList.set(indexOfNextBlock, postponedBlock);
-
-
-                } else {
-
-                    this.incrementCounter();
-
-                    affectedBlock.setPlaced(true);
-
-                }
+                this.affectedBlocksList.set(indexOfPostponed, nextBlock);
+                this.affectedBlocksList.set(indexOfNextBlock, postponedBlock);
 
 
             } else {
 
                 this.incrementCounter();
 
-                affectedBlock.setPlaced(true);
+                currentAffectedBlock.setPlaced(true);
 
             }
 
-        }
+        } else {
 
+            this.incrementCounter();
+
+            currentAffectedBlock.setPlaced(true);
+
+        }
 
     }
 

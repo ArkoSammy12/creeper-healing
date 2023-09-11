@@ -25,7 +25,7 @@ public class CreeperHealing implements ModInitializer {
 
 		//Initialize config
 		try {
-			initConfig();
+			initializeConfig();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -54,7 +54,7 @@ public class CreeperHealing implements ModInitializer {
 		});
 
 		//Start listening for CreeperExplosionEvents in our list once we have read the config
-		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionEventList);
+		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::tickCreeperExplosions);
 
 		//Register our commands
 		CommandRegistrationCallback.EVENT.register(Commands::registerCommands);
@@ -63,12 +63,14 @@ public class CreeperHealing implements ModInitializer {
 
 	}
 
-	private void initConfig() throws IOException {
+	private static void initializeConfig() throws IOException {
 
 		//If the config file already exists, read the data from it
 		if(!CONFIG.writeConfig()){
 
 			CONFIG.readConfig();
+
+			CONFIG.updateConfig();
 
 			//Warn the user if these delays were set to 0 or fewer seconds
 			if(Math.round(Math.max(CONFIG.getExplosionDelayRaw(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
@@ -79,7 +81,7 @@ public class CreeperHealing implements ModInitializer {
 
 	}
 
-	private void onServerStarting(MinecraftServer server) throws IOException {
+	private static void onServerStarting(MinecraftServer server) throws IOException {
 
 		//Capture the server instance
 		serverInstance = server;
@@ -95,7 +97,7 @@ public class CreeperHealing implements ModInitializer {
 
 	}
 
-	private void onServerStopping(MinecraftServer server) throws IOException {
+	private static void onServerStopping(MinecraftServer server) throws IOException {
 
 		//Reset the flag
 		setHealerHandlerLock(false);

@@ -34,7 +34,7 @@ public class AffectedBlock {
             BlockState.CODEC.fieldOf("Block_State").forGetter(AffectedBlock::getState),
             World.CODEC.fieldOf("World").forGetter(AffectedBlock::getWorldRegistryKey),
             Codec.LONG.fieldOf("Block_Timer").forGetter(AffectedBlock::getAffectedBlockTimer),
-            Codec.BOOL.fieldOf("Placed").forGetter(AffectedBlock::isPlaced)
+            Codec.BOOL.fieldOf("Placed").forGetter(AffectedBlock::isAlreadyPlaced)
 
     ).apply(blockInfoInstance, AffectedBlock::new));
 
@@ -77,7 +77,7 @@ public class AffectedBlock {
         return this.affectedBlockTimer;
     }
 
-    public boolean isPlaced(){
+    public boolean isAlreadyPlaced(){
         return this.placed;
     }
 
@@ -86,12 +86,10 @@ public class AffectedBlock {
     }
 
     public boolean canBePlaced(MinecraftServer server){
-
         return this.getState().canPlaceAt(this.getWorld(server), this.getPos());
-
     }
 
-    public void tryPlacing(MinecraftServer server, CreeperExplosionEvent creeperExplosionEvent){
+    public void tryPlacing(MinecraftServer server, CreeperExplosionEvent currentCreeperExplosionEvent){
 
         BlockState state = this.getState();
         BlockPos pos = this.getPos();
@@ -108,7 +106,7 @@ public class AffectedBlock {
         }
 
         //If the block we are about to try placing is "special", handle it separately
-        if(!DoubleBlockHandler.isDoubleBlock(world, state, pos, creeperExplosionEvent)) {
+        if(!DoubleBlockHandler.isDoubleBlock(world, state, pos, currentCreeperExplosionEvent)) {
 
             if(shouldPlaceBlock(world, pos)) {
 

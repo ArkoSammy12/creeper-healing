@@ -23,89 +23,98 @@ public final class ExplosionHealerHandler {
     }
 
     //Called at the end of each server tick
-    public static void handleExplosionEventList(MinecraftServer server){
+    public static void tickCreeperExplosions(MinecraftServer server){
 
         //Safety lock for avoiding any potential issues with concurrency
-        if(CreeperHealing.isExplosionHandlingUnlocked()) {
+        if(!CreeperHealing.isExplosionHandlingUnlocked() || getExplosionEventList().isEmpty()) return;
 
-            if (!getExplosionEventList().isEmpty()) {
+        //Tick each one of CreeperExplosionEvent instances in our list
+        CreeperExplosionEvent.tickCreeperExplosionEvents();
 
-                //Tick each one of CreeperExplosionEvent instances in our list
-                CreeperExplosionEvent.tickCreeperExplosionEvents();
+        //Find a CreeperExplosionEvent in our list whose delay has reached 0
+        for (CreeperExplosionEvent currentCreeperExplosionEvent : getExplosionEventList()) {
 
-                //Find a CreeperExplosionEvent in our list whose delay has reached 0
-                for (CreeperExplosionEvent creeperExplosionEvent : getExplosionEventList()) {
+            if (currentCreeperExplosionEvent.getCreeperExplosionTimer() < 0) {
 
-                    if (creeperExplosionEvent.getCreeperExplosionTimer() < 0) {
-
-                        //Get the current block to heal based on the event's internal block counter
-                        AffectedBlock currentBlock = creeperExplosionEvent.getCurrentAffectedBlock();
-
-                        if (currentBlock != null) {
-
-                            if (!currentBlock.isPlaced()) {
-
-                                if(currentBlock.canBePlaced(server)) {
-
-                                    //Tick the current block tryPlacing and check if its delay is less than 0
-                                    currentBlock.tickAffectedBlock();
-
-                                    if (currentBlock.getAffectedBlockTimer() < 0) {
-
-                                        if (creeperExplosionEvent.canHealIfRequiresLight(server)) {
-
-                                            //Pass in the current creeperExplosionEvent
-                                            // that this AffectedBlock instance belongs to
-                                            currentBlock.tryPlacing(server, creeperExplosionEvent);
-
-                                            currentBlock.setPlaced(true);
-
-                                            creeperExplosionEvent.incrementCounter();
-
-                                        } else {
-
-                                            //Remove the current explosion if the light conditions are not met,
-                                            // and the "requiresLight" setting is enabled
-                                            getExplosionEventList().remove(creeperExplosionEvent);
-
-                                            CreeperHealing.LOGGER.info("Explosion finished");
-
-                                        }
-
-                                    }
-
-                                } else {
-
-                                    creeperExplosionEvent.postponeBlock(currentBlock, server);
-
-                                    CreeperHealing.LOGGER.info("Postponed block: " + currentBlock.getState().getBlock().getName());
-
-
-                                }
-
-                            } else {
-
-                                //If the current block has already been placed, increment the counter to skip it
-                                creeperExplosionEvent.incrementCounter();
-
-
-                            }
-
-                        } else {
-
-                            //If the currentBlock is null, there are no more blocks to heal.
-                            // We can remove this CreeperExplosionEvent from the list
-                            getExplosionEventList().remove(creeperExplosionEvent);
-
-                            CreeperHealing.LOGGER.info("Explosion finished");
-
-                        }
-
-                    }
-
-                }
+                processExplosionEvent(currentCreeperExplosionEvent, server);
 
             }
+
+        }
+
+    }
+
+    private static void processExplosionEvent(CreeperExplosionEvent currentCreeperExplosionEvent, MinecraftServer server){
+
+        //Get the current block to heal based on the event's internal block counter
+        AffectedBlock currentAffectedBlock = currentCreeperExplosionEvent.getCurrentAffectedBlock();
+
+        //If the currentAffectedBlock is null, there are no more blocks to heal.
+        // We can remove this CreeperExplosionEvent from the list
+        if(currentAffectedBlock == null) {
+
+            getExplosionEventList().remove(currentCreeperExplosionEvent);
+
+            CreeperHealing.LOGGER.info("Explosion finished");
+
+            return;
+
+        }
+
+        //If the current block has already been placed, increment the counter to skip it
+        if(currentAffectedBlock.isAlreadyPlaced()){
+
+            currentCreeperExplosionEvent.incrementCounter();
+
+            return;
+
+        }
+
+        if(!currentAffectedBlock.canBePlaced(server)){
+
+            //If the block isn't placeable, postpone its placement and find a placeable block
+            currentCreeperExplosionEvent.postponeBlock(currentAffectedBlock, server);
+
+            CreeperHealing.LOGGER.info("Postponed block: " + currentAffectedBlock.getState().getBlock().getName().toString());
+
+            return;
+
+
+        }
+
+
+        //Tick the current block tryPlacing and check if its delay is less than 0
+        currentAffectedBlock.tickAffectedBlock();
+
+        if (currentAffectedBlock.getAffectedBlockTimer() < 0) {
+
+            handleBlockPlacement(currentAffectedBlock, currentCreeperExplosionEvent, server);
+
+        }
+
+    }
+
+    private static void handleBlockPlacement(AffectedBlock currentAffectedBlock, CreeperExplosionEvent currentCreeperExplosionEvent,MinecraftServer server){
+
+        if (currentCreeperExplosionEvent.canHealIfRequiresLight(server)) {
+
+            //Pass in the current currentCreeperExplosionEvent
+            // that this AffectedBlock instance belongs to
+            currentAffectedBlock.tryPlacing(server, currentCreeperExplosionEvent);
+
+            //Set this block as placed
+            currentAffectedBlock.setPlaced(true);
+
+            //Increment this explosion's internal counter to move on to the next one
+            currentCreeperExplosionEvent.incrementCounter();
+
+        } else {
+
+            //Remove the current explosion if the light conditions are not met,
+            // and the "requiresLight" setting is enabled
+            getExplosionEventList().remove(currentCreeperExplosionEvent);
+
+            CreeperHealing.LOGGER.info("Explosion finished");
 
         }
 

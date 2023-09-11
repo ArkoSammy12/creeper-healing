@@ -18,15 +18,19 @@ public final class DoubleBlockHandler {
 
     private DoubleBlockHandler(){}
 
-    public static boolean isDoubleBlock(World world, BlockState state, BlockPos pos, CreeperExplosionEvent creeperExplosionEvent){
+    public static boolean isDoubleBlock(World world, BlockState state, BlockPos pos, CreeperExplosionEvent currentCreeperExplosionEvent){
 
         if(state.contains(Properties.DOUBLE_BLOCK_HALF)) {
 
-            return handleDoubleBlocks(world, state, pos, creeperExplosionEvent);
+            handleDoubleBlocks(world, state, pos, currentCreeperExplosionEvent);
+
+            return true;
 
         } else if (state.contains(Properties.BED_PART)) {
 
-            return handleBedPart(world, state, pos, creeperExplosionEvent);
+            handleBedPart(world, state, pos, currentCreeperExplosionEvent);
+
+            return true;
 
         }
 
@@ -34,7 +38,7 @@ public final class DoubleBlockHandler {
 
     }
 
-    private static boolean handleDoubleBlocks(World world, BlockState firstHalfState, BlockPos firstHalfPos, CreeperExplosionEvent creeperExplosionEvent){
+    private static void handleDoubleBlocks(World world, BlockState firstHalfState, BlockPos firstHalfPos, CreeperExplosionEvent currentCreeperExplosionEvent){
 
         //Get the opposite half
         DoubleBlockHalf secondHalf = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? DoubleBlockHalf.LOWER : DoubleBlockHalf.UPPER;
@@ -56,13 +60,12 @@ public final class DoubleBlockHandler {
         }
 
         //To avoid potentially placing back the special block if it is broken before the upper half is reached
-        creeperExplosionEvent.markSecondHalfAsPlaced(secondHalfState, secondHalfPos, world);
+        currentCreeperExplosionEvent.markSecondHalfAsPlaced(secondHalfState, secondHalfPos, world);
 
-        return true;
 
     }
 
-    private static boolean handleBedPart(World world, BlockState firstHalfState, BlockPos firstHalfPos, CreeperExplosionEvent creeperExplosionEvent) {
+    private static void handleBedPart(World world, BlockState firstHalfState, BlockPos firstHalfPos, CreeperExplosionEvent currentCreeperExplosionEvent) {
 
         //Get the opposite part of the current part of the bed
         BedPart secondBedPart = firstHalfState.get(Properties.BED_PART).equals(BedPart.HEAD) ? BedPart.FOOT : BedPart.HEAD;
@@ -80,8 +83,7 @@ public final class DoubleBlockHandler {
                 case NORTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, -1);
                 case SOUTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, 1);
                 case EAST -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, 1);
-                case WEST -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, -1);
-                default -> secondHalfPos = null;
+                default -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, -1);
 
             }
 
@@ -93,31 +95,26 @@ public final class DoubleBlockHandler {
                 case NORTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, 1);
                 case SOUTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, -1);
                 case EAST -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, -1);
-                case WEST -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, 1);
-                default -> secondHalfPos = null;
+                default -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, 1);
 
             }
 
         }
 
-        if(secondHalfPos != null) {
+        if (canPlaceBothHalves(world, firstHalfPos, secondHalfPos)) {
 
-            if(canPlaceBothHalves(world, firstHalfPos, secondHalfPos)) {
+            world.setBlockState(firstHalfPos, firstHalfState);
+            world.setBlockState(secondHalfPos, secondHalfState);
 
-                world.setBlockState(firstHalfPos, firstHalfState);
-                world.setBlockState(secondHalfPos, secondHalfState);
-
-                //The first argument being null tells the server to play the sound to all nearby players
-                if(shouldPlaySound(world, firstHalfState)) world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
-
-            }
-
-            //To avoid potentially placing back the special block if it is broken before the opposite half is reached
-            creeperExplosionEvent.markSecondHalfAsPlaced(secondHalfState, secondHalfPos, world);
+            //The first argument being null tells the server to play the sound to all nearby players
+            if (shouldPlaySound(world, firstHalfState))
+                world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
 
         }
 
-        return true;
+        //To avoid potentially placing back the special block if it is broken before the opposite half is reached
+        currentCreeperExplosionEvent.markSecondHalfAsPlaced(secondHalfState, secondHalfPos, world);
+
 
     }
 
