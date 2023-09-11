@@ -77,26 +77,17 @@ public class CreeperExplosionEvent {
 
 
     public AffectedBlock getCurrentAffectedBlock(){
-
         if(this.affectedBlockCounter < this.getAffectedBlocksList().size()){
-
             return this.getAffectedBlocksList().get(affectedBlockCounter);
-
         }
-
         return null;
-
     }
 
     //Iterate through all the CreeperExplosionEvents in our list and decrement each of their delay counters
     public static void tickCreeperExplosionEvents(){
-
         for(CreeperExplosionEvent creeperExplosionEvent : ExplosionHealerHandler.getExplosionEventList()){
-
             creeperExplosionEvent.creeperExplosionTimer--;
-
         }
-
     }
 
     public void markSecondHalfAsPlaced(BlockState secondHalfState, BlockPos secondBlockPos, World world){

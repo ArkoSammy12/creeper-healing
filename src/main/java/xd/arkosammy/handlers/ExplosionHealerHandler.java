@@ -55,8 +55,6 @@ public final class ExplosionHealerHandler {
 
             getExplosionEventList().remove(currentCreeperExplosionEvent);
 
-            CreeperHealing.LOGGER.info("Explosion finished");
-
             return;
 
         }
@@ -74,8 +72,6 @@ public final class ExplosionHealerHandler {
 
             //If the block isn't placeable, postpone its placement and find a placeable block
             currentCreeperExplosionEvent.postponeBlock(currentAffectedBlock, server);
-
-            CreeperHealing.LOGGER.info("Postponed block: " + currentAffectedBlock.getState().getBlock().getName().toString());
 
             return;
 
@@ -114,7 +110,6 @@ public final class ExplosionHealerHandler {
             // and the "requiresLight" setting is enabled
             getExplosionEventList().remove(currentCreeperExplosionEvent);
 
-            CreeperHealing.LOGGER.info("Explosion finished");
 
         }
 

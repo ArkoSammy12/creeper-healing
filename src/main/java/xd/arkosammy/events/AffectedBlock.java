@@ -3,14 +3,19 @@ package xd.arkosammy.events;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.DoubleBlockHandler;
 
 import static xd.arkosammy.CreeperHealing.CONFIG;
@@ -110,6 +115,8 @@ public class AffectedBlock {
 
             if(shouldPlaceBlock(world, pos)) {
 
+                if(state.isSolidBlock(world, pos))handlePlayersOnBlockHeal(world, pos);
+
                 world.setBlockState(pos, state);
 
                 //The first argument being null tells the server to play the sound to all nearby players
@@ -119,6 +126,66 @@ public class AffectedBlock {
             }
 
         }
+
+    }
+
+    //TODO: Make teleportation more accurate
+    private static void handlePlayersOnBlockHeal(World world, BlockPos pos) {
+
+        for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
+
+            //if(isPositionSurrounded(world, pos)){
+
+                Integer freeYSpot = findEmptySpot(world, pos, entity);
+
+                if(freeYSpot != null){
+
+                    entity.teleport(pos.getX(), freeYSpot, pos.getZ());
+
+                    CreeperHealing.LOGGER.info("Teleported entity");
+
+                }
+
+            //}
+
+
+        }
+
+    }
+
+    private static Integer findEmptySpot(World world, BlockPos pos, Entity entity){
+
+        int freeYValue = 1;
+
+        while(freeYValue <= world.getHeight() - 1){
+
+            BlockPos currentPos = pos.offset(Direction.Axis.Y, freeYValue);
+
+            //TODO: Fix this check
+            if(!world.getBlockState(currentPos).isSolidBlock(world, currentPos) && !world.getBlockState(currentPos.offset(Direction.Axis.Y, (int) entity.getStandingEyeHeight() - 1)).isSolidBlock(world, currentPos.offset(Direction.Axis.Y, (int) entity.getStandingEyeHeight() - 1))) {
+
+                return pos.getY() + freeYValue;
+
+            }
+
+            freeYValue++;
+
+
+        }
+
+        return null;
+
+
+    }
+
+    //TODO: Fix isPositionSurrounded method
+    private static boolean isPositionSurrounded(World world, BlockPos pos){
+
+
+        return world.getBlockState(pos.offset(Direction.Axis.X, -1)).isSolidBlock(world, pos.offset(Direction.Axis.X, -1))
+                && world.getBlockState(pos.offset(Direction.Axis.X, 1)).isSolidBlock(world, pos.offset(Direction.Axis.X, 1))
+                && world.getBlockState(pos.offset(Direction.Axis.Z, -1)).isSolidBlock(world, pos.offset(Direction.Axis.Z, -1))
+                && world.getBlockState(pos.offset(Direction.Axis.Z, 1)).isSolidBlock(world, pos.offset(Direction.Axis.X, 1));
 
     }
 

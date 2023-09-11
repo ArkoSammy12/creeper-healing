@@ -3,10 +3,12 @@ package xd.arkosammy.handlers;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -146,6 +148,16 @@ public final class DoubleBlockHandler {
                     || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
                     || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA)))
                     && CONFIG.shouldHealOnFlowingLava();
+
+    }
+
+    private static void handlePlayersOnBlockHeal(World world, BlockPos firstPos, BlockPos secondPos) {
+
+        for(Entity entity : world.getEntitiesByClass(Entity.class, new Box(firstPos, secondPos), Entity::isAlive)){
+
+            entity.teleport(secondPos.getX(), secondPos.getY(), secondPos.getZ());
+
+        }
 
     }
 }
