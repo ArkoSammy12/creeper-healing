@@ -57,11 +57,11 @@ public class AffectedBlock {
     }
 
     //Get the World instance from the stored World Registry Key
-    public World getWorld(@NotNull MinecraftServer server){
+     World getWorld(@NotNull MinecraftServer server){
         return server.getWorld(this.getWorldRegistryKey());
     }
 
-     public BlockPos getPos(){
+     BlockPos getPos(){
         return this.pos;
     }
 
