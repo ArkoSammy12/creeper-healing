@@ -129,6 +129,7 @@ public class AffectedBlock {
 
             if(shouldPlaceBlock(world, pos)) {
 
+                //TODO: Find a way to not move players exclusively upwards and linearly
                 if(state.isSolidBlock(world, pos))handlePlayersOnBlockHeal(world, pos);
 
                 world.setBlockState(pos, state);

@@ -151,6 +151,8 @@ public final class DoubleBlockHandler {
 
     }
 
+    //TODO: Finish player pushing for double blocks
+
     private static void handlePlayersOnBlockHeal(World world, BlockPos firstPos, BlockPos secondPos) {
 
         for(Entity entity : world.getEntitiesByClass(Entity.class, new Box(firstPos, secondPos), Entity::isAlive)){
