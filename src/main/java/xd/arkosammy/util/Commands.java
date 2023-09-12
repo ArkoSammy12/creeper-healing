@@ -13,7 +13,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
+import xd.arkosammy.events.AffectedBlock;
 import java.io.IOException;
 
 public final class Commands {
@@ -237,7 +237,7 @@ public final class Commands {
 
             CreeperHealing.CONFIG.setBlockPlacementDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
 
-            ExplosionHealerHandler.updateAffectedBlocksTimers();
+            AffectedBlock.updateAffectedBlocksTimers();
 
             ctx.getSource().sendMessage(Text.literal("Block placement delay has been set to to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
 

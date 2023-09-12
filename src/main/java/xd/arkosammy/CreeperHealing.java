@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xd.arkosammy.events.AffectedBlock;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
 import xd.arkosammy.util.Commands;
 import xd.arkosammy.util.Config;
@@ -93,7 +94,7 @@ public class CreeperHealing implements ModInitializer {
 		setHealerHandlerLock(true);
 
 		//ExplosionHealerHandler.updateExplosionTimers();
-		ExplosionHealerHandler.updateAffectedBlocksTimers();
+		AffectedBlock.updateAffectedBlocksTimers();
 
 	}
 

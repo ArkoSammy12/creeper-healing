@@ -68,9 +68,9 @@ public final class ExplosionHealerHandler {
 
         }
 
+        //If the block isn't placeable, postpone its placement and find a placeable block
         if(!currentAffectedBlock.canBePlaced(server)){
 
-            //If the block isn't placeable, postpone its placement and find a placeable block
             currentCreeperExplosionEvent.postponeBlock(currentAffectedBlock, server);
 
             return;
@@ -134,16 +134,5 @@ public final class ExplosionHealerHandler {
         return !world.isClient && !state.isAir() && CONFIG.shouldPlaySoundOnBlockPlacement();
     }
 
-    public static void updateAffectedBlocksTimers(){
-        CreeperHealing.setHealerHandlerLock(false);
-        for(CreeperExplosionEvent creeperExplosionEvent : getExplosionEventList()){
-            if(!creeperExplosionEvent.isMarkedWithDayTimeHealingMode()) {
-                for (int i = creeperExplosionEvent.getAffectedBlockCounter() + 1; i < creeperExplosionEvent.getAffectedBlocksList().size(); i++) {
-                    creeperExplosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(CONFIG.getBlockPlacementDelay());
-                }
-            }
-        }
-        CreeperHealing.setHealerHandlerLock(true);
-    }
 
 }

@@ -9,8 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
-
+import xd.arkosammy.events.AffectedBlock;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -237,7 +236,7 @@ public class Config {
 
             CreeperHealing.setHealerHandlerLock(true);
 
-            ExplosionHealerHandler.updateAffectedBlocksTimers();
+            AffectedBlock.updateAffectedBlocksTimers();
 
             //Warn the user if these delays were set to 0 or fewer seconds
             if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));

@@ -17,6 +17,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.DoubleBlockHandler;
+import xd.arkosammy.handlers.ExplosionHealerHandler;
 
 import static xd.arkosammy.CreeperHealing.CONFIG;
 import static xd.arkosammy.handlers.ExplosionHealerHandler.shouldPlaceBlock;
@@ -94,11 +95,24 @@ public class AffectedBlock {
         return this.getState().canPlaceAt(this.getWorld(server), this.getPos());
     }
 
+    public static void updateAffectedBlocksTimers(){
+        CreeperHealing.setHealerHandlerLock(false);
+        for(CreeperExplosionEvent creeperExplosionEvent : ExplosionHealerHandler.getExplosionEventList()){
+            if(!creeperExplosionEvent.isMarkedWithDayTimeHealingMode()) {
+                for (int i = creeperExplosionEvent.getAffectedBlockCounter() + 1; i < creeperExplosionEvent.getAffectedBlocksList().size(); i++) {
+                    creeperExplosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(CONFIG.getBlockPlacementDelay());
+                }
+            }
+        }
+        CreeperHealing.setHealerHandlerLock(true);
+    }
+
     public void tryPlacing(MinecraftServer server, CreeperExplosionEvent currentCreeperExplosionEvent){
 
         BlockState state = this.getState();
         BlockPos pos = this.getPos();
         World world = this.getWorld(server);
+
 
         //Check if the block we are about to try placing is in the replace-list.
         //If it is, switch the state for the corresponding one in the replace-list.
@@ -119,6 +133,8 @@ public class AffectedBlock {
 
                 world.setBlockState(pos, state);
 
+                //if(state.isSolidBlock(world, pos))handlePlayersOnBlockHeal(world, pos);
+
                 //The first argument being null tells the server to play the sound to all nearby players
                 if(shouldPlaySound(world, state)) world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
 
@@ -129,63 +145,43 @@ public class AffectedBlock {
 
     }
 
-    //TODO: Make teleportation more accurate
     private static void handlePlayersOnBlockHeal(World world, BlockPos pos) {
 
         for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
 
-            //if(isPositionSurrounded(world, pos)){
+            if(isAboveBlockFree(world, pos, entity)){
 
-                Integer freeYSpot = findEmptySpot(world, pos, entity);
+                //if(entity.isInsideWall())
+                entity.refreshPositionAfterTeleport(entity.getPos().withAxis(Direction.Axis.Y, entity.getBlockY() + 1));
 
-                if(freeYSpot != null){
+                CreeperHealing.LOGGER.info("Teleported entity");
 
-                    entity.teleport(pos.getX(), freeYSpot, pos.getZ());
+            } else {
 
-                    CreeperHealing.LOGGER.info("Teleported entity");
-
-                }
-
-            //}
-
-
-        }
-
-    }
-
-    private static Integer findEmptySpot(World world, BlockPos pos, Entity entity){
-
-        int freeYValue = 1;
-
-        while(freeYValue <= world.getHeight() - 1){
-
-            BlockPos currentPos = pos.offset(Direction.Axis.Y, freeYValue);
-
-            //TODO: Fix this check
-            if(!world.getBlockState(currentPos).isSolidBlock(world, currentPos) && !world.getBlockState(currentPos.offset(Direction.Axis.Y, (int) entity.getStandingEyeHeight() - 1)).isSolidBlock(world, currentPos.offset(Direction.Axis.Y, (int) entity.getStandingEyeHeight() - 1))) {
-
-                return pos.getY() + freeYValue;
+                CreeperHealing.LOGGER.info("Found an obstruction. Can't teleport");
 
             }
 
-            freeYValue++;
+        }
+
+    }
+
+    private static boolean isAboveBlockFree(World world, BlockPos pos, Entity entity){
+
+        CreeperHealing.LOGGER.info("Height of " + entity.getName().toString() + "is: " + (int) Math.ceil(entity.getStandingEyeHeight()));
+
+        for(int i = pos.getY(); i < pos.offset(Direction.Axis.Y, (int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++){
+
+            BlockPos currentPos = pos.withY(i + 1);
+
+            CreeperHealing.LOGGER.info("Checking coordinate: " + currentPos.toString());
+
+            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos)) return false;
 
 
         }
 
-        return null;
-
-
-    }
-
-    //TODO: Fix isPositionSurrounded method
-    private static boolean isPositionSurrounded(World world, BlockPos pos){
-
-
-        return world.getBlockState(pos.offset(Direction.Axis.X, -1)).isSolidBlock(world, pos.offset(Direction.Axis.X, -1))
-                && world.getBlockState(pos.offset(Direction.Axis.X, 1)).isSolidBlock(world, pos.offset(Direction.Axis.X, 1))
-                && world.getBlockState(pos.offset(Direction.Axis.Z, -1)).isSolidBlock(world, pos.offset(Direction.Axis.Z, -1))
-                && world.getBlockState(pos.offset(Direction.Axis.Z, 1)).isSolidBlock(world, pos.offset(Direction.Axis.X, 1));
+        return true;
 
     }
 

@@ -10,7 +10,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.ExplosionHealerHandler;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -202,8 +201,8 @@ public class CreeperExplosionEvent {
 
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
 
-        int centerX = calculateMidXCoord(affectedBlocksList);
-        int centerZ = calculateMidZCoord(affectedBlocksList);
+        int centerX = calculateMidXCoordinate(affectedBlocksList);
+        int centerZ = calculateMidZCoordinate(affectedBlocksList);
 
         Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.sqrt(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
 
@@ -231,7 +230,7 @@ public class CreeperExplosionEvent {
 
     }
 
-    private static int calculateMidXCoord(List<AffectedBlock> affectedBlocks){
+    private static int calculateMidXCoordinate(List<AffectedBlock> affectedBlocks){
 
         int maxX = affectedBlocks.stream()
                 .mapToInt(affectedBlock -> affectedBlock.getPos().getX()) 
@@ -246,7 +245,7 @@ public class CreeperExplosionEvent {
         return (maxX + minX) / 2;
     }
 
-    private static int calculateMidZCoord(List<AffectedBlock> affectedBlocks){
+    private static int calculateMidZCoordinate(List<AffectedBlock> affectedBlocks){
 
         int maxX = affectedBlocks.stream()
                 .mapToInt(affectedBlock -> affectedBlock.getPos().getZ())
