@@ -9,6 +9,8 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.handlers.ExplosionListHandler;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import static xd.arkosammy.CreeperHealing.CONFIG;
 
@@ -29,7 +31,7 @@ public class ExplosionEvent {
 
     private ExplosionEvent(List<AffectedBlock> affectedBlocksList, long creeperExplosionTimer, int currentIndex, boolean dayTimeHealingMode){
         this.affectedBlockCounter = currentIndex;
-        this.affectedBlocksList = affectedBlocksList;
+        this.affectedBlocksList = new ArrayList<>(affectedBlocksList); //We instantiate a new one to guarantee this list is always mutable
         setExplosionTimer(creeperExplosionTimer);
         this.dayTimeHealingMode = dayTimeHealingMode;
     }
@@ -146,15 +148,11 @@ public class ExplosionEvent {
 
         if(indexOfPostponed != -1) {
 
-            AffectedBlock nextPlaceableBlock = this.findNextPlaceableBlock(server);
+            Integer indexOfNextPlaceable = this.findNextPlaceableBlock(server);
 
-            if (nextPlaceableBlock != null) {
+            if (indexOfNextPlaceable != null) {
 
-                AffectedBlock postponedBlock = this.getAffectedBlocksList().get(indexOfPostponed);
-                int indexOfNextPlaceable = this.getAffectedBlocksList().indexOf(nextPlaceableBlock);
-
-                this.affectedBlocksList.set(indexOfPostponed, nextPlaceableBlock);
-                this.affectedBlocksList.set(indexOfNextPlaceable, postponedBlock);
+                Collections.swap(this.getAffectedBlocksList(), indexOfPostponed, indexOfNextPlaceable);
 
 
             } else {
@@ -175,11 +173,11 @@ public class ExplosionEvent {
 
     }
 
-    private AffectedBlock findNextPlaceableBlock(MinecraftServer server){
+    private Integer findNextPlaceableBlock(MinecraftServer server){
         for(int i = this.getCurrentAffectedBlockCounter(); i < this.getAffectedBlocksList().size(); i++){
 
             if(this.getAffectedBlocksList().get(i).canBePlaced(server))
-                return this.getAffectedBlocksList().get(i);
+                return i;
 
         }
         return null;

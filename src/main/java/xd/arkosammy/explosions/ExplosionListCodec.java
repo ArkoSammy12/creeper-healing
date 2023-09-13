@@ -15,8 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ExplosionListCodec {
+
+    private final List<ExplosionEvent> storedExplosionEvents;
 
     public static final Codec<ExplosionListCodec> CODEC = RecordCodecBuilder.create(scheduledCreeperExplosionsInstance -> scheduledCreeperExplosionsInstance.group(
 
@@ -24,10 +27,9 @@ public class ExplosionListCodec {
 
     ).apply(scheduledCreeperExplosionsInstance, ExplosionListCodec::new));
 
-    private final List<ExplosionEvent> storedExplosionEvents;
 
     public ExplosionListCodec(List<ExplosionEvent> events){
-        this.storedExplosionEvents = events;
+        this.storedExplosionEvents = new CopyOnWriteArrayList<>(events);
     }
 
     private List<ExplosionEvent> getStoredExplosionEvents() {
