@@ -133,7 +133,6 @@ public final class ExplosionUtils {
         return !world.isClient && !state.isAir() && CONFIG.shouldPlaySoundOnBlockPlacement();
     }
 
-
     /**
      * Checks if a block should be placed at the specified position.
      *
@@ -168,14 +167,12 @@ public final class ExplosionUtils {
 
             return true;
 
-
         } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.isAir(secondHalfPos))
                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER))
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER)))
                 && CONFIG.shouldHealOnFlowingWater()){
 
             return true;
-
 
         } else return ((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
