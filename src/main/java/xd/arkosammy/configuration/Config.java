@@ -1,4 +1,4 @@
-package xd.arkosammy.util;
+package xd.arkosammy.configuration;
 
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.events.AffectedBlock;
+import xd.arkosammy.explosions.AffectedBlock;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -63,7 +63,7 @@ public class Config {
         this.blockPlacementDelay = blockPlacementDelay;
     }
 
-    public void setDropItemsOnCreeperExplosions(boolean dropItemsOnCreeperExplosions){
+    public void setDropItemsOnExplosion(boolean dropItemsOnCreeperExplosions){
         this.dropItemsOnCreeperExplosions = dropItemsOnCreeperExplosions;
     }
 
@@ -139,14 +139,15 @@ public class Config {
 
                 Files.writeString(CONFIG_PATH, GSON.toJson(this));
 
+                CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
+                CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the \"/creeper-healing settings reload\" command in-game.");
+
+
             } catch (IOException e) {
 
                 throw new RuntimeException(e);
 
             }
-
-            CreeperHealing.LOGGER.info("Found no preexisting configuration file. Creating a new one with default values.");
-            CreeperHealing.LOGGER.info("Change the values in the config file and restart the server or game to apply them, or use the \"/creeper-healing settings reload\" command in-game.");
 
             //Return true if the config file doesn't already exist
             return true;
@@ -224,7 +225,7 @@ public class Config {
 
     }
 
-     boolean reloadConfig(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) throws IOException {
+     public boolean reloadConfig(CommandContext<ServerCommandSource> ctx) throws IOException {
 
         //If the config file exists, read the config again.
         // Remember to update the "isExplosionHandlingUnlocked" flag accordingly
@@ -239,8 +240,8 @@ public class Config {
             AffectedBlock.updateAffectedBlocksTimers();
 
             //Warn the user if these delays were set to 0 or fewer seconds
-            if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
-            if(Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0) serverCommandSourceCommandContext.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
+            if(Math.round(Math.max(this.explosionHealDelay, 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
+            if(Math.round(Math.max(this.blockPlacementDelay, 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
 
             return true;
 

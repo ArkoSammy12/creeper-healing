@@ -1,4 +1,4 @@
-package xd.arkosammy.util;
+package xd.arkosammy.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -13,7 +13,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.events.AffectedBlock;
+import xd.arkosammy.explosions.AffectedBlock;
 import java.io.IOException;
 
 public final class Commands {
@@ -157,7 +157,7 @@ public final class Commands {
         //Drop items on creeper argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setDropItemsOnCreeperExplosionsCommand)
+                .executes(Commands::setDropItemsOnExplosionCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -281,9 +281,9 @@ public final class Commands {
 
     }
 
-    private static int setDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+    private static int setDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
 
-        CreeperHealing.CONFIG.setDropItemsOnCreeperExplosions(BoolArgumentType.getBool(ctx, "value"));
+        CreeperHealing.CONFIG.setDropItemsOnExplosion(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
