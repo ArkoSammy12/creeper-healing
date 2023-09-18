@@ -3,7 +3,9 @@
   "package": "xd.arkosammy.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "CreeperExplosionMixin"
+    "ExplosionListenerMixin",
+    "ExplosionItemDropMixin",
+    "UpdateDayLightTimersMixin"
   ],
   "injectors": {
     "defaultRequire": 1

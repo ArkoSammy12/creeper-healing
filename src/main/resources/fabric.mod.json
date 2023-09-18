@@ -11,7 +11,7 @@
 		"homepage": "https://github.com/ArkoSammy12",
 		"sources": "https://github.com/ArkoSammy12/creeper-healing"
 	},
-	"license": "MIT",
+	"license": "LGPL-3.0-only",
 	"icon": "assets/creeper-healing/icon.png",
 	"environment": "*",
 	"entrypoints": {

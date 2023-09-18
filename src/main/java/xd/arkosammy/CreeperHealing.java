@@ -1,46 +1,34 @@
 package xd.arkosammy;
 
-import com.electronwill.nightconfig.core.file.FileConfig;
-import com.electronwill.nightconfig.toml.TomlFormat;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
-import xd.arkosammy.util.Commands;
-import xd.arkosammy.util.Config;
-import xd.arkosammy.util.ExplosionEventsSerializer;
-
-import java.io.File;
+import xd.arkosammy.explosions.ExplosionListCodec;
+import xd.arkosammy.explosions.AffectedBlock;
+import xd.arkosammy.handlers.ExplosionListHandler;
+import xd.arkosammy.commands.Commands;
+import xd.arkosammy.configuration.Config;
 import java.io.IOException;
 
 public class CreeperHealing implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
+	public static final Config CONFIG = new Config();
 	private static boolean healerHandlerLock;
-	private static MinecraftServer serverInstance;
-
-	public static FileConfig CONFIG = null;
-	public static final File CONFIG_FILE_PATH = new File(FabricLoader.getInstance().getConfigDir() + "/default-creeper-healing-config.toml");
-
 
 	@Override
 	public void onInitialize() {
 
 		//Initialize config
-		/*
 		try {
-			initConfig();
+			initializeConfig();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
-		 */
-
 
 		//Read the list of CreeperExplosionEvents stored in our file once the server has fully started
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
@@ -66,8 +54,7 @@ public class CreeperHealing implements ModInitializer {
 		});
 
 		//Start listening for CreeperExplosionEvents in our list once we have read the config
-		ServerTickEvents.END_SERVER_TICK.register(ExplosionHealerHandler::handleExplosionEventList);
-
+		ServerTickEvents.END_SERVER_TICK.register(ExplosionListHandler::handleExplosionList);
 
 		//Register our commands
 		CommandRegistrationCallback.EVENT.register(Commands::registerCommands);
@@ -76,66 +63,51 @@ public class CreeperHealing implements ModInitializer {
 
 	}
 
-	private void initConfig() {
+	private static void initializeConfig() throws IOException {
 
-		if(CONFIG_FILE_PATH.exists()){
+		//If the config file already exists, read the data from it
+		if(!CONFIG.writeConfig()){
 
-			Config.readConfig();
+			CONFIG.readConfig();
 
+			CONFIG.updateConfig();
 
-		} else {
-
-			CreeperHealing.LOGGER.info("Config file not found. Creating new one");
-			Config.writeFreshConfig();
+			//Warn the user if these delays were set to 0 or fewer seconds
+			if(Math.round(Math.max(CONFIG.getExplosionDelayRaw(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+			if(Math.round(Math.max(CONFIG.getBlockPlacementDelayRaw(), 0) * 20L) == 0) LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+			LOGGER.info("Applied custom configs");
 
 		}
 
-		CONFIG.save();
-
 	}
 
-	private void onServerStarting(MinecraftServer server) throws IOException {
-
-		CONFIG = FileConfig.builder(new File(FabricLoader.getInstance().getConfigDir() + "/creeper-healing.toml"), TomlFormat.instance())
-				.autosave()
-				.preserveInsertionOrder()
-				.concurrent()
-				.build();
-
-		CONFIG.load();
-
-		initConfig();
-
-		//Capture the server instance
-		serverInstance = server;
+	private static void onServerStarting(MinecraftServer server) throws IOException {
 
 		//Read the contents of our scheduled-explosions.json file and add them to the list
-		ExplosionEventsSerializer.reScheduleCreeperExplosionEvents(server);
+		ExplosionListCodec.rescheduleExplosionEvents(server);
 
 		//We can now start listening for explosions in the list
 		setHealerHandlerLock(true);
 
-		//ExplosionHealerHandler.updateExplosionTimers();
-		ExplosionHealerHandler.updateAffectedBlocksTimers();
+		//ExplosionListHandler.updateExplosionTimers();
+		AffectedBlock.updateAffectedBlocksTimers();
 
 	}
 
-	private void onServerStopping(MinecraftServer server) throws IOException {
+	private static void onServerStopping(MinecraftServer server) throws IOException {
 
 		//Reset the flag
 		setHealerHandlerLock(false);
 
-		//Make a new ExplosionEventsSerializer object and pass the current list to the constructor, then store it
-		ExplosionEventsSerializer explosionEventsSerializer = new ExplosionEventsSerializer(ExplosionHealerHandler.getExplosionEventList());
-		explosionEventsSerializer.storeBlockPlacements(server);
+		//Make a new ExplosionListCodec object and pass the current list to the constructor, then store it
+		ExplosionListCodec explosionListCodec = new ExplosionListCodec(ExplosionListHandler.getExplosionEventList());
+		explosionListCodec.storeExplosionList(server);
 
 		//Once we have stored the list, clear the current list from memory
-		ExplosionHealerHandler.getExplosionEventList().clear();
+		ExplosionListHandler.getExplosionEventList().clear();
 
 		//Update the config by overriding the current values with new ones obtained via commands
-		Config.updateConfig();
-
-		CONFIG.close();
+		CONFIG.updateConfig();
 
 	}
 
@@ -149,8 +121,5 @@ public class CreeperHealing implements ModInitializer {
 		healerHandlerLock = locked;
 	}
 
-	public static MinecraftServer getServerInstance(){
-		return serverInstance;
-	}
 
 }

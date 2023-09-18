@@ -12,18 +12,15 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.events.AffectedBlock;
-import xd.arkosammy.events.CreeperExplosionEvent;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
-import xd.arkosammy.util.Config;
-
+import xd.arkosammy.explosions.AffectedBlock;
+import xd.arkosammy.explosions.ExplosionEvent;
+import xd.arkosammy.handlers.ExplosionListHandler;
 import java.util.ArrayList;
 import java.util.List;
 
 
-
 @Mixin(Explosion.class)
-public abstract class CreeperExplosionMixin {
+public abstract class ExplosionListenerMixin {
 
     @Shadow @Final private World world;
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
@@ -38,32 +35,24 @@ public abstract class CreeperExplosionMixin {
             //Get our list of affected block positions after they have been created by the target method
             List<BlockPos> affectedBlocksPos = this.getAffectedBlocks();
 
-            ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
-
             //Don't store empty explosions
             if(!affectedBlocksPos.isEmpty()) {
+
+                ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
 
                 for (BlockPos pos : affectedBlocksPos) {
 
                     //Let's not store a bunch of unnecessary air blocks
                     if (!world.getBlockState(pos).isAir()) {
 
-                        affectedBlocks.add(new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), Config.getBlockPlacementDelay(), false));
+                        affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
 
                     }
 
                 }
 
-                CreeperExplosionEvent creeperExplosionEvent = new CreeperExplosionEvent(affectedBlocks, Config.getExplosionDelay(), 0);
-
-                if (Config.isDaytimeHealingEnabled()) {
-
-                    creeperExplosionEvent.setupDayTimeHealing(world);
-
-                }
-
-                //Add a new CreeperExplosionEvent to the list, passing in our list of affected blocks
-                ExplosionHealerHandler.getExplosionEventList().add(creeperExplosionEvent);
+                //Add a new ExplosionEvent to the list, passing in our list of affected blocks
+                ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
 
             }
 

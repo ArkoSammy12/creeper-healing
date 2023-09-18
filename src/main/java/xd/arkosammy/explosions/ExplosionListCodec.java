@@ -1,4 +1,4 @@
-package xd.arkosammy.util;
+package xd.arkosammy.explosions;
 
 import com.google.gson.*;
 import com.mojang.serialization.Codec;
@@ -9,44 +9,43 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.events.CreeperExplosionEvent;
-import xd.arkosammy.handlers.ExplosionHealerHandler;
+import xd.arkosammy.handlers.ExplosionListHandler;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ExplosionEventsSerializer {
+public class ExplosionListCodec {
 
-    //This private list will receive the actual list of CreeperExplosionEvent instances to be used for storage.
-    private final List<CreeperExplosionEvent> storedCreeperExplosionEvents;
+    private final List<ExplosionEvent> storedExplosionEvents;
 
-    //Codec for our ScheduledCreeperExplosion instance that gets created upon server shutdown, and holds
-    //the current CreeperExplosionEvents in the list for usage, and stores them in our private list.
-    public static final Codec<ExplosionEventsSerializer> CODEC = RecordCodecBuilder.create(scheduledCreeperExplosionsInstance -> scheduledCreeperExplosionsInstance.group(
+    public static final Codec<ExplosionListCodec> CODEC = RecordCodecBuilder.create(scheduledCreeperExplosionsInstance -> scheduledCreeperExplosionsInstance.group(
 
-            Codec.list(CreeperExplosionEvent.CODEC).fieldOf("Scheduled_Creeper_Explosions").forGetter(ExplosionEventsSerializer::getStoredCreeperExplosionEvents)
+            Codec.list(ExplosionEvent.getCodec()).fieldOf("Scheduled_Creeper_Explosions").forGetter(ExplosionListCodec::getStoredExplosionEvents)
 
-    ).apply(scheduledCreeperExplosionsInstance, ExplosionEventsSerializer::new));
+    ).apply(scheduledCreeperExplosionsInstance, ExplosionListCodec::new));
 
-    public ExplosionEventsSerializer(List<CreeperExplosionEvent> events){
-        this.storedCreeperExplosionEvents = events;
+
+    public ExplosionListCodec(List<ExplosionEvent> events){
+        this.storedExplosionEvents = new CopyOnWriteArrayList<>(events);
     }
 
-    private List<CreeperExplosionEvent> getStoredCreeperExplosionEvents() {
-        return this.storedCreeperExplosionEvents;
+    private List<ExplosionEvent> getStoredExplosionEvents() {
+        return this.storedExplosionEvents;
     }
+
 
     //Reschedule the CreeperExplosionEvents read from our file
-    public static void reScheduleCreeperExplosionEvents(MinecraftServer server) throws IOException {
+    public static void rescheduleExplosionEvents(MinecraftServer server) throws IOException {
 
-        List<CreeperExplosionEvent> explosionEvents = readCreeperExplosionEvents(server);
+        List<ExplosionEvent> explosionEvents = readCreeperExplosionEvents(server);
 
         if (!explosionEvents.isEmpty()) {
 
             //Add our read CreeperExplosionEvents back to the list
-            ExplosionHealerHandler.getExplosionEventList().addAll(explosionEvents);
+            ExplosionListHandler.getExplosionEventList().addAll(explosionEvents);
 
             CreeperHealing.LOGGER.info("Rescheduled " + explosionEvents.size() + " creeper explosion event(s).");
 
@@ -55,12 +54,12 @@ public class ExplosionEventsSerializer {
     }
 
     //We encode our singular ExplosionEventSerializer object, and we write it to a file
-    public void storeBlockPlacements(@NotNull MinecraftServer server) {
+    public void storeExplosionList(@NotNull MinecraftServer server) {
 
         //Obtain the path to the server's world directory
         Path scheduledExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
 
-        //Obtain the result of trying to encode our instance of ExplosionEventsSerializer into a JsonOps
+        //Obtain the result of trying to encode our instance of ExplosionListCodec into a JsonOps
         DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, this);
 
         if (encodedScheduledExplosions.result().isPresent()){
@@ -92,12 +91,12 @@ public class ExplosionEventsSerializer {
     }
 
     //Read the JSON data from our file, then we return a list of the decoded CreeperExplosionEvents
-    private static List<CreeperExplosionEvent> readCreeperExplosionEvents(@NotNull MinecraftServer server) throws IOException {
+    private static List<ExplosionEvent> readCreeperExplosionEvents(@NotNull MinecraftServer server) throws IOException {
 
         //Obtain the path to the server's world directory
         Path scheduledExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
 
-        List<CreeperExplosionEvent> scheduledExplosionEvents = new ArrayList<>();
+        List<ExplosionEvent> scheduledExplosionEvents = new ArrayList<>();
 
         //If our file does not exist, create it and return an empty list
         if (Files.exists(scheduledExplosionsFilePath)) {
@@ -107,11 +106,11 @@ public class ExplosionEventsSerializer {
                 //Parse the contents of our file into a JsonElement
                 JsonElement scheduledExplosionsAsJson = JsonParser.parseReader(reader);
 
-                DataResult<ExplosionEventsSerializer> decodedScheduledExplosions = CODEC.parse(JsonOps.INSTANCE, scheduledExplosionsAsJson); //Decode our JsonElement into a DataResult
+                DataResult<ExplosionListCodec> decodedScheduledExplosions = CODEC.parse(JsonOps.INSTANCE, scheduledExplosionsAsJson); //Decode our JsonElement into a DataResult
 
                 if (decodedScheduledExplosions.result().isPresent()) {
 
-                    return decodedScheduledExplosions.resultOrPartial(error -> CreeperHealing.LOGGER.error("Error reading json: " + error)).orElseThrow().getStoredCreeperExplosionEvents(); //If the DataResult does contain our result, then obtain our instance of ScheduledCreeperExplosion, then obtain its list of CreeperExplosionEvents
+                    return decodedScheduledExplosions.resultOrPartial(error -> CreeperHealing.LOGGER.error("Error reading json: " + error)).orElseThrow().getStoredExplosionEvents(); //If the DataResult does contain our result, then obtain our instance of ScheduledCreeperExplosion, then obtain its list of CreeperExplosionEvents
 
                 } else {
 
