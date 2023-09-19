@@ -8,11 +8,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.configuration.tables.DelaysConfig;
+import xd.arkosammy.configuration.tables.ModeConfig;
+import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import static xd.arkosammy.CreeperHealing.CONFIG;
 
 public class ExplosionEvent {
 
@@ -45,8 +47,8 @@ public class ExplosionEvent {
      */
     public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world) {
         List<AffectedBlock> sortedAffectedBlockList = ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer());
-        ExplosionEvent explosionEvent = new ExplosionEvent(sortedAffectedBlockList, CONFIG.getExplosionDelay(), 0, false);
-        if (CONFIG.isDaytimeHealingEnabled()) explosionEvent.setupDayTimeHealing(world);
+        ExplosionEvent explosionEvent = new ExplosionEvent(sortedAffectedBlockList, DelaysConfig.getExplosionHealDelay(), 0, false);
+        if (ModeConfig.getDayTimeHealingMode()) explosionEvent.setupDayTimeHealing(world);
         return explosionEvent;
     }
 
@@ -126,7 +128,7 @@ public class ExplosionEvent {
 
         //We return true if the current block counter is greater than 0,
         // since we want to allow explosions to heal completely if the light conditions were only met initially
-        if (!CreeperHealing.CONFIG.getRequiresLight() || this.getAffectedBlockCounter() > 0) return true;
+        if (!PreferencesConfig.getRequiresLight() || this.getAffectedBlockCounter() > 0) return true;
 
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
 

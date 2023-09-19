@@ -12,7 +12,10 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.configuration.Config;
+import xd.arkosammy.configuration.tables.DelaysConfig;
+import xd.arkosammy.configuration.tables.ModeConfig;
+import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.explosions.AffectedBlock;
 import java.io.IOException;
 
@@ -205,7 +208,7 @@ public final class Commands {
 
     private static int setDoDayTimeHealingCommand(CommandContext<ServerCommandSource> ctx){
 
-        CreeperHealing.CONFIG.setDaytimeHealing(BoolArgumentType.getBool(ctx, "value"));
+        ModeConfig.setDaytimeHealingMode(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Daytime healing mode has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
@@ -217,7 +220,7 @@ public final class Commands {
 
         if(Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
 
-            CreeperHealing.CONFIG.setExplosionHealDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
+            DelaysConfig.setExplosionHealDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
 
             ctx.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
 
@@ -235,7 +238,7 @@ public final class Commands {
 
         if (Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
 
-            CreeperHealing.CONFIG.setBlockPlacementDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
+            DelaysConfig.setBlockPlacementDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
 
             AffectedBlock.updateAffectedBlocksTimers();
 
@@ -253,7 +256,7 @@ public final class Commands {
 
     private static int setHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx) {
 
-        CreeperHealing.CONFIG.setShouldHealOnFlowingWater(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.setHealOnFlowingWater(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Heal on flowing water has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
@@ -263,7 +266,7 @@ public final class Commands {
 
     private static int setHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx) {
 
-        CreeperHealing.CONFIG.setShouldHealOnFlowingLava(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.setHealOnFlowingLava(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Heal on flowing lava has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
@@ -273,7 +276,7 @@ public final class Commands {
 
     private static int setPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
 
-        CreeperHealing.CONFIG.setShouldPlaySoundOnBlockPlacement(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.setBlockPlacementSoundEffect(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
@@ -283,7 +286,7 @@ public final class Commands {
 
     private static int setDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
 
-        CreeperHealing.CONFIG.setDropItemsOnExplosion(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.setDropItemsOnExplosions(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
@@ -293,7 +296,7 @@ public final class Commands {
 
     private static int setRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
 
-        CreeperHealing.CONFIG.setRequiresLight(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.setRequiresLight(BoolArgumentType.getBool(ctx, "value"));
 
         ctx.getSource().sendMessage(Text.literal("Requires light has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
@@ -307,7 +310,7 @@ public final class Commands {
 
     private static int getDoDayLightHealingCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode currently set to: " + CreeperHealing.CONFIG.isDaytimeHealingEnabled()));
+        ctx.getSource().sendMessage(Text.literal("Daytime healing mode currently set to: " + ModeConfig.getDayTimeHealingMode()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -315,7 +318,7 @@ public final class Commands {
 
     private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)CreeperHealing.CONFIG.getExplosionDelay() / 20) + " second(s)"));
+        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"));
 
         return Command.SINGLE_SUCCESS;
 
@@ -323,7 +326,7 @@ public final class Commands {
 
     private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double)CreeperHealing.CONFIG.getBlockPlacementDelay() / 20) + " second(s)"));
+        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double) DelaysConfig.getBlockPlacementDelay() / 20) + " second(s)"));
 
         return Command.SINGLE_SUCCESS;
 
@@ -331,7 +334,7 @@ public final class Commands {
 
     private static int getShouldHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingWater()));
+        ctx.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + PreferencesConfig.getHealOnFlowingWater()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -339,7 +342,7 @@ public final class Commands {
 
     private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + CreeperHealing.CONFIG.shouldHealOnFlowingLava()));
+        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + PreferencesConfig.getHealOnFlowingLava()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -347,7 +350,7 @@ public final class Commands {
 
     private static int getShouldPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
 
-        ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + CreeperHealing.CONFIG.shouldPlaySoundOnBlockPlacement()));
+        ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + PreferencesConfig.getBlockPlacementSoundEffect()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -355,7 +358,7 @@ public final class Commands {
 
     private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions currently set to: " + CreeperHealing.CONFIG.getDropItemsOnCreeperExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions currently set to: " + PreferencesConfig.getDropItemsOnExplosions()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -363,7 +366,7 @@ public final class Commands {
 
     private static int getRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Requires light currently set to: " + CreeperHealing.CONFIG.getRequiresLight()));
+        ctx.getSource().sendMessage(Text.literal("Requires light currently set to: " + PreferencesConfig.getRequiresLight()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -376,7 +379,7 @@ public final class Commands {
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
 
         //If this returns true, then the config file exists, and we can update our values from it
-        if(CreeperHealing.CONFIG.reloadConfig(ctx)) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
+        if(Config.reloadConfigEntries(ctx)) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
         else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
 
     }
