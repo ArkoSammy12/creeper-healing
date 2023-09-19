@@ -17,7 +17,7 @@ public abstract class ExplosionItemDropMixin {
     @Inject(method = "shouldDropItemsOnExplosion", at=@At("HEAD"), cancellable = true)
     private void shouldDropItems(@NotNull Explosion explosion, CallbackInfoReturnable<Boolean> cir){
 
-        if(explosion.getCausingEntity() instanceof CreeperEntity && !PreferencesConfig.getBlockPlacementSoundEffect()){
+        if(explosion.getCausingEntity() instanceof CreeperEntity && !PreferencesConfig.getDropItemsOnExplosions()){
 
             cir.setReturnValue(false);
 

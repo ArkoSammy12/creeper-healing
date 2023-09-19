@@ -114,7 +114,7 @@ public class PreferencesConfig {
 
         Boolean boolToReturn = getValueForEntry("heal_on_flowing_water");
 
-        if(boolToReturn == null) return false;
+        if(boolToReturn == null) return true;
 
         return boolToReturn;
 
@@ -124,7 +124,7 @@ public class PreferencesConfig {
 
         Boolean boolToReturn = getValueForEntry("heal_on_flowing_lava");
 
-        if(boolToReturn == null) return false;
+        if(boolToReturn == null) return true;
 
         return boolToReturn;
 
@@ -134,7 +134,7 @@ public class PreferencesConfig {
 
         Boolean boolToReturn = getValueForEntry("block_placement_sound_effect");
 
-        if(boolToReturn == null) return false;
+        if(boolToReturn == null) return true;
 
         return boolToReturn;
 
@@ -144,7 +144,7 @@ public class PreferencesConfig {
 
         Boolean boolToReturn = getValueForEntry("drop_items_on_explosions");
 
-        if(boolToReturn == null) return false;
+        if(boolToReturn == null) return true;
 
         return boolToReturn;
 
@@ -180,7 +180,7 @@ public class PreferencesConfig {
 
             fileConfig.set(
                     NAME + "." + entry.getName(),
-                    entry.getDefaultValue()
+                    entry.getValue()
             );
 
             fileConfig.setComment(

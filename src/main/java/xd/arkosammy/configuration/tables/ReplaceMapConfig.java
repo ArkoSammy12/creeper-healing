@@ -3,7 +3,6 @@ package xd.arkosammy.configuration.tables;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
-
 import java.util.HashMap;
 import java.util.Map;
 
