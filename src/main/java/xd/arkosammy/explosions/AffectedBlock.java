@@ -12,10 +12,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.configuration.tables.DelaysConfig;
+import xd.arkosammy.configuration.tables.ReplaceMapConfig;
 import xd.arkosammy.handlers.DoubleBlockHandler;
 import xd.arkosammy.handlers.ExplosionListHandler;
-import static xd.arkosammy.CreeperHealing.CONFIG;
-
 
 public class AffectedBlock {
 
@@ -51,7 +51,7 @@ public class AffectedBlock {
      * @return A new AffectedBlock instance.
      */
     public static AffectedBlock newAffectedBlock(BlockPos pos, World world){
-        return new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), CONFIG.getBlockPlacementDelay(), false);
+        return new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), DelaysConfig.getBlockPlacementDelay(), false);
     }
 
     void setAffectedBlockTimer(long delay){
@@ -121,9 +121,9 @@ public class AffectedBlock {
         //If it is, switch the state for the corresponding one in the replace-list.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
 
-        if(CONFIG.getReplaceList().containsKey(blockIdentifier)){
+        if(ReplaceMapConfig.getReplaceMap().containsKey(blockIdentifier)){
 
-            state = Registries.BLOCK.get(new Identifier(CONFIG.getReplaceList().get(blockIdentifier))).getStateWithProperties(state);
+            state = Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
 
         }
 
@@ -162,7 +162,7 @@ public class AffectedBlock {
         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
             if(!explosionEvent.isMarkedWithDayTimeHealingMode()) {
                 for (int i = explosionEvent.getAffectedBlockCounter() + 1; i < explosionEvent.getAffectedBlocksList().size(); i++) {
-                    explosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(CONFIG.getBlockPlacementDelay());
+                    explosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelay());
                 }
             }
         }

@@ -10,10 +10,11 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import xd.arkosammy.configuration.tables.PreferencesConfig;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import static xd.arkosammy.CreeperHealing.CONFIG;
+
 
 public final class ExplosionUtils {
 
@@ -130,7 +131,7 @@ public final class ExplosionUtils {
      * @return True if a sound should be played; otherwise, false.
      */
     public static boolean shouldPlaySound(World world, BlockState state) {
-        return !world.isClient && !state.isAir() && CONFIG.shouldPlaySoundOnBlockPlacement();
+        return !world.isClient && !state.isAir() && PreferencesConfig.getBlockPlacementSoundEffect();
     }
 
     /**
@@ -144,9 +145,9 @@ public final class ExplosionUtils {
 
         if(world.isAir(pos)) return true;
 
-        else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && CONFIG.shouldHealOnFlowingWater()) return true;
+        else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && PreferencesConfig.getHealOnFlowingWater()) return true;
 
-        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && CONFIG.shouldHealOnFlowingLava();
+        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && PreferencesConfig.getHealOnFlowingLava();
 
 
     }
@@ -170,14 +171,14 @@ public final class ExplosionUtils {
         } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.isAir(secondHalfPos))
                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER))
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER)))
-                && CONFIG.shouldHealOnFlowingWater()){
+                && PreferencesConfig.getHealOnFlowingWater()){
 
             return true;
 
-        } else return ((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
+        } else return (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA)))
-                && CONFIG.shouldHealOnFlowingLava();
+                && PreferencesConfig.getHealOnFlowingLava());
 
     }
 

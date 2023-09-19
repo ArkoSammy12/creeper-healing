@@ -7,17 +7,17 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xd.arkosammy.configuration.Config;
 import xd.arkosammy.explosions.ExplosionListCodec;
 import xd.arkosammy.explosions.AffectedBlock;
 import xd.arkosammy.handlers.ExplosionListHandler;
 import xd.arkosammy.commands.Commands;
-import xd.arkosammy.configuration.Config;
+
 import java.io.IOException;
 
 public class CreeperHealing implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
-	public static final Config CONFIG = new Config();
 	private static boolean healerHandlerLock;
 
 	@Override
@@ -64,21 +64,7 @@ public class CreeperHealing implements ModInitializer {
 	}
 
 	private static void initializeConfig() throws IOException {
-
-		//If the config file already exists, read the data from it
-		if(!CONFIG.writeConfig()){
-
-			CONFIG.readConfig();
-
-			CONFIG.updateConfig();
-
-			//Warn the user if these delays were set to 0 or fewer seconds
-			if(Math.round(Math.max(CONFIG.getExplosionDelayRaw(), 0) * 20L) == 0) LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
-			if(Math.round(Math.max(CONFIG.getBlockPlacementDelayRaw(), 0) * 20L) == 0) LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
-			LOGGER.info("Applied custom configs");
-
-		}
-
+		Config.initializeConfig();
 	}
 
 	private static void onServerStarting(MinecraftServer server) throws IOException {
@@ -107,7 +93,7 @@ public class CreeperHealing implements ModInitializer {
 		ExplosionListHandler.getExplosionEventList().clear();
 
 		//Update the config by overriding the current values with new ones obtained via commands
-		CONFIG.updateConfig();
+		Config.updateConfigFile();
 
 	}
 
