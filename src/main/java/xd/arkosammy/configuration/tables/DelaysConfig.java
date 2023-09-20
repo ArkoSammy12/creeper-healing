@@ -10,9 +10,9 @@ public abstract class DelaysConfig {
 
     private DelaysConfig(){}
     private static final List<ConfigEntry<Double>> delaysEntryList = new ArrayList<>();
+    private static final String TABLE_NAME = "delays";
     private static final String TABLE_COMMENT = """
             Configure the delays related to the healing of explosions.""";
-    private static final String TABLE_NAME = "delays";
 
     static {
 
@@ -94,7 +94,7 @@ public abstract class DelaysConfig {
 
     }
 
-    public static List<ConfigEntry<Double>> getDelayEntryList(){
+    private static List<ConfigEntry<Double>> getDelayEntryList(){
         return delaysEntryList;
     }
 
@@ -152,7 +152,7 @@ public abstract class DelaysConfig {
 
     }
 
-    public static Double getValueForNameFromMemory(String settingName){
+    private static Double getValueForNameFromMemory(String settingName){
 
         for(ConfigEntry<Double> entry : getDelayEntryList()){
 
@@ -167,7 +167,5 @@ public abstract class DelaysConfig {
         return null;
 
     }
-
-
 
 }

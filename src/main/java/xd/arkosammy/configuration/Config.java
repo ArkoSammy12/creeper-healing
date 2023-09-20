@@ -11,10 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.tables.DelaysConfig;
-import xd.arkosammy.configuration.tables.ModeConfig;
-import xd.arkosammy.configuration.tables.PreferencesConfig;
-import xd.arkosammy.configuration.tables.ReplaceMapConfig;
+import xd.arkosammy.configuration.tables.*;
 import xd.arkosammy.explosions.AffectedBlock;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -154,6 +151,7 @@ public abstract class Config {
     private static void saveDefaultConfigSettingsToFile(CommentedFileConfig fileConfig){
 
         ModeConfig.saveDefaultSettingsToFile(fileConfig);
+        ExplosionSourceConfig.saveDefaultSettingsToFile(fileConfig);
         DelaysConfig.saveDefaultSettingsToFile(fileConfig);
         PreferencesConfig.saveDefaultSettingsToFile(fileConfig);
         ReplaceMapConfig.saveToFileWithDefaultValues(fileConfig);
@@ -163,6 +161,7 @@ public abstract class Config {
     private static void saveConfigSettingsToFile(CommentedFileConfig fileConfig){
 
         ModeConfig.saveSettingsToFile(fileConfig);
+        ExplosionSourceConfig.saveSettingsToFile(fileConfig);
         DelaysConfig.saveSettingsToFile(fileConfig);
         PreferencesConfig.saveSettingsToFile(fileConfig);
         ReplaceMapConfig.saveReplaceMapToFile(fileConfig);
@@ -172,6 +171,7 @@ public abstract class Config {
     private static void loadConfigSettingsToMemory(CommentedFileConfig fileConfig){
 
         ModeConfig.loadSettingsToMemory(fileConfig);
+        ExplosionSourceConfig.loadSettingsToMemory(fileConfig);
         DelaysConfig.loadSettingsToMemory(fileConfig);
         PreferencesConfig.loadSettingsToMemory(fileConfig);
         ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);

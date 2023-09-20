@@ -11,9 +11,9 @@ public abstract class ModeConfig {
 
     private ModeConfig(){}
     private static final List<ConfigEntry<Boolean>> modeEntryList = new ArrayList<>();
+    private static final String TABLE_NAME = "modes";
     private static final String TABLE_COMMENT = """
             Toggle different special modes for explosion healing.""";
-    private static final String TABLE_NAME = "modes";
 
     static {
 
@@ -107,7 +107,7 @@ public abstract class ModeConfig {
 
     }
 
-    public static Boolean getValueForNameFromMemory(String settingName){
+    private static Boolean getValueForNameFromMemory(String settingName){
 
         for(ConfigEntry<Boolean> entry : getModeEntryList()){
 

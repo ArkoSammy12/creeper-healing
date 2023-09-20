@@ -10,9 +10,9 @@ public abstract class PreferencesConfig {
 
     private PreferencesConfig(){}
     private static final List<ConfigEntry<Boolean>> preferencesEntryList = new ArrayList<>();
+    private static final String TABLE_NAME = "preferences";
     private static final String TABLE_COMMENT = """
             Toggleable settings to customize the healing of explosions.""";
-    private static final String TABLE_NAME = "preferences";
 
     static {
 
@@ -153,7 +153,7 @@ public abstract class PreferencesConfig {
 
     }
 
-    public static List<ConfigEntry<Boolean>> getPreferencesEntryList(){
+    private static List<ConfigEntry<Boolean>> getPreferencesEntryList(){
         return preferencesEntryList;
     }
 
@@ -212,7 +212,7 @@ public abstract class PreferencesConfig {
 
     }
 
-    public static Boolean getValueForNameFromMemory(String settingName){
+    private static Boolean getValueForNameFromMemory(String settingName){
 
         for(ConfigEntry<Boolean> entry : getPreferencesEntryList()){
 
