@@ -1,30 +1,26 @@
 package xd.arkosammy.configuration.tables;
+
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.configuration.ConfigEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DelaysConfig {
+public abstract class DelaysConfig {
 
+    private DelaysConfig(){}
     private static final List<ConfigEntry<Double>> delaysEntryList = new ArrayList<>();
-
-    public static final String COMMENT = """
+    private static final String TABLE_COMMENT = """
             Configure the delays related to the healing of explosions.""";
-
-    public static final String NAME = "delays";
-
-
+    private static final String TABLE_NAME = "delays";
 
     static {
 
         delaysEntryList.add(new ConfigEntry<>("explosion_heal_delay", 3.0, """
-                Change the delay in seconds between each creeper explosion and its corresponding healing process.
-                This is 3 by default."""));
+                (Default = 3) Change the delay in seconds between each explosion and its corresponding healing process."""));
 
         delaysEntryList.add(new ConfigEntry<>("block_placement_delay", 1.0, """
-                Change the delay in seconds between each block placement during the explosion healing process.
-                This is 1 by default."""));
+                (Default = 1) Change the delay in seconds between each block placement during the explosion healing process."""));
 
     }
 
@@ -58,7 +54,7 @@ public class DelaysConfig {
 
     public static long getExplosionHealDelay(){
 
-        Double explosionHealDelayToReturn = getValueForEntry("explosion_heal_delay");
+        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
 
         if(explosionHealDelayToReturn == null) return 60;
 
@@ -69,7 +65,7 @@ public class DelaysConfig {
 
     public static long getBlockPlacementDelay(){
 
-        Double blockPlacementDelayToReturn = getValueForEntry("block_placement_delay");
+        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
 
         if(blockPlacementDelayToReturn == null) return 20;
 
@@ -80,7 +76,7 @@ public class DelaysConfig {
 
     public static double getExplosionHealDelayRaw(){
 
-        Double explosionHealDelayToReturn = getValueForEntry("explosion_heal_delay");
+        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
 
         if(explosionHealDelayToReturn == null) return 3;
 
@@ -90,7 +86,7 @@ public class DelaysConfig {
 
     public static double getBlockPlacementDelayRaw(){
 
-        Double blockPlacementDelayToReturn = getValueForEntry("block_placement_delay");
+        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
 
         if(blockPlacementDelayToReturn == null) return 1;
 
@@ -102,53 +98,65 @@ public class DelaysConfig {
         return delaysEntryList;
     }
 
-    public static void saveDefaultEntries(CommentedFileConfig fileConfig){
+    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Double> configEntry : getDelayEntryList()){
             configEntry.resetValue();
         }
 
-        saveEntries(fileConfig);
+        saveSettingsToFile(fileConfig);
 
     }
 
-    public static void saveEntries(CommentedFileConfig fileConfig){
+    public static void saveSettingsToFile(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Double> entry : getDelayEntryList()){
 
             fileConfig.set(
-                    NAME + "." + entry.getName(),
+                    TABLE_NAME + "." + entry.getName(),
                     entry.getValue()
             );
 
-            fileConfig.setComment(
-                    NAME + "." + entry.getName(),
-                    entry.getComment()
-            );
+            String entryComment = entry.getComment();
+
+            if(entryComment != null)
+                fileConfig.setComment(
+                        TABLE_NAME + "." + entry.getName(),
+                        entryComment
+                );
 
         }
 
-        fileConfig.setComment(NAME, COMMENT);
+        fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
 
     }
 
-    public static void loadEntries(CommentedFileConfig fileConfig){
+    public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Double> configEntry : getDelayEntryList()){
 
-            configEntry.setValue((double)fileConfig.getOrElse(NAME + "." + configEntry.getName(), configEntry.getDefaultValue()));
+            Object num = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
 
-            CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with entry : " + configEntry.getValue());
+            if(num instanceof Number numberToSet){
+
+                configEntry.setValue(numberToSet.doubleValue());
+                CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with value : " + configEntry.getValue());
+
+            } else {
+
+                CreeperHealing.LOGGER.warn("Invalid value in config file for setting: " + configEntry.getName());
+
+            }
 
         }
 
     }
 
-    public static Double getValueForEntry(String name){
+    public static Double getValueForNameFromMemory(String settingName){
 
         for(ConfigEntry<Double> entry : getDelayEntryList()){
 
-            if(entry.getName().equals(name)){
+            if(entry.getName().equals(settingName)){
 
                 return entry.getValue();
 

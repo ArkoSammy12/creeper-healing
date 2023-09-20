@@ -6,55 +6,59 @@ import xd.arkosammy.CreeperHealing;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReplaceMapConfig {
+public abstract class ReplaceMapConfig {
 
-    public static final String COMMENT = """
-            Add your own replace settings to configure which blocks should be used to heal other blocks.
-            The block on the right will be used to heal the block on the left. Specify the block's namespace along with the block's name identifier.
-            Example entry:
-            "minecraft:diamond_block" = "minecraft:stone"\s""";
-
-    public static final String NAME = "replace_map";
+    private ReplaceMapConfig(){}
     private static final HashMap<String, String> replaceMap = new HashMap<>();
+    private static final String TABLE_NAME = "replace_map";
+    private static final String TABLE_COMMENT = """
+            Add your own replace settings to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
+            Specify the block's namespace along with the block's name identifier, separated by a colon.
+            Example entry:
+            "minecraft:gold_block" = "minecraft:stone"
+            Warning, do not set a block to be replaced with more than one block! For example, the following will cause an error:
+            "minecraft:diamond_block" = "minecraft:stone"
+            "minecraft:diamond_block" = "minecraft:air"\s""";
+
 
     public static HashMap<String, String> getReplaceMap(){
         return  replaceMap;
     }
 
-    public static void saveDefaultEntries(CommentedFileConfig fileConfig){
-
+    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         replaceMap.clear();
-
         replaceMap.put("minecraft:diamond_block", "minecraft:stone");
-
-        saveEntries(fileConfig);
-
-
+        saveReplaceMapToFile(fileConfig);
     }
 
-    public static void saveEntries(CommentedFileConfig fileConfig){
+    public static void saveReplaceMapToFile(CommentedFileConfig fileConfig){
 
         for(Map.Entry<String, String> entry : replaceMap.entrySet()){
-
-            fileConfig.set(NAME + "." + entry.getKey(),  entry.getValue());
-
+            fileConfig.set(TABLE_NAME + "." + entry.getKey(),  entry.getValue());
         }
-
-        fileConfig.setComment(NAME, COMMENT);
+        fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
 
     }
 
-    public static void loadEntries(CommentedFileConfig fileConfig){
+    public static void loadReplaceMapToMemory(CommentedFileConfig fileConfig){
 
-        CommentedConfig replaceMapConfig = fileConfig.get(NAME);
-
+        CommentedConfig replaceMapConfig = fileConfig.get(TABLE_NAME);
         HashMap<String, String> tempReplaceMap = new HashMap<>();
 
         for(CommentedConfig.Entry entry : replaceMapConfig.entrySet()){
 
-            if(entry.getValue() instanceof String) {
+            if(entry.getValue() instanceof String && entry.getKey() != null) {
+
                 tempReplaceMap.put(entry.getKey(), entry.getValue());
-                CreeperHealing.LOGGER.info("Loaded entry: " + entry.getKey() + " with entry : " + tempReplaceMap.get(entry.getKey()));
+                CreeperHealing.LOGGER.info("Loaded entry: " + entry.getKey() + " with value: " + tempReplaceMap.get(entry.getKey()));
+
+            } else if (!(entry.getValue() instanceof String)) {
+
+                CreeperHealing.LOGGER.warn("Invalid value in replace map for key: " + entry.getKey());
+
+            } else if (entry.getKey() == null) {
+
+                CreeperHealing.LOGGER.warn("Invalid key found in replace map.");
 
             }
 

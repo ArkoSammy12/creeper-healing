@@ -4,7 +4,6 @@ public class ConfigEntry<T> {
 
     private T value;
     private final T defaultValue;
-
     private final String name;
     private final String comment;
 

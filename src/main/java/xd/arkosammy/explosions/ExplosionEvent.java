@@ -12,9 +12,9 @@ import xd.arkosammy.configuration.tables.DelaysConfig;
 import xd.arkosammy.configuration.tables.ModeConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ExplosionEvent {
 
@@ -33,7 +33,7 @@ public class ExplosionEvent {
 
     private ExplosionEvent(List<AffectedBlock> affectedBlocksList, long creeperExplosionTimer, int currentIndex, boolean dayTimeHealingMode){
         this.affectedBlockCounter = currentIndex;
-        this.affectedBlocksList = new ArrayList<>(affectedBlocksList); //We instantiate a new one to guarantee this list is always mutable
+        this.affectedBlocksList = new CopyOnWriteArrayList<>(affectedBlocksList); //Gotta ensure mutability and thread safety
         setExplosionTimer(creeperExplosionTimer);
         this.dayTimeHealingMode = dayTimeHealingMode;
     }

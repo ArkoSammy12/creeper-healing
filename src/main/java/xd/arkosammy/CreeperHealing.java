@@ -24,11 +24,7 @@ public class CreeperHealing implements ModInitializer {
 	public void onInitialize() {
 
 		//Initialize config
-		try {
-			initializeConfig();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		Config.initializeConfig();
 
 		//Read the list of CreeperExplosionEvents stored in our file once the server has fully started
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
@@ -63,9 +59,6 @@ public class CreeperHealing implements ModInitializer {
 
 	}
 
-	private static void initializeConfig() throws IOException {
-		Config.initializeConfig();
-	}
 
 	private static void onServerStarting(MinecraftServer server) throws IOException {
 

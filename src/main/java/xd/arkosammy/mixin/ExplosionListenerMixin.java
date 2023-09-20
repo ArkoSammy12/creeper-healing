@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -28,6 +29,8 @@ public abstract class ExplosionListenerMixin {
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void getExplodedBlocks(CallbackInfo ci){
+
+        /*
 
         //Only check for explosions caused by creepers
         if(this.getCausingEntity() instanceof CreeperEntity) {
@@ -55,6 +58,42 @@ public abstract class ExplosionListenerMixin {
                 ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
 
             }
+
+        }
+
+         */
+
+        storeExplosion(this.getCausingEntity(), this.getAffectedBlocks());
+
+    }
+
+    @Unique
+    private void storeExplosion(LivingEntity causingEntity, List<BlockPos> affectedBlocksPos){
+
+        //Get our list of affected block positions after they have been created by the target method
+        //List<BlockPos> affectedBlocksPos = explosion.getAffectedBlocks();
+
+        //Don't store empty explosions
+        if(affectedBlocksPos.isEmpty()) return;
+
+        //Only check for explosions caused by creepers
+        if(causingEntity instanceof CreeperEntity){
+
+            ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
+
+            for (BlockPos pos : affectedBlocksPos) {
+
+                //Let's not store a bunch of unnecessary air blocks
+                if (!world.getBlockState(pos).isAir()) {
+
+                    affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
+
+                }
+
+            }
+
+            //Add a new ExplosionEvent to the list, passing in our list of affected blocks
+            ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
 
         }
 

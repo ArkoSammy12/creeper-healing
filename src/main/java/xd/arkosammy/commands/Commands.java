@@ -87,7 +87,7 @@ public final class Commands {
         //Drop items on creeper explosions node
         LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
                 .literal("drop_items_on_creeper_explosions")
-                .executes(Commands::getDropItemsOnCreeperExplosionsCommand)
+                .executes(Commands::getDropItemsOnExplosionCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -288,7 +288,7 @@ public final class Commands {
 
         PreferencesConfig.setDropItemsOnExplosions(BoolArgumentType.getBool(ctx, "value"));
 
-        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendMessage(Text.literal("Drop items on explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
 
         return Command.SINGLE_SUCCESS;
 
@@ -356,9 +356,9 @@ public final class Commands {
 
     }
 
-    private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+    private static int getDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
 
-        ctx.getSource().sendMessage(Text.literal("Drop items on creeper explosions currently set to: " + PreferencesConfig.getDropItemsOnExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on explosions currently set to: " + PreferencesConfig.getDropItemsOnExplosions()));
 
         return Command.SINGLE_SUCCESS;
 
@@ -379,7 +379,7 @@ public final class Commands {
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
 
         //If this returns true, then the config file exists, and we can update our values from it
-        if(Config.reloadConfigEntries(ctx)) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
+        if(Config.reloadConfigSettingsInMemory(ctx)) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
         else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
 
     }

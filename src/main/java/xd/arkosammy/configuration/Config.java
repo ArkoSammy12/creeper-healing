@@ -19,19 +19,12 @@ import xd.arkosammy.explosions.AffectedBlock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Config {
+public abstract class Config {
 
+    private Config(){}
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.toml");
-
-    private static final CommentedFileConfig TOML_CONFIG = CommentedFileConfig.builder(CONFIG_PATH, TomlFormat.instance())
-            .concurrent()
-            .preserveInsertionOrder()
-            .sync()
-            .build();
-    
     @Nullable
     private static final GenericBuilder<CommentedConfig, CommentedFileConfig> CONFIG_BUILDER;
-
 
     static {
 
@@ -56,7 +49,6 @@ public class Config {
 
         CONFIG_BUILDER = builder;
 
-
     }
 
     public static void initializeConfig(){
@@ -67,14 +59,22 @@ public class Config {
 
                 if (!Files.exists(CONFIG_PATH)) {
 
-                    saveWithDefaults(fileConfig);
+                    CreeperHealing.LOGGER.warn("Found no preexisting config to load settings from. Creating a new config with default values in " + CONFIG_PATH);
+                    CreeperHealing.LOGGER.warn("Change the settings in the config file, then reload the config by using /creeper-healing settings reload, or restart the server.");
+                    saveDefaultConfigSettingsToFile(fileConfig);
                     fileConfig.save();
-
 
                 } else {
 
                     fileConfig.load();
-                    loadEntryValues(fileConfig);
+                    loadConfigSettingsToMemory(fileConfig);
+                    updateConfigFile();
+
+                    //Warn the user if these delays were set to 0 or fewer seconds
+                    if(Math.round(Math.max(DelaysConfig.getExplosionHealDelayRaw(), 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+                    if(Math.round(Math.max(DelaysConfig.getBlockPlacementDelayRaw(), 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+                    CreeperHealing.LOGGER.info("Applied custom config settings");
+
 
                 }
 
@@ -92,13 +92,19 @@ public class Config {
 
                 if(Files.exists(CONFIG_PATH)){
 
-                    saveConfig(fileConfig);
+                    fileConfig.load();
+                    ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
+                    saveConfigSettingsToFile(fileConfig);
                     fileConfig.save();
 
                 } else {
 
-                    saveWithDefaults(fileConfig);
+                    CreeperHealing.LOGGER.warn("Found no preexisting config to load settings from. Creating a new config with default values in " + CONFIG_PATH);
+                    CreeperHealing.LOGGER.warn("Change the settings in the config file, then reload the config by using /creeper-healing settings reload, or restart the server.");
+
+                    saveDefaultConfigSettingsToFile(fileConfig);
                     fileConfig.save();
+
 
                 }
 
@@ -108,7 +114,7 @@ public class Config {
 
     }
 
-    public static boolean reloadConfigEntries(CommandContext<ServerCommandSource> ctx){
+    public static boolean reloadConfigSettingsInMemory(CommandContext<ServerCommandSource> ctx){
 
         if(CONFIG_BUILDER != null){
 
@@ -119,7 +125,7 @@ public class Config {
                     CreeperHealing.setHealerHandlerLock(false);
 
                     fileConfig.load();
-                    loadEntryValues(fileConfig);
+                    loadConfigSettingsToMemory(fileConfig);
 
                     CreeperHealing.setHealerHandlerLock(true);
 
@@ -145,30 +151,30 @@ public class Config {
 
     }
 
-    public static void saveWithDefaults(CommentedFileConfig fileConfig){
+    private static void saveDefaultConfigSettingsToFile(CommentedFileConfig fileConfig){
 
-        ModeConfig.saveDefaultEntries(fileConfig);
-        DelaysConfig.saveDefaultEntries(fileConfig);
-        PreferencesConfig.saveDefaultEntries(fileConfig);
-        ReplaceMapConfig.saveDefaultEntries(fileConfig);
-
-    }
-
-    public static void saveConfig(CommentedFileConfig fileConfig){
-
-        ModeConfig.saveEntries(fileConfig);
-        DelaysConfig.saveEntries(fileConfig);
-        PreferencesConfig.saveEntries(fileConfig);
-        ReplaceMapConfig.saveEntries(fileConfig);
+        ModeConfig.saveDefaultSettingsToFile(fileConfig);
+        DelaysConfig.saveDefaultSettingsToFile(fileConfig);
+        PreferencesConfig.saveDefaultSettingsToFile(fileConfig);
+        ReplaceMapConfig.saveToFileWithDefaultValues(fileConfig);
 
     }
 
-    public static void loadEntryValues(CommentedFileConfig fileConfig){
+    private static void saveConfigSettingsToFile(CommentedFileConfig fileConfig){
 
-        ModeConfig.loadEntries(fileConfig);
-        DelaysConfig.loadEntries(fileConfig);
-        PreferencesConfig.loadEntries(fileConfig);
-        ReplaceMapConfig.loadEntries(fileConfig);
+        ModeConfig.saveSettingsToFile(fileConfig);
+        DelaysConfig.saveSettingsToFile(fileConfig);
+        PreferencesConfig.saveSettingsToFile(fileConfig);
+        ReplaceMapConfig.saveReplaceMapToFile(fileConfig);
+
+    }
+
+    private static void loadConfigSettingsToMemory(CommentedFileConfig fileConfig){
+
+        ModeConfig.loadSettingsToMemory(fileConfig);
+        DelaysConfig.loadSettingsToMemory(fileConfig);
+        PreferencesConfig.loadSettingsToMemory(fileConfig);
+        ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
 
     }
 

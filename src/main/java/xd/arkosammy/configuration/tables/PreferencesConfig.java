@@ -3,40 +3,33 @@ package xd.arkosammy.configuration.tables;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.configuration.ConfigEntry;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreferencesConfig {
+public abstract class PreferencesConfig {
 
+    private PreferencesConfig(){}
     private static final List<ConfigEntry<Boolean>> preferencesEntryList = new ArrayList<>();
-
-    public static final String COMMENT = """
+    private static final String TABLE_COMMENT = """
             Toggleable settings to customize the healing of explosions.""";
-
-    public static final String NAME = "preferences";
+    private static final String TABLE_NAME = "preferences";
 
     static {
 
         preferencesEntryList.add(new ConfigEntry<>("heal_on_flowing_water", true, """
-                Whether or not blocks should be healed where there is currently flowing water.
-                This is true by default."""));
+                (Default = true) Whether or not blocks should be healed where there is currently flowing water."""));
 
         preferencesEntryList.add(new ConfigEntry<>("heal_on_flowing_lava", true, """
-                Whether or not blocks should be healed where there is currently flowing lava.
-                This is true by default."""));
+                (Default = true) Whether or not blocks should be healed where there is currently flowing lava."""));
 
         preferencesEntryList.add(new ConfigEntry<>("block_placement_sound_effect", true, """
-                Whether or not a block heal should play a sound effect.
-                This is true by default."""));
+                (Default = true) Whether or not a block heal should play a sound effect."""));
 
         preferencesEntryList.add(new ConfigEntry<>("drop_items_on_explosions", true, """
-                Whether or not creeper explosions should drop items.
-                This is true by default."""));
+                (Default = true) Whether or not explosions should drop items."""));
 
         preferencesEntryList.add(new ConfigEntry<>("requires_light", false, """
-                Whether or not explosions will need light to heal.
-                This is false by default."""));
+                (Default = false) Whether or not explosions will need light to heal."""));
 
     }
 
@@ -112,7 +105,7 @@ public class PreferencesConfig {
 
     public static Boolean getHealOnFlowingWater(){
 
-        Boolean boolToReturn = getValueForEntry("heal_on_flowing_water");
+        Boolean boolToReturn = getValueForNameFromMemory("heal_on_flowing_water");
 
         if(boolToReturn == null) return true;
 
@@ -122,7 +115,7 @@ public class PreferencesConfig {
 
     public static Boolean getHealOnFlowingLava(){
 
-        Boolean boolToReturn = getValueForEntry("heal_on_flowing_lava");
+        Boolean boolToReturn = getValueForNameFromMemory("heal_on_flowing_lava");
 
         if(boolToReturn == null) return true;
 
@@ -132,7 +125,7 @@ public class PreferencesConfig {
 
     public static Boolean getBlockPlacementSoundEffect(){
 
-        Boolean boolToReturn = getValueForEntry("block_placement_sound_effect");
+        Boolean boolToReturn = getValueForNameFromMemory("block_placement_sound_effect");
 
         if(boolToReturn == null) return true;
 
@@ -142,7 +135,7 @@ public class PreferencesConfig {
 
     public static Boolean getDropItemsOnExplosions(){
 
-        Boolean boolToReturn = getValueForEntry("drop_items_on_explosions");
+        Boolean boolToReturn = getValueForNameFromMemory("drop_items_on_explosions");
 
         if(boolToReturn == null) return true;
 
@@ -152,7 +145,7 @@ public class PreferencesConfig {
 
     public static Boolean getRequiresLight(){
 
-        Boolean boolToReturn = getValueForEntry("requires_light");
+        Boolean boolToReturn = getValueForNameFromMemory("requires_light");
 
         if(boolToReturn == null) return false;
 
@@ -164,54 +157,66 @@ public class PreferencesConfig {
         return preferencesEntryList;
     }
 
-    public static void saveDefaultEntries(CommentedFileConfig fileConfig){
+    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
             configEntry.resetValue();
         }
 
-        saveEntries(fileConfig);
+        saveSettingsToFile(fileConfig);
 
     }
 
-    public static void saveEntries(CommentedFileConfig fileConfig){
+    public static void saveSettingsToFile(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Boolean> entry : getPreferencesEntryList()){
 
             fileConfig.set(
-                    NAME + "." + entry.getName(),
+                    TABLE_NAME + "." + entry.getName(),
                     entry.getValue()
             );
 
-            fileConfig.setComment(
-                    NAME + "." + entry.getName(),
-                    entry.getComment()
-            );
+            String entryComment = entry.getComment();
+
+            if(entryComment != null)
+                fileConfig.setComment(
+                        TABLE_NAME + "." + entry.getName(),
+                        entryComment
+                );
 
         }
 
-        fileConfig.setComment(NAME, COMMENT);
+        fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
 
     }
 
-    public static void loadEntries(CommentedFileConfig fileConfig){
+    public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
 
-            configEntry.setValue(fileConfig.getOrElse(NAME + "." + configEntry.getName(), configEntry.getDefaultValue()));
+            Object bool = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
 
-            CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with entry : " + configEntry.getValue());
+            if(bool instanceof Boolean boolToSet){
+
+                configEntry.setValue(boolToSet);
+                CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with value: " + configEntry.getValue());
+
+            } else {
+
+                CreeperHealing.LOGGER.warn("Invalid value in config file for setting: " + configEntry.getName());
+
+            }
 
 
         }
 
     }
 
-    public static Boolean getValueForEntry(String entryName){
+    public static Boolean getValueForNameFromMemory(String settingName){
 
         for(ConfigEntry<Boolean> entry : getPreferencesEntryList()){
 
-            if(entry.getName().equals(entryName)){
+            if(entry.getName().equals(settingName)){
 
                 return entry.getValue();
 
