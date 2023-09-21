@@ -69,8 +69,7 @@ dependencies {
 	// Night Config
 	modImplementation "com.electronwill.night-config:core:3.6.7"
 	modImplementation "com.electronwill.night-config:toml:3.6.7"
-	modImplementation "com.electronwill.night-config:yaml:3.6.7"
-	modImplementation "com.electronwill.night-config:json:3.6.7"
+	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.2.0-rc.4")))
 
 
 }
