@@ -11,9 +11,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import xd.arkosammy.handlers.ExplosionListHandler;
+
+import java.util.*;
 
 
 public final class ExplosionUtils {
@@ -57,6 +57,33 @@ public final class ExplosionUtils {
 
     }
 
+    public static Set<ExplosionEvent> compareWithWaitingExplosions(List<BlockPos> affectedBlockPos){
+
+         Set<ExplosionEvent> matchedExplosions = new LinkedHashSet<>();
+
+         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
+
+             if(explosionEvent.getExplosionTimer() > 0){
+
+                 for(AffectedBlock affectedBlock : explosionEvent.getAffectedBlocksList()){
+
+                     if(affectedBlockPos.contains(affectedBlock.getPos())){
+
+                         matchedExplosions.add(explosionEvent);
+
+
+                     }
+
+                 }
+
+             }
+
+         }
+
+         return matchedExplosions;
+
+    }
+
     /**
      * Sorts a list of affected blocks based on various criteria to optimize healing order.
      *
@@ -72,8 +99,8 @@ public final class ExplosionUtils {
         int centerZ = calculateMidZCoordinate(affectedBlocksList);
 
          //Sort by distance to the center of the explosion
-         Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.sqrt(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
-        sortedAffectedBlocks.sort(distanceToCenterComparator);
+         Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
+         sortedAffectedBlocks.sort(distanceToCenterComparator);
 
          //Sort by Y level
          Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());

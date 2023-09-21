@@ -29,7 +29,7 @@ public final class ExplosionListHandler {
         //Find an ExplosionEvent in our list whose delay has reached 0
         for (ExplosionEvent currentExplosionEvent : getExplosionEventList()) {
 
-            if (currentExplosionEvent.getCreeperExplosionTimer() < 0) {
+            if (currentExplosionEvent.getExplosionTimer() < 0) {
 
                 processExplosionEvent(currentExplosionEvent, server);
 

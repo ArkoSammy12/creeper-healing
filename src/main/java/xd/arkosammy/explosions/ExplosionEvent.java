@@ -12,21 +12,21 @@ import xd.arkosammy.configuration.tables.DelaysConfig;
 import xd.arkosammy.configuration.tables.ModeConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ExplosionEvent {
 
     private final List<AffectedBlock> affectedBlocksList;
-    private long creeperExplosionTimer;
+    private long explosionTimer;
     private int affectedBlockCounter;
     private boolean dayTimeHealingMode;
 
     // Codec to serialize and deserialize ExplosionEvent instances.
-    private static final Codec<ExplosionEvent> CREEPER_EXPLOSION_EVENT_CODEC = RecordCodecBuilder.create(creeperExplosionEventInstance -> creeperExplosionEventInstance.group(
+    private static final Codec<ExplosionEvent> EXPLOSION_EVENT_CODEC = RecordCodecBuilder.create(creeperExplosionEventInstance -> creeperExplosionEventInstance.group(
             Codec.list(AffectedBlock.getCodec()).fieldOf("Affected_Blocks_List").forGetter(ExplosionEvent::getAffectedBlocksList),
-            Codec.LONG.fieldOf("Creeper_Explosion_Timer").forGetter(ExplosionEvent::getCreeperExplosionTimer),
+            Codec.LONG.fieldOf("Explosion_Timer").forGetter(ExplosionEvent::getExplosionTimer),
             Codec.INT.fieldOf("Current_Block_Counter").forGetter(ExplosionEvent::getCurrentAffectedBlockCounter),
             Codec.BOOL.fieldOf("DayTime_Healing_Mode").forGetter(ExplosionEvent::isMarkedWithDayTimeHealingMode)
     ).apply(creeperExplosionEventInstance, ExplosionEvent::new));
@@ -45,15 +45,28 @@ public class ExplosionEvent {
      * @param world              The world in which the explosion occurred.
      * @return A new ExplosionEvent instance.
      */
-    public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world) {
-        List<AffectedBlock> sortedAffectedBlockList = ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer());
-        ExplosionEvent explosionEvent = new ExplosionEvent(sortedAffectedBlockList, DelaysConfig.getExplosionHealDelay(), 0, false);
-        if (ModeConfig.getDayTimeHealingMode()) explosionEvent.setupDayTimeHealing(world);
-        return explosionEvent;
+    public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world, List<BlockPos> affectedBlockPosList) {
+        ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer()), DelaysConfig.getExplosionHealDelay(), 0, false);
+        if (ModeConfig.getDayTimeHealingMode())
+            explosionEvent.setupDayTimeHealing(world);
+
+        Set<ExplosionEvent> matchedExplosions =  ExplosionUtils.compareWithWaitingExplosions(affectedBlockPosList);
+
+        if(matchedExplosions.isEmpty()){
+
+            return explosionEvent;
+
+        } else {
+
+            ExplosionListHandler.getExplosionEventList().removeIf(matchedExplosions::contains);
+            matchedExplosions.add(explosionEvent);
+            return combineExplosionEvents(matchedExplosions, world.getServer());
+
+        }
     }
 
     public void setExplosionTimer(long delay){
-        this.creeperExplosionTimer = delay;
+        this.explosionTimer = delay;
     }
 
     public void incrementCounter() {
@@ -64,8 +77,8 @@ public class ExplosionEvent {
         return this.affectedBlocksList;
     }
 
-    public long getCreeperExplosionTimer(){
-        return this.creeperExplosionTimer;
+    public long getExplosionTimer(){
+        return this.explosionTimer;
     }
 
     int getAffectedBlockCounter(){
@@ -81,14 +94,14 @@ public class ExplosionEvent {
     }
 
     static Codec<ExplosionEvent> getCodec(){
-        return CREEPER_EXPLOSION_EVENT_CODEC;
+        return EXPLOSION_EVENT_CODEC;
     }
 
 
     //Iterate through all the CreeperExplosionEvents in our list and decrement each of their timers
     public static void tickExplosions(){
         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
-            explosionEvent.creeperExplosionTimer--;
+            explosionEvent.explosionTimer--;
         }
     }
 
@@ -183,6 +196,34 @@ public class ExplosionEvent {
 
         }
         return null;
+    }
+
+    private static ExplosionEvent combineExplosionEvents(Set<ExplosionEvent> explosionsToCombine, MinecraftServer server){
+
+        List<AffectedBlock> combinedAffectedBlockList = new ArrayList<>();
+
+        for(ExplosionEvent explosionEvent : explosionsToCombine){
+
+            combinedAffectedBlockList.addAll(explosionEvent.getAffectedBlocksList());
+
+        }
+
+        List<ExplosionEvent> listToFindYoungest = new ArrayList<>(explosionsToCombine);
+
+        ExplosionEvent youngestExplosion = listToFindYoungest.get(0);
+
+        for(ExplosionEvent explosionEvent : listToFindYoungest){
+
+            if(explosionEvent.getExplosionTimer() > youngestExplosion.getExplosionTimer()){
+
+                youngestExplosion = explosionEvent;
+
+            }
+
+        }
+
+        return new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, server), youngestExplosion.getExplosionTimer(), youngestExplosion.getCurrentAffectedBlockCounter(), youngestExplosion.isMarkedWithDayTimeHealingMode());
+
     }
 
 }

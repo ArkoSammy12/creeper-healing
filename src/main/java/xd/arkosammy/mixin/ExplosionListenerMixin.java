@@ -37,43 +37,10 @@ public abstract class ExplosionListenerMixin {
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void getExplodedBlocks(CallbackInfo ci){
 
-        /*
-
-        //Only check for explosions caused by creepers
-        if(this.getCausingEntity() instanceof CreeperEntity) {
-
-            //Get our list of affected block positions after they have been created by the target method
-            List<BlockPos> affectedBlocksPos = this.getAffectedBlocks();
-
-            //Don't store empty explosions
-            if(!affectedBlocksPos.isEmpty()) {
-
-                ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
-
-                for (BlockPos pos : affectedBlocksPos) {
-
-                    //Let's not store a bunch of unnecessary air blocks
-                    if (!world.getBlockState(pos).isAir()) {
-
-                        affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
-
-                    }
-
-                }
-
-                //Add a new ExplosionEvent to the list, passing in our list of affected blocks
-                ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
-
-            }
-
-        }
-
-         */
         if(canStoreExplosion(this.getCausingEntity(), this.getEntity()))
             storeExplosion(this.getAffectedBlocks());
 
     }
-
 
     @Unique
     private void storeExplosion(List<BlockPos> affectedBlocksPos){
@@ -94,8 +61,9 @@ public abstract class ExplosionListenerMixin {
 
         }
 
+
         //Add a new ExplosionEvent to the list, passing in our list of affected blocks
-        ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
+        ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world, affectedBlocksPos));
 
     }
 
