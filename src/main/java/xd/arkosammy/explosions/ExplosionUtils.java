@@ -12,9 +12,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
-
 import java.util.*;
-
 
 public final class ExplosionUtils {
 
