@@ -43,18 +43,24 @@ public final class ExplosionUtils {
         return true;
     }
 
-    public static Set<ExplosionEvent> compareWithWaitingExplosions(List<BlockPos> affectedBlockPos){
-         Set<ExplosionEvent> matchedExplosions = new LinkedHashSet<>();
+    /*
+    An explosion collides with another one if the list of affected coordinates of the explosion that just happened
+    matches with any of the coordinates of the affected blocklist of any waiting explosion.
+    We can do this because the affected coordinates of an explosion can include air blocks,
+    which means that these coordinates have the possibility of extending beyond the actual range of blocks that will be blown up.
+     */
+    public static Set<ExplosionEvent> getCollidingWaitingExplosions(List<BlockPos> affectedBlockPosList){
+         Set<ExplosionEvent> collidingExplosions = new LinkedHashSet<>();
          for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
              if(explosionEvent.getExplosionTimer() > 0){
                  for(AffectedBlock affectedBlock : explosionEvent.getAffectedBlocksList()){
-                     if(affectedBlockPos.contains(affectedBlock.getPos())){
-                         matchedExplosions.add(explosionEvent);
+                     if(affectedBlockPosList.contains(affectedBlock.getPos())){
+                         collidingExplosions.add(explosionEvent);
                      }
                  }
              }
          }
-         return matchedExplosions;
+         return collidingExplosions;
     }
 
      public static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){

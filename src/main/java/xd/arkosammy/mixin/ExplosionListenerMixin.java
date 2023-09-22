@@ -1,5 +1,7 @@
 package xd.arkosammy.mixin;
 
+import net.minecraft.block.Blocks;
+import net.minecraft.block.TntBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.TntEntity;
@@ -52,8 +54,11 @@ public abstract class ExplosionListenerMixin {
 
         for (BlockPos pos : affectedBlocksPos) {
 
-            //Let's not store a bunch of unnecessary air blocks
-            if (!world.getBlockState(pos).isAir()) {
+            // Let's not store a bunch of unnecessary air blocks
+            // We also want to check against TNT blocks since those count as affected blocks.
+            // Since affected TNT blocks
+            // always explode, we don't want to put those exploded TNT blocks back.
+            if (!world.getBlockState(pos).isAir() && !world.getBlockState(pos).getBlock().equals(Blocks.TNT)) {
 
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
 

@@ -51,13 +51,13 @@ public class ExplosionEvent {
         if (ModeConfig.getDayTimeHealingMode())
             explosionEvent.setupDayTimeHealing(world);
 
-        Set<ExplosionEvent> matchedExplosions =  ExplosionUtils.compareWithWaitingExplosions(affectedBlockPosList);
-        if(matchedExplosions.isEmpty()){
+        Set<ExplosionEvent> collidingExplosions =  ExplosionUtils.getCollidingWaitingExplosions(affectedBlockPosList);
+        if(collidingExplosions.isEmpty()){
             return explosionEvent;
         } else {
-            ExplosionListHandler.getExplosionEventList().removeIf(matchedExplosions::contains);
-            matchedExplosions.add(explosionEvent);
-            return combineExplosionEvents(matchedExplosions, world.getServer());
+            ExplosionListHandler.getExplosionEventList().removeIf(collidingExplosions::contains);
+            collidingExplosions.add(explosionEvent);
+            return combineCollidingExplosions(collidingExplosions, world.getServer());
         }
     }
 
@@ -169,12 +169,13 @@ public class ExplosionEvent {
         return null;
     }
 
-    private static ExplosionEvent combineExplosionEvents(Set<ExplosionEvent> explosionsToCombine, MinecraftServer server){
+    private static ExplosionEvent combineCollidingExplosions(Set<ExplosionEvent> collidingExplosions, MinecraftServer server){
 
-        List<AffectedBlock> combinedAffectedBlockList = explosionsToCombine.stream()
+        List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream()
                 .flatMap(explosionEvent -> explosionEvent.getAffectedBlocksList().stream())
                 .collect(Collectors.toList());
-        List<ExplosionEvent> listToFindOldest = new ArrayList<>(explosionsToCombine);
+        List<ExplosionEvent> listToFindOldest = new ArrayList<>(collidingExplosions);
+        //TODO: Decide on implementation details to decide what explosion to use to inherit properties from
         ExplosionEvent oldestExplosion = listToFindOldest.get(0);
         for(ExplosionEvent explosionEvent : listToFindOldest){
             if(explosionEvent.getExplosionTimer() < oldestExplosion.getExplosionTimer()){
