@@ -50,7 +50,6 @@ public abstract class ReplaceMapConfig {
             if(entry.getValue() instanceof String && entry.getKey() != null) {
 
                 tempReplaceMap.put(entry.getKey(), entry.getValue());
-                CreeperHealing.LOGGER.info("Loaded entry: " + entry.getKey() + " with value: " + tempReplaceMap.get(entry.getKey()));
 
             } else if (!(entry.getValue() instanceof String)) {
 

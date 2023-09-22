@@ -15,6 +15,7 @@ import xd.arkosammy.handlers.ExplosionListHandler;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public class ExplosionEvent {
 
@@ -51,17 +52,12 @@ public class ExplosionEvent {
             explosionEvent.setupDayTimeHealing(world);
 
         Set<ExplosionEvent> matchedExplosions =  ExplosionUtils.compareWithWaitingExplosions(affectedBlockPosList);
-
         if(matchedExplosions.isEmpty()){
-
             return explosionEvent;
-
         } else {
-
             ExplosionListHandler.getExplosionEventList().removeIf(matchedExplosions::contains);
             matchedExplosions.add(explosionEvent);
             return combineExplosionEvents(matchedExplosions, world.getServer());
-
         }
     }
 
@@ -89,7 +85,7 @@ public class ExplosionEvent {
         return this.dayTimeHealingMode;
     }
 
-    public int getCurrentAffectedBlockCounter(){
+    private int getCurrentAffectedBlockCounter(){
         return this.affectedBlockCounter;
     }
 
@@ -112,31 +108,6 @@ public class ExplosionEvent {
         return null;
     }
 
-    //Set up daytime healing mode for this explosion by making the explosion start healing at the next sunrise,
-    // and make it finish healing when the next night falls
-    public void setupDayTimeHealing(World world){
-
-        this.dayTimeHealingMode = true;
-        this.setExplosionTimer(24000 - (world.getTimeOfDay() % 24000));
-        int daylightBasedBlockPlacementDelay = 13000/Math.max(this.getAffectedBlocksList().size(), 1);
-        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
-            affectedBlock.setAffectedBlockTimer(daylightBasedBlockPlacementDelay);
-        }
-
-    }
-
-    public void markSecondHalfAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
-        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()) {
-
-            if(affectedBlock.getState().equals(secondHalfState) && affectedBlock.getPos().equals(secondHalfPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
-                CreeperHealing.setHealerHandlerLock(false);
-                affectedBlock.setPlaced(true);
-                CreeperHealing.setHealerHandlerLock(true);
-            }
-
-        }
-    }
-
     public boolean canHealIfRequiresLight(MinecraftServer server){
 
         //We return true if the current block counter is greater than 0,
@@ -144,85 +115,73 @@ public class ExplosionEvent {
         if (!PreferencesConfig.getRequiresLight() || this.getAffectedBlockCounter() > 0) return true;
 
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
-
             if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0) {
-
                 return true;
-
             }
-
         }
-
         return false;
-
     }
 
     public void postponeBlock(AffectedBlock blockToPostpone, MinecraftServer server){
-
         int indexOfPostponed = this.getAffectedBlocksList().indexOf(blockToPostpone);
-
         if(indexOfPostponed != -1) {
-
             Integer indexOfNextPlaceable = this.findNextPlaceableBlock(server);
-
             if (indexOfNextPlaceable != null) {
-
                 Collections.swap(this.getAffectedBlocksList(), indexOfPostponed, indexOfNextPlaceable);
-
-
             } else {
-
                 this.incrementCounter();
-
                 blockToPostpone.setPlaced(true);
-
             }
-
         } else {
-
             this.incrementCounter();
-
             blockToPostpone.setPlaced(true);
-
         }
 
+    }
+
+    //Set up daytime healing mode for this explosion by making the explosion start healing at the next sunrise,
+    // and make it finish healing when the next night falls
+    public void setupDayTimeHealing(World world){
+        this.dayTimeHealingMode = true;
+        this.setExplosionTimer(24000 - (world.getTimeOfDay() % 24000));
+        int daylightBasedBlockPlacementDelay = 13000/Math.max(this.getAffectedBlocksList().size(), 1);
+        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
+            affectedBlock.setAffectedBlockTimer(daylightBasedBlockPlacementDelay);
+        }
+    }
+
+    public void markSecondHalfAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
+        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()) {
+            if(affectedBlock.getState().equals(secondHalfState) && affectedBlock.getPos().equals(secondHalfPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
+                CreeperHealing.setHealerHandlerLock(false);
+                affectedBlock.setPlaced(true);
+                CreeperHealing.setHealerHandlerLock(true);
+            }
+        }
     }
 
     private Integer findNextPlaceableBlock(MinecraftServer server){
         for(int i = this.getCurrentAffectedBlockCounter(); i < this.getAffectedBlocksList().size(); i++){
-
-            if(this.getAffectedBlocksList().get(i).canBePlaced(server))
+            if(this.getAffectedBlocksList().get(i).canBePlaced(server)) {
                 return i;
-
+            }
         }
         return null;
     }
 
     private static ExplosionEvent combineExplosionEvents(Set<ExplosionEvent> explosionsToCombine, MinecraftServer server){
 
-        List<AffectedBlock> combinedAffectedBlockList = new ArrayList<>();
-
-        for(ExplosionEvent explosionEvent : explosionsToCombine){
-
-            combinedAffectedBlockList.addAll(explosionEvent.getAffectedBlocksList());
-
-        }
-
-        List<ExplosionEvent> listToFindYoungest = new ArrayList<>(explosionsToCombine);
-
-        ExplosionEvent youngestExplosion = listToFindYoungest.get(0);
-
-        for(ExplosionEvent explosionEvent : listToFindYoungest){
-
-            if(explosionEvent.getExplosionTimer() > youngestExplosion.getExplosionTimer()){
-
-                youngestExplosion = explosionEvent;
-
+        List<AffectedBlock> combinedAffectedBlockList = explosionsToCombine.stream()
+                .flatMap(explosionEvent -> explosionEvent.getAffectedBlocksList().stream())
+                .collect(Collectors.toList());
+        List<ExplosionEvent> listToFindOldest = new ArrayList<>(explosionsToCombine);
+        ExplosionEvent oldestExplosion = listToFindOldest.get(0);
+        for(ExplosionEvent explosionEvent : listToFindOldest){
+            if(explosionEvent.getExplosionTimer() < oldestExplosion.getExplosionTimer()){
+                oldestExplosion = explosionEvent;
             }
-
         }
-
-        return new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, server), youngestExplosion.getExplosionTimer(), youngestExplosion.getCurrentAffectedBlockCounter(), youngestExplosion.isMarkedWithDayTimeHealingMode());
+        return new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, server), oldestExplosion.getExplosionTimer(), oldestExplosion.getCurrentAffectedBlockCounter(), oldestExplosion.isMarkedWithDayTimeHealingMode());
 
     }
 

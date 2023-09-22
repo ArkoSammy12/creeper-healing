@@ -135,12 +135,11 @@ public abstract class DelaysConfig {
 
         for(ConfigEntry<Double> configEntry : getDelayEntryList()){
 
-            Object num = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
+            Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
 
-            if(num instanceof Number numberToSet){
+            if(value instanceof Number numberValue){
 
-                configEntry.setValue(numberToSet.doubleValue());
-                CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with value : " + configEntry.getValue());
+                configEntry.setValue(numberValue.doubleValue());
 
             } else {
 

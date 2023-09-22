@@ -117,8 +117,8 @@ public class AffectedBlock {
         BlockPos pos = this.getPos();
         World world = this.getWorld(server);
 
-        //Check if the block we are about to try placing is in the replace-list.
-        //If it is, switch the state for the corresponding one in the replace-list.
+        //Check if the block we are about to try placing is in the replace-map.
+        //If it is, switch the state for the corresponding one in the replace-map.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
 
         if(ReplaceMapConfig.getReplaceMap().containsKey(blockIdentifier)){
@@ -127,7 +127,7 @@ public class AffectedBlock {
 
         }
 
-        //If the block we are about to try placing is "special", handle it separately
+        //If the block we are about to place consists of two blocks, handle it separately
         if(DoubleBlockHandler.isDoubleBlock(state)){
 
             DoubleBlockHandler.handleDoubleBlock(world, state, pos, currentExplosionEvent);
@@ -144,7 +144,6 @@ public class AffectedBlock {
 
             world.setBlockState(pos, state);
 
-            //The first argument being null tells the server to play the sound to all nearby players
             if(ExplosionUtils.shouldPlaySound(world, state))
                 world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
 

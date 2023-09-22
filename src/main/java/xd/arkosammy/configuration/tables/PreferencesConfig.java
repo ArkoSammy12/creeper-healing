@@ -194,11 +194,11 @@ public abstract class PreferencesConfig {
 
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
 
-            Object bool = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
+            Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
 
-            if(bool instanceof Boolean boolToSet){
+            if(value instanceof Boolean boolValue){
 
-                configEntry.setValue(boolToSet);
+                configEntry.setValue(boolValue);
                 CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with value: " + configEntry.getValue());
 
             } else {

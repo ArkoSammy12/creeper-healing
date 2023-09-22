@@ -89,13 +89,11 @@ public abstract class ModeConfig {
 
         for(ConfigEntry<Boolean> configEntry : getModeEntryList()){
 
-            Object bool = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
+            Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
 
-            if(bool instanceof Boolean boolToSet){
+            if(value instanceof Boolean boolValue){
 
-                configEntry.setValue(boolToSet);
-
-                CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with value : " + configEntry.getValue());
+                configEntry.setValue(boolValue);
 
             } else {
 
