@@ -6,7 +6,7 @@ import xd.arkosammy.CreeperHealing;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class ReplaceMapConfig {
+public final class ReplaceMapConfig {
 
     private ReplaceMapConfig(){}
     private static final HashMap<String, String> replaceMap = new HashMap<>();
@@ -16,13 +16,13 @@ public abstract class ReplaceMapConfig {
             Specify the block's namespace along with the block's name identifier, separated by a colon.
             Example entry:
             "minecraft:gold_block" = "minecraft:stone"
-            Warning, do not set a block to be replaced with more than one block! For example, the following will cause an error:
+            Warning, the same key cannot appear more than once in the replace map! For example, the following will cause an error:
             "minecraft:diamond_block" = "minecraft:stone"
             "minecraft:diamond_block" = "minecraft:air"\s""";
 
 
     public static HashMap<String, String> getReplaceMap(){
-        return  replaceMap;
+        return replaceMap;
     }
 
     public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
@@ -53,11 +53,11 @@ public abstract class ReplaceMapConfig {
 
             } else if (!(entry.getValue() instanceof String)) {
 
-                CreeperHealing.LOGGER.warn("Invalid value in replace map for key: " + entry.getKey());
+                CreeperHealing.LOGGER.error("Invalid value in replace map for key: " + entry.getKey());
 
             } else if (entry.getKey() == null) {
 
-                CreeperHealing.LOGGER.warn("Invalid key found in replace map.");
+                CreeperHealing.LOGGER.error("Invalid key found in replace map.");
 
             }
 

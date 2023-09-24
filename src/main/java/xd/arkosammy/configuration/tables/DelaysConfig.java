@@ -6,7 +6,7 @@ import xd.arkosammy.configuration.ConfigEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class DelaysConfig {
+public final class DelaysConfig {
 
     private DelaysConfig(){}
     private static final List<ConfigEntry<Double>> delaysEntryList = new ArrayList<>();
@@ -143,7 +143,7 @@ public abstract class DelaysConfig {
 
             } else {
 
-                CreeperHealing.LOGGER.warn("Invalid value in config file for setting: " + configEntry.getName());
+                CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
 
             }
 

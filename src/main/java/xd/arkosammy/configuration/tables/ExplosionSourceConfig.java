@@ -8,7 +8,7 @@ import xd.arkosammy.configuration.ConfigEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ExplosionSourceConfig {
+public final class ExplosionSourceConfig {
 
     private ExplosionSourceConfig(){}
     private static final List<ConfigEntry<Boolean>> explosionSourceEntryList = new ArrayList<>();
@@ -204,7 +204,7 @@ public abstract class ExplosionSourceConfig {
 
             } else {
 
-                CreeperHealing.LOGGER.warn("Invalid value in config file for setting: " + configEntry.getName());
+                CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
 
             }
 

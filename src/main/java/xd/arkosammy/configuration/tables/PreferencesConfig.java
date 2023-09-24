@@ -6,7 +6,7 @@ import xd.arkosammy.configuration.ConfigEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class PreferencesConfig {
+public final class PreferencesConfig {
 
     private PreferencesConfig(){}
     private static final List<ConfigEntry<Boolean>> preferencesEntryList = new ArrayList<>();
@@ -199,11 +199,10 @@ public abstract class PreferencesConfig {
             if(value instanceof Boolean boolValue){
 
                 configEntry.setValue(boolValue);
-                CreeperHealing.LOGGER.info("Loaded entry: " + configEntry.getName() + " with value: " + configEntry.getValue());
 
             } else {
 
-                CreeperHealing.LOGGER.warn("Invalid value in config file for setting: " + configEntry.getName());
+                CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
 
             }
 

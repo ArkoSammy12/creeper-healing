@@ -7,7 +7,7 @@ import xd.arkosammy.configuration.ConfigEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ModeConfig {
+public final class ModeConfig {
 
     private ModeConfig(){}
     private static final List<ConfigEntry<Boolean>> modeEntryList = new ArrayList<>();
@@ -97,7 +97,7 @@ public abstract class ModeConfig {
 
             } else {
 
-                CreeperHealing.LOGGER.warn("Invalid value in config file for setting: " + configEntry.getName());
+                CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
 
             }
 

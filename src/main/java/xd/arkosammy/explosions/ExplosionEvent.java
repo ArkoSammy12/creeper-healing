@@ -57,7 +57,7 @@ public class ExplosionEvent {
         } else {
             ExplosionListHandler.getExplosionEventList().removeIf(collidingExplosions::contains);
             collidingExplosions.add(explosionEvent);
-            return combineCollidingExplosions(collidingExplosions, world.getServer());
+            return combineCollidingExplosions(collidingExplosions, explosionEvent, world);
         }
     }
 
@@ -169,21 +169,44 @@ public class ExplosionEvent {
         return null;
     }
 
-    private static ExplosionEvent combineCollidingExplosions(Set<ExplosionEvent> collidingExplosions, MinecraftServer server){
+    //TODO: Decide on either of the two implementations below
+
+    private static ExplosionEvent combineCollidingExplosions(Set<ExplosionEvent> collidingExplosions, ExplosionEvent newestExplosion, World world){
 
         List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream()
                 .flatMap(explosionEvent -> explosionEvent.getAffectedBlocksList().stream())
                 .collect(Collectors.toList());
-        List<ExplosionEvent> listToFindOldest = new ArrayList<>(collidingExplosions);
-        //TODO: Decide on implementation details to decide what explosion to use to inherit properties from
-        ExplosionEvent oldestExplosion = listToFindOldest.get(0);
-        for(ExplosionEvent explosionEvent : listToFindOldest){
+        ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world.getServer()), newestExplosion.getExplosionTimer(), newestExplosion.getCurrentAffectedBlockCounter(), newestExplosion.isMarkedWithDayTimeHealingMode());
+        long newestExplosionBlockTimers = newestExplosion.getCurrentAffectedBlock().getAffectedBlockTimer();
+        explosionEvent.getAffectedBlocksList().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(newestExplosionBlockTimers));
+        if(explosionEvent.isMarkedWithDayTimeHealingMode())
+            explosionEvent.setupDayTimeHealing(world);
+        return explosionEvent;
+    }
+
+    private static ExplosionEvent combineCollidingExplosionsAlt(Set<ExplosionEvent> collidingExplosions, World world){
+
+        List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream()
+                .flatMap(explosionEvent -> explosionEvent.getAffectedBlocksList().stream())
+                .collect(Collectors.toList());
+
+        List<ExplosionEvent> listToFindOldestExplosion = new ArrayList<>(collidingExplosions);
+        ExplosionEvent oldestExplosion = listToFindOldestExplosion.get(0);
+        long averageTimers = 0;
+        for(ExplosionEvent explosionEvent : listToFindOldestExplosion){
             if(explosionEvent.getExplosionTimer() < oldestExplosion.getExplosionTimer()){
                 oldestExplosion = explosionEvent;
             }
+            averageTimers += explosionEvent.getExplosionTimer();
         }
-        return new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, server), oldestExplosion.getExplosionTimer(), oldestExplosion.getCurrentAffectedBlockCounter(), oldestExplosion.isMarkedWithDayTimeHealingMode());
-
+        long newTimer = averageTimers/(listToFindOldestExplosion.isEmpty() ? 1 : listToFindOldestExplosion.size());
+        ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world.getServer()), (oldestExplosion.getExplosionTimer() + newTimer)/2, oldestExplosion.getCurrentAffectedBlockCounter(), oldestExplosion.isMarkedWithDayTimeHealingMode());
+        for(AffectedBlock affectedBlock : explosionEvent.getAffectedBlocksList()){
+            affectedBlock.setAffectedBlockTimer(oldestExplosion.getAffectedBlocksList().get(0).getAffectedBlockTimer());
+        }
+        if(explosionEvent.isMarkedWithDayTimeHealingMode()) {
+            explosionEvent.setupDayTimeHealing(world);
+        }
+        return explosionEvent;
     }
-
 }
