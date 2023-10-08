@@ -1,55 +1,104 @@
 # Creeper Healing
-
 This server and client side, customizable mod allows the world to automatically heal Creeper explosions. It has support for configuring a custom block-replace list, for telling the mod what blocks to use to replace a previously broken one, allowing for balancing and preventing potential abuse of this mod.
 
-## Configuration
-When the server or game is started, the mod will look for an existing `creeper-healing.json` file for the configs. If it exists, it will read the values from there. If not, it will create a new config file in `/config/creeper-healing.json`. You can then edit this file to configure the mod, and restart the server or game to apply the changes, or use the `/creeper-healing reload_config` in-game command.
+## Features
 
-- `"daytime_healing_mode"`: Whether or not daytime healing mode should be enabled. Explosions will wait until the next sunrise to start healing, and they will finish healing at nighttime. This is `false` by default. Note that this only applies for explosions that ocurred while this setting was enabled.
-- `"explosion_heal_delay"`: This setting allows you to change the delay in seconds between each creeper explosion and its corresponding healing process. This is 3 by default.
-- `"block_placement_delay"`: This setting allows you to change the delay in seconds between each block placement during the creeper explosion healing process. This is 1 by default.
-- `heal_on_flowing_water`: Change whether or not the mod should heal blocks where there is currently flowing water. Change between `true` and `false`. This setting is `true` by default.
-- `heal_on_flowing_lava`: Change whether or not the mod should heal blocks where there is currently flowing lava. Change between `true` and `false`. This setting is `true` by default.
-- `block_placement_sound_effect`: Change whether or not a block heal should play a sound effect. Change between `true` and `false`. This setting is `true` by default.
-- `"drop_items_on_creeper_explosions"`: Change whether or not creeper explosions should drop items. This is `true` by default.
-- `"requires_light"`: Change whether or not explosions need light to be able to heal. This is `false` by default. Note that this requirement is only tested once at the beginning of the healing process. 
-- `"replace_list"`: This field allows you to add your own replace settings for choosing what block to use to heal another block. By default, there is one entry for using a Stone block to heal a Diamond block. However, you can add your own entries here. Inside the array (bounded by the `{}`), insert new entries as follows:
+### Explosion healing modes
+
+Special modes that customize the way explosions are healed even further. 
+
+### Different explosion sources
+
+This mod also supports healing explosions of different sources, such as Ghasts and Withers. By default, the mod will only heal Creeper explosions, but you can toggle each explosion source individually.
+
+### Configurable delays
+
+Configure the amount of time it takes for an explosion to start healing, and the amount of time between each block placement.
+
+- **Warning**: Both delays have a minimum value of 0.05 seconds. Attempting to force a lower value by setting it manually in the config will make the mod use the default values instead.
+
+### Replace map
+
+In the mod's config file, you can customize a "replace map". This is used if you would like a certain block to be healed with another one, instead of using the same block. If a block is healed with another one, the properties of the original block will be carried over to the new block, preserving things like the block's orientation. 
+
+To add entries to the replace map, you can open the configuration file (located in your config folder and named `creeper-healing.toml`), scroll down and add entries below the `[replace_map]` section, using the following format, and separating each entry by skipping a line:
+
+```toml
+"minecraft:name_of_old_block" = "minecraft:name_of_new_block"
 ```
-"replace_list" : {
 
-"minecraft:gold_block" : "minecraft:stone",
-"minecraft:stone" : "minecraft:cobblestone",
-...
-"minecraft:stone_bricks" : "minecraft:cracked_stone_bricks"
+By default, the mod includes the following entry in the replace map:
 
-}
+```toml
+"minecraft:diamond_block" = "minecraft:stone"
 ```
-Specify the namespace (in this case `minecraft:`), then the name of the block. The blocks on the right are the blocks that will be used to heal the blocks on the left. 
 
-**Note**: Attempting to set a delay to 0, a negative value, or a very small decimal value, will result in a value of 1 being used for that delay instead.
+- **Warning**: Do not set the same block to be replaced with multiple blocks, as this will cause a crash upon game startup. That is, do not use the same key twice or more in the replace map.
 
-</details>
+### Extra settings
 
-<details>
+You can enable or disable sound effects when blocks are placed, whether an explosion drops items or not, or if an explosion requires light to heal.
 
-<summary>Commands</summary>
+### Commands
 
-You can also edit the mod's settings (except the replace list) via in-game commands:
+All of the mod's settings can also be modified in-game via commands. Access all of them via the `/creeper-healing` parent command. The config file also supports being reloaded in-game via `/creeper-healing settings reload` to avoid having to restart the server or world. Note that all commands require operator permission.
 
- - `/creeper-healing settings explosion_heal_delay [decimal argument]`: Change the delay in seconds between each creeper explosion and its corresponding healing process. The change will only apply for explosions that occur after this command was executed. Use this command without passing a value to see the current value in the config.
- - `/creeper-healing settings block_placement_delay [decimal argument]`: Change the delay in seconds between each block placement during the creeper explosion healing process. The change will only apply for explosions that occur after this command was executed. Use this command without passing a value to see the current value in the config.
- - `/creeper-healing settings heal_on_flowing_water [true or false]`: Change whether or not the mod should heal blocks where there is currently flowing water. Use this command without passing a value to see the current value in the config.
- - `/creeper-healing settings heal_on_flowing_lava [true or false]`: Change whether or not the mod should heal blocks where there is currently flowing lava. Use this command without passing a value to see the current value in the config.
-- `/creeper-healing settings block_placement_sound_effect [true or false]`: Change whether or not a block heal should play a sound effect. Use this command without passing a value to see the current value in the config.
-- `/creeper-healing settings drop_items_on_creeper_explosions [true or false]`: Change whether or not creeper explosions should drop items. Use this command without passing a vlauea to see the current value in the config.
-- `/creeper-healing settings requires_light [true or false]`: Change whether or not explosions need light to be able to heal. Use this command without passing a value to see the curernt value in the config.
-- `/creeper-healing settings reload`: Allows you to change the values of the config file and apply them to the game or server without having to restart. Note that the reloaded changes will only apply for explosions that occur after the command was executed, except for `heal_on_flowing_water`, `heal_on_flowing_lava`, and `block_placement_sound_effect`.
+## Configuration  File
+When the server or game is started, the mod will look for an existing `creeper-healing.toml` file for the config folder of your game. If it exists, it will read the values from there. If not, it will create a new config file in `/config/creeper-healing.toml`. You can then edit this file to configure the mod, and restart the server or game to apply the changes, or use the `/creeper-healing settings reload` in-game command. 
 
-- `/creeper-healing mode daytime_healing_mode [true or false]`: Whether or not daytime healing mode should be enabled. Explosions will wait until the next sunrise to start healing, and they will finish healing at nighttime. Use this command without passing a value to see the current value in the config.
+The following is the default configuration file generated upon first mod initialization or whenever the mod fails to find the config file during server or world shutdown.
 
-**Note**: All of these commands require operator permissions.
+```toml
+#Toggle different special modes for explosion healing.
+[modes]
+	#(Default = false) Whether or not daytime healing mode should be enabled.
+	#Explosions will wait until the next sunrise to start healing, and they will finish healing at nighttime.
+	#Note that this only applies for explosions that occurred while this setting was enabled.
+	daytime_healing_mode = false
+#Configure which explosions are allowed to heal.
+[explosion_sources]
+	#(Default = true) Heal explosions caused by creepers.
+	heal_creeper_explosions = true
+	#(Default = false) Heal explosions caused by ghasts.
+	heal_ghast_explosions = false
+	#(Default = false) Heal explosions caused by withers.
+	heal_wither_explosions = false
+	#(Default = false) Heal explosions caused by TNT blocks.
+	heal_tnt_explosions = false
+	#(Default = false) Heal explosions caused by TNT minecarts.
+	heal_tnt_minecart_explosions = false
+#Configure the delays related to the healing of explosions.
+[delays]
+	#(Default = 3) Change the delay in seconds between each explosion and its corresponding healing process.
+	explosion_heal_delay = 3.0
+	#(Default = 1) Change the delay in seconds between each block placement during the explosion healing process.
+	block_placement_delay = 1.0
+#Toggleable settings to customize the healing of explosions.
+[preferences]
+	#(Default = true) Whether or not blocks should be healed where there is currently flowing water.
+	heal_on_flowing_water = true
+	#(Default = true) Whether or not blocks should be healed where there is currently flowing lava.
+	heal_on_flowing_lava = true
+	#(Default = true) Whether or not a block heal should play a sound effect.
+	block_placement_sound_effect = true
+	#(Default = true) Whether or not explosions should drop items.
+	drop_items_on_explosions = true
+	#(Default = false) Whether or not explosions will need light to heal.
+	requires_light = false
+#Add your own replace settings to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
+#Specify the block's namespace along with the block's name identifier, separated by a colon.
+#Example entry:
+#"minecraft:gold_block" = "minecraft:stone"
+#Warning, the same key cannot appear more than once in the replace map! For example, the following will cause an error:
+#"minecraft:diamond_block" = "minecraft:stone"
+#"minecraft:diamond_block" = "minecraft:air" 
+[replace_map]
+	"minecraft:diamond_block" = "minecraft:stone"
+```
 
-</details>
+## Support
+
+If you would like to report a bug, or make a suggestion, you can do so via the mod's [issue tracker](https://github.com/ArkoSammy12/creeper-healing/issues) or join the Creeper Healing mod's [Discord server](https://discord.gg/UKr8n3b3ze). 
 
 ## Building
 
