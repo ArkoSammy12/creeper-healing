@@ -1,7 +1,6 @@
 package xd.arkosammy.mixin;
 
 import net.minecraft.block.Blocks;
-import net.minecraft.block.TntBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.TntEntity;
@@ -68,7 +67,7 @@ public abstract class ExplosionListenerMixin {
 
 
         //Add a new ExplosionEvent to the list, passing in our list of affected blocks
-        ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world, affectedBlocksPos));
+        ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
 
     }
 

@@ -46,12 +46,12 @@ public class ExplosionEvent {
      * @param world              The world in which the explosion occurred.
      * @return A new ExplosionEvent instance.
      */
-    public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world, List<BlockPos> affectedBlockPosList) {
+    public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world) {
         ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer()), DelaysConfig.getExplosionHealDelay(), 0, false);
         if (ModeConfig.getDayTimeHealingMode())
             explosionEvent.setupDayTimeHealing(world);
 
-        Set<ExplosionEvent> collidingExplosions =  ExplosionUtils.getCollidingWaitingExplosions(affectedBlockPosList);
+        Set<ExplosionEvent> collidingExplosions =  ExplosionUtils.getCollidingWaitingExplosions(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
         if(collidingExplosions.isEmpty()){
             return explosionEvent;
         } else {

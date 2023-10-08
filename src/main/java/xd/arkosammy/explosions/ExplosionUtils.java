@@ -8,11 +8,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class ExplosionUtils {
 
@@ -44,19 +46,20 @@ public final class ExplosionUtils {
     }
 
     /*
-    An explosion collides with another one if the list of affected coordinates of the explosion that just happened
-    matches with any of the coordinates of the affected blocklist of any waiting explosion.
-    We can do this because the affected coordinates of an explosion can include air blocks,
-    which means that these coordinates have the possibility of extending beyond the actual range of blocks that will be blown up.
+    Obtain colliding explosions by filtering out explosions that have already started healing.
+    An explosion collides with another if the distance between their centers is less than or equal to the sum of their radii
      */
     public static Set<ExplosionEvent> getCollidingWaitingExplosions(List<BlockPos> affectedBlockPosList){
-         Set<ExplosionEvent> collidingExplosions = new LinkedHashSet<>();
-         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
+        Set<ExplosionEvent> collidingExplosions = new LinkedHashSet<>();
+        BlockPos centerOfNewExplosion = new BlockPos(calculateMidXCoordinate(affectedBlockPosList), calculateMidYCoordinate(affectedBlockPosList), calculateMidZCoordinate(affectedBlockPosList));
+        int newExplosionAverageRadius = getMaxRadius(affectedBlockPosList);
+        for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
              if(explosionEvent.getExplosionTimer() > 0){
-                 for(AffectedBlock affectedBlock : explosionEvent.getAffectedBlocksList()){
-                     if(affectedBlockPosList.contains(affectedBlock.getPos())){
-                         collidingExplosions.add(explosionEvent);
-                     }
+                 BlockPos centerOfCurrentExplosion = new BlockPos(calculateMidXCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())), calculateMidYCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())), calculateMidZCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())));
+                 int currentExplosionAverageRadius = getMaxRadius(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
+                 //Floor the distance for best chance of distance coinciding with the sum of the radii
+                 if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
+                     collidingExplosions.add(explosionEvent);
                  }
              }
          }
@@ -67,8 +70,8 @@ public final class ExplosionUtils {
 
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
 
-        int centerX = calculateMidXCoordinate(affectedBlocksList);
-        int centerZ = calculateMidZCoordinate(affectedBlocksList);
+        int centerX = calculateMidXCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
+        int centerZ = calculateMidZCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
 
          //Sort by distance to the center of the explosion
          Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
@@ -90,28 +93,82 @@ public final class ExplosionUtils {
 
     }
 
-    private static int calculateMidXCoordinate(List<AffectedBlock> affectedBlocks){
-        int maxX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getX())
+    private static int calculateMidXCoordinate(List<BlockPos> affectedCoordinates){
+        int maxX = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getX)
                 .max()
                 .orElse(0);
-        int minX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getX())
+        int minX = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getX)
                 .min()
                 .orElse(0);
         return (maxX + minX) / 2;
     }
 
-    private static int calculateMidZCoordinate(List<AffectedBlock> affectedBlocks){
-        int maxX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ())
+    private static int calculateMidYCoordinate(List<BlockPos> affectedCoordinates){
+
+        int maxY = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getY)
                 .max()
                 .orElse(0);
-        int minX = affectedBlocks.stream()
-                .mapToInt(affectedBlock -> affectedBlock.getPos().getZ())
+
+        int minY = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getY)
                 .min()
                 .orElse(0);
-        return (maxX + minX) / 2;
+
+        return (maxY + minY)/2;
+
+    }
+
+    private static int calculateMidZCoordinate(List<BlockPos> affectedCoordinates){
+        int maxZ = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getZ)
+                .max()
+                .orElse(0);
+        int minZ = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getZ)
+                .min()
+                .orElse(0);
+        return (maxZ + minZ) / 2;
+    }
+
+    private static int getMaxRadius(List<BlockPos> affectedCoordinates){
+
+        int[] radii = new int[3];
+
+        int maxX = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getX)
+                .max()
+                .orElse(0);
+        int minX = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getX)
+                .min()
+                .orElse(0);
+        radii[0] = (maxX - minX)/2;
+
+        int maxY = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getY)
+                .max()
+                .orElse(0);
+        int minY = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getY)
+                .min()
+                .orElse(0);
+        radii[1] = (maxY - minY)/2;
+
+        int maxZ = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getZ)
+                .max()
+                .orElse(0);
+        int minZ = affectedCoordinates.stream()
+                .mapToInt(Vec3i::getZ)
+                .min()
+                .orElse(0);
+        radii[2] = (maxZ - minZ)/2;
+
+        return Arrays.stream(radii).max().orElse(0);
+
     }
 
     public static boolean shouldPlaySound(World world, BlockState state) {
