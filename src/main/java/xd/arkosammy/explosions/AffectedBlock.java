@@ -34,7 +34,6 @@ public class AffectedBlock {
             Codec.BOOL.fieldOf("Placed").forGetter(AffectedBlock::isAlreadyPlaced)
     ).apply(blockInfoInstance, AffectedBlock::new));
 
-
     private AffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
         this.pos = pos;
         this.state = state;
@@ -43,13 +42,6 @@ public class AffectedBlock {
         setAffectedBlockTimer(affectedBlockTimer);
     }
 
-    /**
-     * Creates a new AffectedBlock instance based on the given position and world.
-     *
-     * @param pos   The position of the affected block.
-     * @param world The world where the block exists.
-     * @return A new AffectedBlock instance.
-     */
     public static AffectedBlock newAffectedBlock(BlockPos pos, World world){
         return new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), DelaysConfig.getBlockPlacementDelay(), false);
     }
@@ -94,23 +86,10 @@ public class AffectedBlock {
         return this.getState().canPlaceAt(this.getWorld(server), this.getPos());
     }
 
-
-    /**
-     * Gets the Codec for serializing and deserializing AffectedBlock instances.
-     *
-     * @return The AffectedBlock Codec.
-     */
     static Codec<AffectedBlock> getCodec(){
         return AFFECTED_BLOCK_CODEC;
     }
 
-
-    /**
-     * Attempts to place the affected block in the world.
-     *
-     * @param server             The Minecraft server instance.
-     * @param currentExplosionEvent The current explosion event associated with the block placement.
-     */
     public void tryPlacing(MinecraftServer server, ExplosionEvent currentExplosionEvent){
 
         BlockState state = this.getState();
@@ -120,22 +99,15 @@ public class AffectedBlock {
         //Check if the block we are about to try placing is in the replace-map.
         //If it is, switch the state for the corresponding one in the replace-map.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
-
         if(ReplaceMapConfig.getReplaceMap().containsKey(blockIdentifier)){
-
             state = Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
-
         }
 
         //If the block we are about to place consists of two blocks, handle it separately
         if(DoubleBlockHandler.isDoubleBlock(state)){
-
             DoubleBlockHandler.handleDoubleBlock(world, state, pos, currentExplosionEvent);
-
             return;
-
         }
-
 
         if(ExplosionUtils.shouldPlaceBlock(world, pos)) {
 
@@ -147,15 +119,11 @@ public class AffectedBlock {
             if(ExplosionUtils.shouldPlaySound(world, state))
                 world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
 
-
         }
 
     }
 
-
-    /**
-     * Updates the timers for affected blocks in explosion events.
-     */
+    //Called whenever the config is reloaded and when the server/world starts
     public static void updateAffectedBlocksTimers(){
         CreeperHealing.setHealerHandlerLock(false);
         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){

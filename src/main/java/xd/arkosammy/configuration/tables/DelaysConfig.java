@@ -24,147 +24,86 @@ public final class DelaysConfig {
 
     }
 
-    public static void setExplosionHealDelay(double delay){
-
-        for(ConfigEntry<Double> configEntry : getDelayEntryList()){
-
-            if(configEntry.getName().equals("explosion_heal_delay")){
-
-                configEntry.setValue(delay);
-
-            }
-
-        }
-
-    }
-
-    public static void setBlockPlacementDelay(double delay){
-
-        for(ConfigEntry<Double> configEntry : getDelayEntryList()){
-
-            if(configEntry.getName().equals("block_placement_delay")){
-
-                configEntry.setValue(delay);
-
-            }
-
-        }
-
-    }
-
-    public static long getExplosionHealDelay(){
-
-        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
-
-        if(explosionHealDelayToReturn == null) return 60;
-
-        long rounded = Math.round(Math.max(explosionHealDelayToReturn, 0) * 20L);
-        return rounded == 0 ? 20L : rounded;
-
-    }
-
-    public static long getBlockPlacementDelay(){
-
-        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
-
-        if(blockPlacementDelayToReturn == null) return 20;
-
-        long rounded = Math.round(Math.max(blockPlacementDelayToReturn, 0) * 20L);
-        return rounded == 0 ? 20L : rounded;
-
-    }
-
-    public static double getExplosionHealDelayRaw(){
-
-        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
-
-        if(explosionHealDelayToReturn == null) return 3;
-
-        return explosionHealDelayToReturn;
-
-    }
-
-    public static double getBlockPlacementDelayRaw(){
-
-        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
-
-        if(blockPlacementDelayToReturn == null) return 1;
-
-        return blockPlacementDelayToReturn;
-
-    }
-
     private static List<ConfigEntry<Double>> getDelayEntryList(){
         return delaysEntryList;
     }
 
-    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
+    public static void setExplosionHealDelay(double delay){
+        for(ConfigEntry<Double> configEntry : getDelayEntryList()){
+            if(configEntry.getName().equals("explosion_heal_delay")){
+                configEntry.setValue(delay);
+            }
+        }
+    }
 
+    public static void setBlockPlacementDelay(double delay){
+        for(ConfigEntry<Double> configEntry : getDelayEntryList()){
+            if(configEntry.getName().equals("block_placement_delay")){
+                configEntry.setValue(delay);
+            }
+        }
+    }
+
+    public static long getExplosionHealDelay(){
+        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
+        if(explosionHealDelayToReturn == null) return 60;
+        long rounded = Math.round(Math.max(explosionHealDelayToReturn, 0) * 20L);
+        return rounded == 0 ? 20L : rounded;
+    }
+
+    public static long getBlockPlacementDelay(){
+        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
+        if(blockPlacementDelayToReturn == null) return 20;
+        long rounded = Math.round(Math.max(blockPlacementDelayToReturn, 0) * 20L);
+        return rounded == 0 ? 20L : rounded;
+    }
+
+    public static double getExplosionHealDelayRaw(){
+        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
+        if(explosionHealDelayToReturn == null) return 3;
+        return explosionHealDelayToReturn;
+    }
+
+    public static double getBlockPlacementDelayRaw(){
+        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
+        if(blockPlacementDelayToReturn == null) return 1;
+        return blockPlacementDelayToReturn;
+    }
+
+    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
         for(ConfigEntry<Double> configEntry : getDelayEntryList()){
             configEntry.resetValue();
         }
-
         saveSettingsToFile(fileConfig);
-
     }
 
     public static void saveSettingsToFile(CommentedFileConfig fileConfig){
-
         for(ConfigEntry<Double> entry : getDelayEntryList()){
-
-            fileConfig.set(
-                    TABLE_NAME + "." + entry.getName(),
-                    entry.getValue()
-            );
-
+            fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
-
-            if(entryComment != null)
-                fileConfig.setComment(
-                        TABLE_NAME + "." + entry.getName(),
-                        entryComment
-                );
-
+            if(entryComment != null) fileConfig.setComment(TABLE_NAME + "." + entry.getName(), entryComment);
         }
-
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
-
     }
 
     public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
-
         for(ConfigEntry<Double> configEntry : getDelayEntryList()){
-
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
-
             if(value instanceof Number numberValue){
-
                 configEntry.setValue(numberValue.doubleValue());
-
             } else {
-
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
-
             }
-
         }
-
     }
 
     private static Double getValueForNameFromMemory(String settingName){
-
         for(ConfigEntry<Double> entry : getDelayEntryList()){
-
             if(entry.getName().equals(settingName)){
-
                 return entry.getValue();
-
             }
-
         }
-
         return null;
-
     }
 
 }

@@ -37,43 +37,26 @@ public abstract class ExplosionListenerMixin {
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void getExplodedBlocks(CallbackInfo ci){
-
         if(canStoreExplosion(this.getCausingEntity(), this.getEntity()))
             storeExplosion(this.getAffectedBlocks());
-
     }
 
     @Unique
     private void storeExplosion(List<BlockPos> affectedBlocksPos){
 
-        //Don't store empty explosions
         if(affectedBlocksPos.isEmpty()) return;
-
         ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
 
         for (BlockPos pos : affectedBlocksPos) {
-
-            // Let's not store a bunch of unnecessary air blocks
-            // We also want to check against TNT blocks since those count as affected blocks.
-            // Since affected TNT blocks
-            // always explode, we don't want to put those exploded TNT blocks back.
             if (!world.getBlockState(pos).isAir() && !world.getBlockState(pos).getBlock().equals(Blocks.TNT)) {
-
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
-
             }
-
         }
-
-
-        //Add a new ExplosionEvent to the list, passing in our list of affected blocks
         ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
-
     }
 
     @Unique
     private boolean canStoreExplosion(LivingEntity causingLivingEntity, Entity causingEntity){
-
         return (causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.getHealCreeperExplosions())
                 || (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.getHealGhastExplosions())
                 || (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.getHealWitherExplosions())

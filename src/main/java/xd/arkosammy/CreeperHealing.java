@@ -23,75 +23,43 @@ public class CreeperHealing implements ModInitializer {
 	@Override
 	public void onInitialize() {
 
-		//Initialize config
 		Config.initializeConfig();
 
-		//Read the list of CreeperExplosionEvents stored in our file once the server has fully started
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-
 			try {
 				onServerStarting(server);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-
 		});
 
-		//Grab our current list of CreeperExplosionEvents and store it.
-		//Update the config file with new values changed via commands
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-
 			try {
 				onServerStopping(server);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-
 		});
 
-		//Start listening for CreeperExplosionEvents in our list once we have read the config
 		ServerTickEvents.END_SERVER_TICK.register(ExplosionListHandler::handleExplosionList);
-
-		//Register our commands
 		CommandRegistrationCallback.EVENT.register(Commands::registerCommands);
-
-		LOGGER.info("I will try my best to heal your creeper explosions :)");
-
+		LOGGER.info("I will try my best to heal your explosions :)");
 	}
 
-
 	private static void onServerStarting(MinecraftServer server) throws IOException {
-
-		//Read the contents of our scheduled-explosions.json file and add them to the list
 		ExplosionListCodec.rescheduleExplosionEvents(server);
-
-		//We can now start listening for explosions in the list
 		setHealerHandlerLock(true);
-
-		//ExplosionListHandler.updateExplosionTimers();
 		AffectedBlock.updateAffectedBlocksTimers();
-
 	}
 
 	private static void onServerStopping(MinecraftServer server) throws IOException {
-
-		//Reset the flag
 		setHealerHandlerLock(false);
-
-		//Make a new ExplosionListCodec object and pass the current list to the constructor, then store it
 		ExplosionListCodec explosionListCodec = new ExplosionListCodec(ExplosionListHandler.getExplosionEventList());
-		explosionListCodec.storeExplosionList(server);
-
-		//Once we have stored the list, clear the current list from memory
+		explosionListCodec.serializeExplosionEvents(server);
 		ExplosionListHandler.getExplosionEventList().clear();
-
-		//Update the config by overriding the current values with new ones obtained via commands
 		Config.updateConfigFile();
-
 	}
 
-	//Return whether we are allowed to handle explosion events.
-	// Security lock for avoiding any potential issues with concurrency
 	public static boolean isExplosionHandlingUnlocked(){
 		return healerHandlerLock;
 	}
@@ -99,6 +67,5 @@ public class CreeperHealing implements ModInitializer {
 	public static void setHealerHandlerLock(boolean locked){
 		healerHandlerLock = locked;
 	}
-
 
 }

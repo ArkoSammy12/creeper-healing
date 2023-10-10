@@ -11,15 +11,10 @@ public abstract class ExplosionItemDropMixin {
 
     @ModifyReturnValue(method = "shouldDropItemsOnExplosion", at=@At("RETURN"))
     private boolean shouldDropItems(boolean dropItems){
-
         if(!PreferencesConfig.getDropItemsOnExplosions()){
-
             return false;
-
         }
-
         return dropItems;
-
     }
 
 }

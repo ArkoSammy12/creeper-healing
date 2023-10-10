@@ -34,18 +34,11 @@ public class ExplosionEvent {
 
     private ExplosionEvent(List<AffectedBlock> affectedBlocksList, long creeperExplosionTimer, int currentIndex, boolean dayTimeHealingMode){
         this.affectedBlockCounter = currentIndex;
-        this.affectedBlocksList = new CopyOnWriteArrayList<>(affectedBlocksList); //Gotta ensure mutability and thread safety
+        this.affectedBlocksList = new CopyOnWriteArrayList<>(affectedBlocksList);
         setExplosionTimer(creeperExplosionTimer);
         this.dayTimeHealingMode = dayTimeHealingMode;
     }
 
-    /**
-     * Creates a new ExplosionEvent instance based on the given list of affected blocks and a world.
-     *
-     * @param affectedBlocksList The list of affected blocks.
-     * @param world              The world in which the explosion occurred.
-     * @return A new ExplosionEvent instance.
-     */
     public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world) {
         ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer()), DelaysConfig.getExplosionHealDelay(), 0, false);
         if (ModeConfig.getDayTimeHealingMode())
@@ -113,7 +106,6 @@ public class ExplosionEvent {
         //We return true if the current block counter is greater than 0,
         // since we want to allow explosions to heal completely if the light conditions were only met initially
         if (!PreferencesConfig.getRequiresLight() || this.getAffectedBlockCounter() > 0) return true;
-
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
             if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0) {
                 return true;
@@ -122,7 +114,7 @@ public class ExplosionEvent {
         return false;
     }
 
-    public void postponeBlock(AffectedBlock blockToPostpone, MinecraftServer server){
+    public void delayAffectedBlock(AffectedBlock blockToPostpone, MinecraftServer server){
         int indexOfPostponed = this.getAffectedBlocksList().indexOf(blockToPostpone);
         if(indexOfPostponed != -1) {
             Integer indexOfNextPlaceable = this.findNextPlaceableBlock(server);
@@ -136,11 +128,8 @@ public class ExplosionEvent {
             this.incrementCounter();
             blockToPostpone.setPlaced(true);
         }
-
     }
 
-    //Set up daytime healing mode for this explosion by making the explosion start healing at the next sunrise,
-    // and make it finish healing when the next night falls
     public void setupDayTimeHealing(World world){
         this.dayTimeHealingMode = true;
         this.setExplosionTimer(24000 - (world.getTimeOfDay() % 24000));
@@ -150,7 +139,7 @@ public class ExplosionEvent {
         }
     }
 
-    public void markSecondHalfAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
+    public void markAffectedBlockAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()) {
             if(affectedBlock.getState().equals(secondHalfState) && affectedBlock.getPos().equals(secondHalfPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
                 CreeperHealing.setHealerHandlerLock(false);

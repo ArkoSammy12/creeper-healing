@@ -32,12 +32,10 @@ public final class ReplaceMapConfig {
     }
 
     public static void saveReplaceMapToFile(CommentedFileConfig fileConfig){
-
         for(Map.Entry<String, String> entry : replaceMap.entrySet()){
             fileConfig.set(TABLE_NAME + "." + entry.getKey(),  entry.getValue());
         }
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
-
     }
 
     public static void loadReplaceMapToMemory(CommentedFileConfig fileConfig){
@@ -46,27 +44,16 @@ public final class ReplaceMapConfig {
         HashMap<String, String> tempReplaceMap = new HashMap<>();
 
         for(CommentedConfig.Entry entry : replaceMapConfig.entrySet()){
-
             if(entry.getValue() instanceof String && entry.getKey() != null) {
-
                 tempReplaceMap.put(entry.getKey(), entry.getValue());
-
             } else if (!(entry.getValue() instanceof String)) {
-
-                CreeperHealing.LOGGER.error("Invalid value in replace map for key: " + entry.getKey());
-
+                CreeperHealing.LOGGER.error("Failed to read Replace Map: Invalid value in replace map for key: " + entry.getKey());
             } else if (entry.getKey() == null) {
-
-                CreeperHealing.LOGGER.error("Invalid key found in replace map.");
-
+                CreeperHealing.LOGGER.error("Failed to read Replace Map: Invalid key found in replace map.");
             }
-
         }
-
         replaceMap.clear();
         replaceMap.putAll(tempReplaceMap);
-
     }
-
 
 }

@@ -24,32 +24,22 @@ public final class ModeConfig {
 
     }
 
+    private static List<ConfigEntry<Boolean>> getModeEntryList(){
+        return modeEntryList;
+    }
+
     public static void setDaytimeHealingMode(boolean daytimeHealingMode){
-
         for(ConfigEntry<Boolean> configEntry : getModeEntryList()){
-
             if(configEntry.getName().equals("daytime_healing_mode")){
-
                 configEntry.setValue(daytimeHealingMode);
-
             }
-
         }
-
     }
 
     public static Boolean getDayTimeHealingMode(){
-
         Boolean boolToReturn = getValueForNameFromMemory("daytime_healing_mode");
-
         if(boolToReturn == null) return false;
-
         return boolToReturn;
-
-    }
-
-    private static List<ConfigEntry<Boolean>> getModeEntryList(){
-        return modeEntryList;
     }
 
     public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
@@ -65,59 +55,30 @@ public final class ModeConfig {
     public static void saveSettingsToFile(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Boolean> entry : getModeEntryList()){
-
-            fileConfig.set(
-                    TABLE_NAME + "." + entry.getName(),
-                    entry.getValue()
-            );
-
+            fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
-
-            if(entryComment != null)
-                fileConfig.setComment(
-                        TABLE_NAME + "." + entry.getName(),
-                        entryComment
-                );
-
+            if(entryComment != null) fileConfig.setComment(TABLE_NAME + "." + entry.getName(), entryComment);
         }
-
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
-
     }
 
     public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
-
         for(ConfigEntry<Boolean> configEntry : getModeEntryList()){
-
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
-
             if(value instanceof Boolean boolValue){
-
                 configEntry.setValue(boolValue);
-
             } else {
-
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
-
             }
-
         }
-
     }
 
     private static Boolean getValueForNameFromMemory(String settingName){
-
         for(ConfigEntry<Boolean> entry : getModeEntryList()){
-
             if(entry.getName().equals(settingName)){
-
                 return entry.getValue();
-
             }
-
         }
-
         return null;
-
     }
 }
