@@ -96,8 +96,8 @@ public final class Config {
                     AffectedBlock.updateAffectedBlocksTimers();
 
                     //Warn the user if these delays were set to 0 or fewer seconds
-                    if(Math.round(Math.max(DelaysConfig.getExplosionHealDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
-                    if(Math.round(Math.max(DelaysConfig.getBlockPlacementDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
+                    if(Math.round(Math.max(DelaysConfig.getExplosionHealDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendFeedback(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW), false);
+                    if(Math.round(Math.max(DelaysConfig.getBlockPlacementDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendFeedback(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW), false);
 
                     return true;
                 } else {

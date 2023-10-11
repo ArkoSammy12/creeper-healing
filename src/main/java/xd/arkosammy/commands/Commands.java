@@ -302,16 +302,16 @@ public final class Commands {
 
     private static int setDoDayTimeHealingCommand(CommandContext<ServerCommandSource> ctx){
         ModeConfig.setDaytimeHealingMode(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Daytime healing mode has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx) {
         if(Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
             DelaysConfig.setExplosionHealDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
-            ctx.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
+            ctx.getSource().sendFeedback(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"), false);
         } else {
-            ctx.getSource().sendMessage(Text.literal("Cannot set explosion heal delay to a very low value").formatted(Formatting.RED));
+            ctx.getSource().sendFeedback(Text.literal("Cannot set explosion heal delay to a very low value").formatted(Formatting.RED), false);
         }
         return Command.SINGLE_SUCCESS;
     }
@@ -320,70 +320,70 @@ public final class Commands {
         if (Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
             DelaysConfig.setBlockPlacementDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
             AffectedBlock.updateAffectedBlocksTimers();
-            ctx.getSource().sendMessage(Text.literal("Block placement delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
+            ctx.getSource().sendFeedback(Text.literal("Block placement delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"), false);
         } else {
-            ctx.getSource().sendMessage(Text.literal("Cannot set block placement delay to a very low value").formatted(Formatting.RED));
+            ctx.getSource().sendFeedback(Text.literal("Cannot set block placement delay to a very low value").formatted(Formatting.RED), false);
         }
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx) {
         PreferencesConfig.setHealOnFlowingWater(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing water has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Heal on flowing water has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx) {
         PreferencesConfig.setHealOnFlowingLava(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Heal on flowing lava has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
         PreferencesConfig.setBlockPlacementSoundEffect(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.setDropItemsOnExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Drop items on explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Drop items on explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.setRequiresLight(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Requires light has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Requires light has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ExplosionSourceConfig.setHealCreeperExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Heal Creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ExplosionSourceConfig.setHealGhastExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal Ghast explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Heal Ghast explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ExplosionSourceConfig.setHealWitherExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal Wither explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Heal Wither explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ExplosionSourceConfig.setHealTNTExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal TNT explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Heal TNT explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ExplosionSourceConfig.setHealTNTMinecartExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal TNT Minecart explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendFeedback(Text.literal("Heal TNT Minecart explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -392,67 +392,67 @@ public final class Commands {
      */
 
     private static int getDoDayLightHealingCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode currently set to: " + ModeConfig.getDayTimeHealingMode()));
+        ctx.getSource().sendFeedback(Text.literal("Daytime healing mode currently set to: " + ModeConfig.getDayTimeHealingMode()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"));
+        ctx.getSource().sendFeedback(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double) DelaysConfig.getBlockPlacementDelay() / 20) + " second(s)"));
+        ctx.getSource().sendFeedback(Text.literal("Block placement delay currently set to: " + ((double) DelaysConfig.getBlockPlacementDelay() / 20) + " second(s)"), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + PreferencesConfig.getHealOnFlowingWater()));
+        ctx.getSource().sendFeedback(Text.literal("Heal on flowing water currently set to: " + PreferencesConfig.getHealOnFlowingWater()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + PreferencesConfig.getHealOnFlowingLava()));
+        ctx.getSource().sendFeedback(Text.literal("Heal on flowing lava currently set to: " + PreferencesConfig.getHealOnFlowingLava()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + PreferencesConfig.getBlockPlacementSoundEffect()));
+        ctx.getSource().sendFeedback(Text.literal("Play sound on block placement currently set to: " + PreferencesConfig.getBlockPlacementSoundEffect()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on explosions currently set to: " + PreferencesConfig.getDropItemsOnExplosions()));
+        ctx.getSource().sendFeedback(Text.literal("Drop items on explosions currently set to: " + PreferencesConfig.getDropItemsOnExplosions()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Requires light currently set to: " + PreferencesConfig.getRequiresLight()));
+        ctx.getSource().sendFeedback(Text.literal("Requires light currently set to: " + PreferencesConfig.getRequiresLight()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions currently set to: " + ExplosionSourceConfig.getHealCreeperExplosions()));
+        ctx.getSource().sendFeedback(Text.literal("Heal Creeper explosions currently set to: " + ExplosionSourceConfig.getHealCreeperExplosions()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Ghast explosions currently set to: " + ExplosionSourceConfig.getHealGhastExplosions()));
+        ctx.getSource().sendFeedback(Text.literal("Heal Ghast explosions currently set to: " + ExplosionSourceConfig.getHealGhastExplosions()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Wither explosions currently set to: " + ExplosionSourceConfig.getHealWitherExplosions()));
+        ctx.getSource().sendFeedback(Text.literal("Heal Wither explosions currently set to: " + ExplosionSourceConfig.getHealWitherExplosions()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal TNT explosions currently set to: " + ExplosionSourceConfig.getHealTNTExplosions()));
+        ctx.getSource().sendFeedback(Text.literal("Heal TNT explosions currently set to: " + ExplosionSourceConfig.getHealTNTExplosions()), false);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealTNTMinecartExplosionCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal TNT minecart explosions currently set to: " + ExplosionSourceConfig.getHealTNTMinecartExplosions()));
+        ctx.getSource().sendFeedback(Text.literal("Heal TNT minecart explosions currently set to: " + ExplosionSourceConfig.getHealTNTMinecartExplosions()), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -462,8 +462,8 @@ public final class Commands {
 
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
         //If this returns true, then the config file exists, and we can update our values from it
-        if(Config.reloadConfigSettingsInMemory(ctx)) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
-        else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
+        if(Config.reloadConfigSettingsInMemory(ctx)) ctx.getSource().sendFeedback(Text.literal("Config successfully reloaded"), false);
+        else ctx.getSource().sendFeedback(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED), false);
     }
 
 }

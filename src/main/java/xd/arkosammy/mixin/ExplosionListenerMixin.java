@@ -33,11 +33,11 @@ public abstract class ExplosionListenerMixin {
     @Shadow @Final private World world;
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
     @Shadow public abstract List<BlockPos> getAffectedBlocks();
-    @Shadow @Nullable public abstract Entity getEntity();
+    @Shadow @Final @Nullable private Entity entity;
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void getExplodedBlocks(CallbackInfo ci){
-        if(canStoreExplosion(this.getCausingEntity(), this.getEntity()))
+        if(canStoreExplosion(this.getCausingEntity(), this.entity))
             storeExplosion(this.getAffectedBlocks());
     }
 
