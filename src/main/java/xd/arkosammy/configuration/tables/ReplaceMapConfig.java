@@ -32,8 +32,12 @@ public final class ReplaceMapConfig {
     }
 
     public static void saveReplaceMapToFile(CommentedFileConfig fileConfig){
-        for(Map.Entry<String, String> entry : replaceMap.entrySet()){
-            fileConfig.set(TABLE_NAME + "." + entry.getKey(),  entry.getValue());
+        if(!replaceMap.isEmpty()) {
+            for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
+                fileConfig.set(TABLE_NAME + "." + entry.getKey(), entry.getValue());
+            }
+        } else {
+            fileConfig.set(TABLE_NAME + "." + "minecraft:placeholder_key", "minecraft:placeholder_value");
         }
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
