@@ -3,12 +3,12 @@ package xd.arkosammy.explosions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
@@ -98,9 +98,9 @@ public class AffectedBlock {
 
         //Check if the block we are about to try placing is in the replace-map.
         //If it is, switch the state for the corresponding one in the replace-map.
-        String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
+        String blockIdentifier = Registry.BLOCK.getId(state.getBlock()).toString();
         if(ReplaceMapConfig.getReplaceMap().containsKey(blockIdentifier)){
-            state =  Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
+            state =  Registry.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
         }
 
         //If the block we are about to place consists of two blocks, handle it separately
