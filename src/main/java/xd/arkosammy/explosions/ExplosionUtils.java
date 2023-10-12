@@ -64,8 +64,8 @@ public final class ExplosionUtils {
          sortedAffectedBlocks.sort(yLevelComparator);
 
          Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
-            boolean isBlockInfo1Transparent = affectedBlock1.getState().isTranslucent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
-            boolean isBlockInfo2Transparent = affectedBlock2.getState().isTranslucent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
+            boolean isBlockInfo1Transparent = affectedBlock1.getState().isTransparent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
+            boolean isBlockInfo2Transparent = affectedBlock2.getState().isTransparent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
             return Boolean.compare(isBlockInfo1Transparent, isBlockInfo2Transparent);
         };
         sortedAffectedBlocks.sort(transparencyComparator);
