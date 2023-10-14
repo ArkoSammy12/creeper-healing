@@ -19,6 +19,14 @@ import java.util.stream.Collectors;
 
 public class ExplosionEvent {
 
+    private enum ExplosionMode{
+        DEFAULT_MODE,
+        DAYTIME_HEALING_MODE,
+        DIFFICULTY_BASED_HEALING_MODE,
+        WEATHER_BASED_HEALING_MODE,
+
+    }
+
     private final List<AffectedBlock> affectedBlocksList;
     private long explosionTimer;
     private int affectedBlockCounter;
