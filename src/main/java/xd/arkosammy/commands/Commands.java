@@ -105,10 +105,10 @@ public final class Commands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Heal on Instant Health potion node
-        LiteralCommandNode<ServerCommandSource> healOnInstantHealthPotionSplashNode = CommandManager
-                .literal("heal_on_instant_health_potion_splash")
-                .executes(Commands::getHealOnInstantHealthPotionSplashCommand)
+        //Heal on healing potion splash node
+        LiteralCommandNode<ServerCommandSource> healOnHealingPotionSplashNode = CommandManager
+                .literal("heal_on_healing_potion_splash")
+                .executes(Commands::getHealOnHealingPotionSplashCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -221,10 +221,10 @@ public final class Commands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Heal on Instant Health potion argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> healOnInstantHealthPotionSplashArgumentNode = CommandManager
+        //Heal on Healing potion splash argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> healOnHealingPotionSplashArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealOnInstantHealthPotionSplashCommand)
+                .executes(Commands::setHealOnHealingPotionSplashCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -281,7 +281,7 @@ public final class Commands {
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
         settingsNode.addChild(requiresLightNode);
         settingsNode.addChild(reloadNode);
-        settingsNode.addChild(healOnInstantHealthPotionSplashNode);
+        settingsNode.addChild(healOnHealingPotionSplashNode);
 
         //Mode command connections
         modeMode.addChild(doDayTimeHealingNode);
@@ -302,7 +302,7 @@ public final class Commands {
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
         requiresLightNode.addChild(requiresLightArgumentNode);
-        healOnInstantHealthPotionSplashNode.addChild(healOnInstantHealthPotionSplashArgumentNode);
+        healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
 
         healCreeperExplosionsNode.addChild(healCreeperExplosionsArgumentNode);
         healGhastExplosionsNode.addChild(healGhastExplosionsArgumentNode);
@@ -373,9 +373,9 @@ public final class Commands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int setHealOnInstantHealthPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setHealOnInstantHealthPotionSplash(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal on Instant Health potion splash set to: " + BoolArgumentType.getBool(ctx, "value")));
+    private static int setHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.setHealOnHealingPotionSplash(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -453,8 +453,8 @@ public final class Commands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int getHealOnInstantHealthPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on Instant Health potion splash set to: " + PreferencesConfig.getHealOnInstantHealthPotionSplash()));
+    private static int getHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + PreferencesConfig.getHealOnHealingPotionSplash()));
         return Command.SINGLE_SUCCESS;
     }
 

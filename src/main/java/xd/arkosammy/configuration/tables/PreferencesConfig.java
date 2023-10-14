@@ -31,8 +31,8 @@ public final class PreferencesConfig {
         preferencesEntryList.add(new ConfigEntry<>("requires_light", false, """
                 (Default = false) Whether or not explosions will need light to heal."""));
 
-        preferencesEntryList.add(new ConfigEntry<>("heal_on_instant_health_potion_splash", true, """
-                (Default = true) Makes explosion begin healing immediately upon throwing a splash potion of Instant Health on them."""));
+        preferencesEntryList.add(new ConfigEntry<>("heal_on_healing_potion_splash", true, """
+                (Default = true) Makes explosion begin healing immediately upon throwing a splash potion of Healing on them."""));
 
     }
 
@@ -80,10 +80,10 @@ public final class PreferencesConfig {
         }
     }
 
-    public static void setHealOnInstantHealthPotionSplash(boolean healOnInstantHealthPotionSplash){
+    public static void setHealOnHealingPotionSplash(boolean healOnHealingPotionSplash){
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
-            if(configEntry.getName().equals("heal_on_instant_health_potion_splash")){
-                configEntry.setValue(healOnInstantHealthPotionSplash);
+            if(configEntry.getName().equals("heal_on_healing_potion_splash")){
+                configEntry.setValue(healOnHealingPotionSplash);
             }
         }
     }
@@ -118,8 +118,8 @@ public final class PreferencesConfig {
         return boolToReturn;
     }
 
-    public static Boolean getHealOnInstantHealthPotionSplash(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_on_instant_health_potion_splash");
+    public static Boolean getHealOnHealingPotionSplash(){
+        Boolean boolToReturn = getValueForNameFromMemory("heal_on_healing_potion_splash");
         if(boolToReturn == null) return true;
         return boolToReturn;
     }

@@ -26,7 +26,7 @@ public abstract class HealingPotionMixin {
     @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/PotionEntity;applySplashPotion(Ljava/util/List;Lnet/minecraft/entity/Entity;)V"), locals =  LocalCapture.CAPTURE_FAILSOFT)
     private void onSplashPotionHit(HitResult hitResult, CallbackInfo ci, ItemStack itemStack, Potion potion) {
 
-        if(!PreferencesConfig.getHealOnInstantHealthPotionSplash()) return;
+        if(!PreferencesConfig.getHealOnHealingPotionSplash()) return;
 
         List<StatusEffect> statusEffects = potion.getEffects().stream().map(StatusEffectInstance::getEffectType).toList();
 
