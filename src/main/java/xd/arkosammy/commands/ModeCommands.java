@@ -1,14 +1,13 @@
 package xd.arkosammy.commands;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.configuration.tables.ModeConfig;
+import xd.arkosammy.explosions.ExplosionHealingMode;
 
 final class ModeCommands {
 
@@ -19,20 +18,35 @@ final class ModeCommands {
         //Mode node
         LiteralCommandNode<ServerCommandSource> modeMode = CommandManager
                 .literal("mode")
+                .executes(ModeCommands::getHealingModeCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Default healing mode
+        LiteralCommandNode<ServerCommandSource> defaultModeNode = CommandManager
+                .literal(ExplosionHealingMode.DEFAULT_MODE.getName())
+                .executes(ModeCommands::setDefaultHealingModeCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Daytime healing node
-        LiteralCommandNode<ServerCommandSource> doDayTimeHealingNode = CommandManager
-                .literal("daytime_healing_mode")
-                .executes(ModeCommands::getDoDayLightHealingCommand)
+        LiteralCommandNode<ServerCommandSource> daytimeHealingModeNode = CommandManager
+                .literal(ExplosionHealingMode.DAYTIME_HEALING_MODE.getName())
+                .executes(ModeCommands::setDaytimeHealingModeCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Daytime healing mode argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> doDayLightHealingArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(ModeCommands::setDoDayTimeHealingCommand)
+        //Difficulty based healing mode
+        LiteralCommandNode<ServerCommandSource> difficultyBasedHealingModeNode = CommandManager
+                .literal(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName())
+                .executes(ModeCommands::setDifficultyBasedModeCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Weather based healing mode
+        LiteralCommandNode<ServerCommandSource> weatherBasedHealingMode = CommandManager
+                .literal(ExplosionHealingMode.WEATHER_BASED_HEALING_MODE.getName())
+                .executes(ModeCommands::setWeatherBasedHealingModeCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -40,21 +54,39 @@ final class ModeCommands {
         creeperHealingNode.addChild(modeMode);
 
         //Modes command nodes
-        modeMode.addChild(doDayTimeHealingNode);
-
-        //Argument nodes
-        doDayTimeHealingNode.addChild(doDayLightHealingArgumentNode);
+        modeMode.addChild(defaultModeNode);
+        modeMode.addChild(daytimeHealingModeNode);
+        modeMode.addChild(difficultyBasedHealingModeNode);
+        modeMode.addChild(weatherBasedHealingMode);
 
     }
 
-    private static int setDoDayTimeHealingCommand(CommandContext<ServerCommandSource> ctx){
-        ModeConfig.setDaytimeHealingMode(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+    private static int setDefaultHealingModeCommand(CommandContext<ServerCommandSource> ctx){
+        ModeConfig.setHealingMode(ExplosionHealingMode.DEFAULT_MODE.getName());
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.DEFAULT_MODE.getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int getDoDayLightHealingCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode currently set to: " + ModeConfig.getDayTimeHealingMode()));
+    private static int setDaytimeHealingModeCommand(CommandContext<ServerCommandSource> ctx){
+        ModeConfig.setHealingMode(ExplosionHealingMode.DAYTIME_HEALING_MODE.getName());
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.DAYTIME_HEALING_MODE.getDisplayName()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setDifficultyBasedModeCommand(CommandContext<ServerCommandSource> ctx){
+        ModeConfig.setHealingMode(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName());
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode set to: " + ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getDisplayName()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setWeatherBasedHealingModeCommand(CommandContext<ServerCommandSource> ctx){
+        ModeConfig.setHealingMode(ExplosionHealingMode.WEATHER_BASED_HEALING_MODE.getName());
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode set to: " + ExplosionHealingMode.WEATHER_BASED_HEALING_MODE.getDisplayName()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getHealingModeCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode currently set to: " + ExplosionHealingMode.getFromName(ModeConfig.getHealingMode()).getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 

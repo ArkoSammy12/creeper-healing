@@ -71,13 +71,6 @@ final class SettingsCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Requires light node
-        LiteralCommandNode<ServerCommandSource> requiresLightNode = CommandManager
-                .literal("requires_light")
-                .executes(SettingsCommands::getRequiresLightCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
         //Heal on healing potion splash node
         LiteralCommandNode<ServerCommandSource> healOnHealingPotionSplashNode = CommandManager
                 .literal("heal_on_healing_potion_splash")
@@ -144,14 +137,6 @@ final class SettingsCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-
-        //Requires light argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> requiresLightArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(SettingsCommands::setRequiresLightCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
         //Heal on Healing potion splash argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnHealingPotionSplashArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
@@ -169,7 +154,6 @@ final class SettingsCommands {
         settingsNode.addChild(shouldHealOnFlowingWaterNode);
         settingsNode.addChild(shouldHealOnFlowingLavaNode);
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
-        settingsNode.addChild(requiresLightNode);
         settingsNode.addChild(reloadNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
 
@@ -180,7 +164,6 @@ final class SettingsCommands {
         shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
-        requiresLightNode.addChild(requiresLightArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
 
     }
@@ -230,12 +213,6 @@ final class SettingsCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int setRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setRequiresLight(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Requires light has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
-    }
-
     private static int setHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.setHealOnHealingPotionSplash(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + BoolArgumentType.getBool(ctx, "value")));
@@ -271,11 +248,6 @@ final class SettingsCommands {
 
     private static int getDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Drop items on explosions currently set to: " + PreferencesConfig.getDropItemsOnExplosions()));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Requires light currently set to: " + PreferencesConfig.getRequiresLight()));
         return Command.SINGLE_SUCCESS;
     }
 
