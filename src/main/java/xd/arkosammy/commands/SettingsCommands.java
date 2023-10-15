@@ -1,54 +1,27 @@
 package xd.arkosammy.commands;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xd.arkosammy.configuration.Config;
 import xd.arkosammy.configuration.tables.DelaysConfig;
-import xd.arkosammy.configuration.tables.ExplosionSourceConfig;
-import xd.arkosammy.configuration.tables.ModeConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.explosions.AffectedBlock;
+
 import java.io.IOException;
 
-public final class Commands {
+final class SettingsCommands {
 
-    private Commands(){}
-    public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
+    private SettingsCommands(){}
 
-        //Root node
-        LiteralCommandNode<ServerCommandSource> creeperHealingNode = CommandManager
-                .literal("creeper-healing")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Mode node
-        LiteralCommandNode<ServerCommandSource> modeMode = CommandManager
-                .literal("mode")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Explosion source node
-        LiteralCommandNode<ServerCommandSource> explosionSourceMode = CommandManager
-                .literal("explosion_source")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Daytime healing node
-        LiteralCommandNode<ServerCommandSource> doDayTimeHealingNode = CommandManager
-                .literal("daytime_healing_mode")
-                .executes(Commands::getDoDayLightHealingCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
+    static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Settings node
         LiteralCommandNode<ServerCommandSource> settingsNode = CommandManager
@@ -59,56 +32,56 @@ public final class Commands {
         //Explosion Heal Delay node
         LiteralCommandNode<ServerCommandSource> explosionHealDelayNode = CommandManager
                 .literal("explosion_heal_delay")
-                .executes(Commands::getExplosionHealDelayCommand)
+                .executes(SettingsCommands::getExplosionHealDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Block Placement Delay node
         LiteralCommandNode<ServerCommandSource> blockPlacementDelayNode = CommandManager
                 .literal("block_placement_delay")
-                .executes(Commands::getBlockPlacementDelayCommand)
+                .executes(SettingsCommands::getBlockPlacementDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on Flowing Water node
         LiteralCommandNode<ServerCommandSource> shouldHealOnFlowingWaterNode = CommandManager
                 .literal("heal_on_flowing_water")
-                .executes(Commands::getShouldHealOnFlowingWaterCommand)
+                .executes(SettingsCommands::getShouldHealOnFlowingWaterCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on Flowing Lava node
         LiteralCommandNode<ServerCommandSource> shouldHealOnFlowingLavaNode = CommandManager
                 .literal("heal_on_flowing_lava")
-                .executes(Commands::getShouldHealOnFlowingLavaCommand)
+                .executes(SettingsCommands::getShouldHealOnFlowingLavaCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Play sound on block placement node
         LiteralCommandNode<ServerCommandSource> shouldPlaySoundOnBlockPlacementNode = CommandManager
                 .literal("block_placement_sound_effect")
-                .executes(Commands::getShouldPlaySoundOnBlockPlacement)
+                .executes(SettingsCommands::getShouldPlaySoundOnBlockPlacement)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Drop items on creeper explosions node
         LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
                 .literal("drop_items_on_creeper_explosions")
-                .executes(Commands::getDropItemsOnExplosionCommand)
+                .executes(SettingsCommands::getDropItemsOnExplosionCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Requires light node
         LiteralCommandNode<ServerCommandSource> requiresLightNode = CommandManager
                 .literal("requires_light")
-                .executes(Commands::getRequiresLightCommand)
+                .executes(SettingsCommands::getRequiresLightCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on healing potion splash node
         LiteralCommandNode<ServerCommandSource> healOnHealingPotionSplashNode = CommandManager
                 .literal("heal_on_healing_potion_splash")
-                .executes(Commands::getHealOnHealingPotionSplashCommand)
+                .executes(SettingsCommands::getHealOnHealingPotionSplashCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -119,7 +92,7 @@ public final class Commands {
                 .executes(context -> {
 
                     try {
-                        Commands.reload(context);
+                        SettingsCommands.reload(context);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -129,87 +102,45 @@ public final class Commands {
                 })
                 .build();
 
-        //Heal creeper explosions node
-        LiteralCommandNode<ServerCommandSource> healCreeperExplosionsNode = CommandManager
-                .literal("heal_creeper_explosions")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(Commands::getHealCreeperExplosionsCommand)
-                .build();
-
-        //Heal ghast explosions node
-        LiteralCommandNode<ServerCommandSource> healGhastExplosionsNode = CommandManager
-                .literal("heal_ghast_explosions")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(Commands::getHealGhastExplosionsCommand)
-                .build();
-
-        //Heal wither explosions node
-        LiteralCommandNode<ServerCommandSource> healWitherExplosionsNode = CommandManager
-                .literal("heal_wither_explosions")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(Commands::getHealWitherExplosionsCommand)
-                .build();
-
-        //Heal tnt explosions node
-        LiteralCommandNode<ServerCommandSource> healTNTExplosionsNode = CommandManager
-                .literal("heal_tnt_explosions")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(Commands::getHealTNTExplosionsCommand)
-                .build();
-
-        //Heal tnt minecart explosions node
-        LiteralCommandNode<ServerCommandSource> healTNTMinecartExplosionsNode = CommandManager
-                .literal("heal_tnt_minecart_explosions")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(Commands::getHealTNTMinecartExplosionCommand)
-                .build();
-
-        //Daytime healing mode argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> doDayLightHealingArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setDoDayTimeHealingCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
         //Explosion heal delay argument node
         ArgumentCommandNode<ServerCommandSource, Double> explosionHealDelayArgumentNode = CommandManager
                 .argument("seconds", DoubleArgumentType.doubleArg())
-                .executes(Commands::setExplosionHealDelayCommand)
+                .executes(SettingsCommands::setExplosionHealDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Block placement delay argument node
         ArgumentCommandNode<ServerCommandSource, Double> blockPlacementDelayArgumentNode = CommandManager
                 .argument("seconds", DoubleArgumentType.doubleArg())
-                .executes(Commands::setBlockPlacementDelayCommand)
+                .executes(SettingsCommands::setBlockPlacementDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on flowing water argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnFlowingWaterArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealOnFlowingWaterCommand)
+                .executes(SettingsCommands::setHealOnFlowingWaterCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on flowing lava argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnFlowingLavaArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealOnFlowingLavaCommand)
+                .executes(SettingsCommands::setHealOnFlowingLavaCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Play sound on block placement argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> playSoundOnBlockPlacementArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setPlaySoundOnBlockPlacement)
+                .executes(SettingsCommands::setPlaySoundOnBlockPlacement)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Drop items on creeper argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setDropItemsOnExplosionCommand)
+                .executes(SettingsCommands::setDropItemsOnExplosionCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -217,62 +148,21 @@ public final class Commands {
         //Requires light argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> requiresLightArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setRequiresLightCommand)
+                .executes(SettingsCommands::setRequiresLightCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on Healing potion splash argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnHealingPotionSplashArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealOnHealingPotionSplashCommand)
+                .executes(SettingsCommands::setHealOnHealingPotionSplashCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Heal creeper explosions argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> healCreeperExplosionsArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealCreeperExplosionsCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Heal ghast explosions argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> healGhastExplosionsArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealGhastExplosionsCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Heal wither explosions argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> healWitherExplosionsArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealWitherExplosionsCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Heal tnt explosions argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> healTNTExplosionsArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealTNTExplosionsCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Heal tnt minecart explosions argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> healTNTMinecartExplosionsArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(Commands::setHealTNTMinecartExplosionsCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-
-        //Root connections
-        dispatcher.getRoot().addChild(creeperHealingNode);
-
-        //Parent command connections
+        //Root node connection
         creeperHealingNode.addChild(settingsNode);
-        creeperHealingNode.addChild(modeMode);
-        creeperHealingNode.addChild(explosionSourceMode);
 
-        //Settings command connections
+        //Settings commands nodes
         settingsNode.addChild(explosionHealDelayNode);
         settingsNode.addChild(blockPlacementDelayNode);
         settingsNode.addChild(dropItemsOnCreeperExplosionsNode);
@@ -283,18 +173,7 @@ public final class Commands {
         settingsNode.addChild(reloadNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
 
-        //Mode command connections
-        modeMode.addChild(doDayTimeHealingNode);
-
-        //Explosion source command connections
-        explosionSourceMode.addChild(healCreeperExplosionsNode);
-        explosionSourceMode.addChild(healGhastExplosionsNode);
-        explosionSourceMode.addChild(healWitherExplosionsNode);
-        explosionSourceMode.addChild(healTNTExplosionsNode);
-        explosionSourceMode.addChild(healTNTMinecartExplosionsNode);
-
-        //Argument node connections
-        doDayTimeHealingNode.addChild(doDayLightHealingArgumentNode);
+        //Argument nodes
         explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
         blockPlacementDelayNode.addChild(blockPlacementDelayArgumentNode);
         shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
@@ -304,22 +183,6 @@ public final class Commands {
         requiresLightNode.addChild(requiresLightArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
 
-        healCreeperExplosionsNode.addChild(healCreeperExplosionsArgumentNode);
-        healGhastExplosionsNode.addChild(healGhastExplosionsArgumentNode);
-        healWitherExplosionsNode.addChild(healWitherExplosionsArgumentNode);
-        healTNTExplosionsNode.addChild(healTNTExplosionsArgumentNode);
-        healTNTMinecartExplosionsNode.addChild(healTNTMinecartExplosionsArgumentNode);
-
-    }
-
-    /*
-    ======================================= COMMAND SETTERS =======================================
-     */
-
-    private static int setDoDayTimeHealingCommand(CommandContext<ServerCommandSource> ctx){
-        ModeConfig.setDaytimeHealingMode(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
     }
 
     private static int setExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx) {
@@ -379,44 +242,7 @@ public final class Commands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int setHealCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionSourceConfig.setHealCreeperExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
-    }
 
-    private static int setHealGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionSourceConfig.setHealGhastExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal Ghast explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setHealWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionSourceConfig.setHealWitherExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal Wither explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setHealTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionSourceConfig.setHealTNTExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal TNT explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setHealTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionSourceConfig.setHealTNTMinecartExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal TNT Minecart explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
-    }
-
-        /*
-    ======================================= COMMAND GETTERS =======================================
-     */
-
-    private static int getDoDayLightHealingCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Daytime healing mode currently set to: " + ModeConfig.getDayTimeHealingMode()));
-        return Command.SINGLE_SUCCESS;
-    }
 
     private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"));
@@ -458,34 +284,6 @@ public final class Commands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int getHealCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions currently set to: " + ExplosionSourceConfig.getHealCreeperExplosions()));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getHealGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Ghast explosions currently set to: " + ExplosionSourceConfig.getHealGhastExplosions()));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getHealWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Wither explosions currently set to: " + ExplosionSourceConfig.getHealWitherExplosions()));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getHealTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal TNT explosions currently set to: " + ExplosionSourceConfig.getHealTNTExplosions()));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getHealTNTMinecartExplosionCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal TNT minecart explosions currently set to: " + ExplosionSourceConfig.getHealTNTMinecartExplosions()));
-        return Command.SINGLE_SUCCESS;
-    }
-
-            /*
-    ======================================= RELOAD COMMAND =======================================
-     */
 
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
         //If this returns true, then the config file exists, and we can update our values from it
