@@ -105,6 +105,13 @@ public final class Commands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal on healing potion splash node
+        LiteralCommandNode<ServerCommandSource> healOnHealingPotionSplashNode = CommandManager
+                .literal("heal_on_healing_potion_splash")
+                .executes(Commands::getHealOnHealingPotionSplashCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Reload Config node
         LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
                 .literal("reload")
@@ -214,6 +221,13 @@ public final class Commands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal on Healing potion splash argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> healOnHealingPotionSplashArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(Commands::setHealOnHealingPotionSplashCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Heal creeper explosions argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healCreeperExplosionsArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
@@ -267,6 +281,7 @@ public final class Commands {
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
         settingsNode.addChild(requiresLightNode);
         settingsNode.addChild(reloadNode);
+        settingsNode.addChild(healOnHealingPotionSplashNode);
 
         //Mode command connections
         modeMode.addChild(doDayTimeHealingNode);
@@ -287,6 +302,7 @@ public final class Commands {
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
         requiresLightNode.addChild(requiresLightArgumentNode);
+        healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
 
         healCreeperExplosionsNode.addChild(healCreeperExplosionsArgumentNode);
         healGhastExplosionsNode.addChild(healGhastExplosionsArgumentNode);
@@ -354,6 +370,12 @@ public final class Commands {
     private static int setRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.setRequiresLight(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Requires light has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.setHealOnHealingPotionSplash(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -428,6 +450,11 @@ public final class Commands {
 
     private static int getRequiresLightCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Requires light currently set to: " + PreferencesConfig.getRequiresLight()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + PreferencesConfig.getHealOnHealingPotionSplash()));
         return Command.SINGLE_SUCCESS;
     }
 
