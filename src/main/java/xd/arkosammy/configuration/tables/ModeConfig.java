@@ -3,6 +3,7 @@ package xd.arkosammy.configuration.tables;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.configuration.ConfigEntry;
+import xd.arkosammy.explosions.ExplosionHealingMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,51 +11,45 @@ import java.util.List;
 public final class ModeConfig {
 
     private ModeConfig(){}
-    private static final List<ConfigEntry<Boolean>> modeEntryList = new ArrayList<>();
-    private static final String TABLE_NAME = "modes";
+    private static final List<ConfigEntry<String>> modeEntryList = new ArrayList<>();
+    private static final String TABLE_NAME = "explosion_healing_mode";
     private static final String TABLE_COMMENT = """
-            Toggle different special modes for explosion healing.""";
+            Choose between different special modes for explosion healing.""";
 
     static {
 
-        modeEntryList.add(new ConfigEntry<>("daytime_healing_mode", false, """
-                (Default = false) Whether or not daytime healing mode should be enabled.
-                Explosions will wait until the next sunrise to start healing, and they will finish healing at nighttime.
-                Note that this only applies for explosions that occurred while this setting was enabled."""));
+        modeEntryList.add(new ConfigEntry<>("mode", ExplosionHealingMode.DEFAULT_MODE.getName(), """
+                (Default = "default_mode")"""));
 
     }
 
-    private static List<ConfigEntry<Boolean>> getModeEntryList(){
+    private static List<ConfigEntry<String>> getModeEntryList(){
         return modeEntryList;
     }
 
-    public static void setDaytimeHealingMode(boolean daytimeHealingMode){
-        for(ConfigEntry<Boolean> configEntry : getModeEntryList()){
-            if(configEntry.getName().equals("daytime_healing_mode")){
-                configEntry.setValue(daytimeHealingMode);
+    public static void setHealingMode(String explosionModeName){
+        for(ConfigEntry<String> configEntry : getModeEntryList()){
+            if(configEntry.getName().equals("mode")){
+                configEntry.setValue(explosionModeName);
             }
         }
     }
 
-    public static Boolean getDayTimeHealingMode(){
-        Boolean boolToReturn = getValueForNameFromMemory("daytime_healing_mode");
-        if(boolToReturn == null) return false;
-        return boolToReturn;
+    public static String getHealingMode(){
+        String stringToReturn = getValueForNameFromMemory("mode");
+        if(stringToReturn == null) return ExplosionHealingMode.DEFAULT_MODE.getName();
+        return stringToReturn;
     }
 
     public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
-
-        for(ConfigEntry<Boolean> configEntry : getModeEntryList()){
+        for(ConfigEntry<String> configEntry : getModeEntryList()){
             configEntry.resetValue();
         }
-
         saveSettingsToFile(fileConfig);
-
     }
 
     public static void saveSettingsToFile(CommentedFileConfig fileConfig){
-
-        for(ConfigEntry<Boolean> entry : getModeEntryList()){
+        for(ConfigEntry<String> entry : getModeEntryList()){
             fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
             if(entryComment != null) fileConfig.setComment(TABLE_NAME + "." + entry.getName(), entryComment);
@@ -63,18 +58,18 @@ public final class ModeConfig {
     }
 
     public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
-        for(ConfigEntry<Boolean> configEntry : getModeEntryList()){
+        for(ConfigEntry<String> configEntry : getModeEntryList()){
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
-            if(value instanceof Boolean boolValue){
-                configEntry.setValue(boolValue);
+            if(value instanceof String stringValue){
+                configEntry.setValue(stringValue);
             } else {
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
             }
         }
     }
 
-    private static Boolean getValueForNameFromMemory(String settingName){
-        for(ConfigEntry<Boolean> entry : getModeEntryList()){
+    private static String getValueForNameFromMemory(String settingName){
+        for(ConfigEntry<String> entry : getModeEntryList()){
             if(entry.getName().equals(settingName)){
                 return entry.getValue();
             }

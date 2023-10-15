@@ -28,9 +28,6 @@ public final class PreferencesConfig {
         preferencesEntryList.add(new ConfigEntry<>("drop_items_on_explosions", true, """
                 (Default = true) Whether or not explosions should drop items."""));
 
-        preferencesEntryList.add(new ConfigEntry<>("requires_light", false, """
-                (Default = false) Whether or not explosions will need light to heal."""));
-
         preferencesEntryList.add(new ConfigEntry<>("heal_on_healing_potion_splash", true, """
                 (Default = true) Makes explosion begin healing immediately upon throwing a splash potion of Healing on them."""));
 
@@ -72,14 +69,6 @@ public final class PreferencesConfig {
         }
     }
 
-    public static void setRequiresLight(boolean requiresLight){
-        for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
-            if(configEntry.getName().equals("requires_light")){
-                configEntry.setValue(requiresLight);
-            }
-        }
-    }
-
     public static void setHealOnHealingPotionSplash(boolean healOnHealingPotionSplash){
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
             if(configEntry.getName().equals("heal_on_healing_potion_splash")){
@@ -109,12 +98,6 @@ public final class PreferencesConfig {
     public static Boolean getDropItemsOnExplosions(){
         Boolean boolToReturn = getValueForNameFromMemory("drop_items_on_explosions");
         if(boolToReturn == null) return true;
-        return boolToReturn;
-    }
-
-    public static Boolean getRequiresLight(){
-        Boolean boolToReturn = getValueForNameFromMemory("requires_light");
-        if(boolToReturn == null) return false;
         return boolToReturn;
     }
 
