@@ -11,7 +11,7 @@ import xd.arkosammy.configuration.Config;
 import xd.arkosammy.explosions.ExplosionListCodec;
 import xd.arkosammy.explosions.AffectedBlock;
 import xd.arkosammy.handlers.ExplosionListHandler;
-import xd.arkosammy.commands.Commands;
+import xd.arkosammy.commands.HealingCommandManager;
 
 import java.io.IOException;
 
@@ -42,7 +42,7 @@ public class CreeperHealing implements ModInitializer {
 		});
 
 		ServerTickEvents.END_SERVER_TICK.register(ExplosionListHandler::handleExplosionList);
-		CommandRegistrationCallback.EVENT.register(Commands::registerCommands);
+		CommandRegistrationCallback.EVENT.register(HealingCommandManager::registerCommands);
 		LOGGER.info("I will try my best to heal your explosions :)");
 	}
 
