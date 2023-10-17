@@ -127,7 +127,7 @@ public class AffectedBlock {
     public static void updateAffectedBlocksTimers(){
         CreeperHealing.setHealerHandlerLock(false);
         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
-            if(explosionEvent.getExplosionMode() != ExplosionHealingMode.DAYTIME_HEALING_MODE) {
+            if(explosionEvent.getExplosionMode() == ExplosionHealingMode.DEFAULT_MODE) {
                 for (int i = explosionEvent.getAffectedBlockCounter() + 1; i < explosionEvent.getAffectedBlocksList().size(); i++) {
                     explosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelay());
                 }

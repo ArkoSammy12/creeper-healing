@@ -5,6 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.CreeperHealing;
@@ -144,6 +146,7 @@ public class ExplosionEvent {
             case DAYTIME_HEALING_MODE -> this.setupDayTimeHealingMode(world);
             case DIFFICULTY_BASED_HEALING_MODE -> this.setupDifficultyBasedHealingMode(world);
             case WEATHER_BASED_HEALING_MODE -> this.setupWeatherBasedHealingMode(world);
+            case BLAST_RESISTANCE_BASED_HEALING_MODE -> this.setupBlastResistanceBasedHealingMode(world);
 
         }
 
@@ -163,6 +166,16 @@ public class ExplosionEvent {
 
     private void setupWeatherBasedHealingMode(World world){
 
+    }
+
+     private void setupBlastResistanceBasedHealingMode(World world){
+        Random random = world.getRandom();
+        this.getAffectedBlocksList().forEach(affectedBlock -> {
+            double randomOffset = random.nextBetween(-5, 5);
+            double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
+            int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance/9, -5, 5) + randomOffset);
+            affectedBlock.setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelay() + (offset * 20L));
+        });
     }
 
     private static ExplosionEvent combineCollidingExplosions(Set<ExplosionEvent> collidingExplosions, ExplosionEvent newestExplosion, World world){

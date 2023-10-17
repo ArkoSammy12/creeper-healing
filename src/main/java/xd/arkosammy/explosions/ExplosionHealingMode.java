@@ -5,7 +5,8 @@ public enum ExplosionHealingMode {
     DEFAULT_MODE("default_mode", "Default healing mode"),
     DAYTIME_HEALING_MODE("daytime_healing_mode", "Daytime healing mode"),
     DIFFICULTY_BASED_HEALING_MODE("difficulty_based_healing_mode", "Difficulty-based healing mode"),
-    WEATHER_BASED_HEALING_MODE("weather_based_healing_mode", "Weather-based healing mode");
+    WEATHER_BASED_HEALING_MODE("weather_based_healing_mode", "Weather-based healing mode"),
+    BLAST_RESISTANCE_BASED_HEALING_MODE("blast_resistance_based_healing_mode", "Blast resistance-based healing mode");
 
     private final String name;
     private final String displayName;
