@@ -46,7 +46,7 @@ public class AffectedBlock {
         return new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), DelaysConfig.getBlockPlacementDelay(), false);
     }
 
-    void setAffectedBlockTimer(long delay){
+    public void setAffectedBlockTimer(long delay){
         this.affectedBlockTimer = delay;
     }
 
