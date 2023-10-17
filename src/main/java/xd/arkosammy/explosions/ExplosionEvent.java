@@ -171,10 +171,11 @@ public class ExplosionEvent {
      private void setupBlastResistanceBasedHealingMode(World world){
         Random random = world.getRandom();
         this.getAffectedBlocksList().forEach(affectedBlock -> {
-            double randomOffset = random.nextBetween(-5, 5);
+            double randomOffset = random.nextBetween(-2, 2);
             double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
             int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance/9, -5, 5) + randomOffset);
-            affectedBlock.setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelay() + (offset * 20L));
+            long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelay() + (offset * 20L));
+            affectedBlock.setAffectedBlockTimer(finalOffset);
         });
     }
 
