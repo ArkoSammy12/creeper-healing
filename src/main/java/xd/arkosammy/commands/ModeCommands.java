@@ -52,7 +52,7 @@ final class ModeCommands {
 
         //Blast resistance based healing mode
         LiteralCommandNode<ServerCommandSource> blastResistanceBasedHealingNode = CommandManager
-                .literal(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName())
+                .literal(ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName())
                 .executes(ModeCommands::setBlastResistanceBasedHealingModeCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
