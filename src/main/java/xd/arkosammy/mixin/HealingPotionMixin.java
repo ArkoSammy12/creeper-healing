@@ -5,7 +5,6 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.projectile.thrown.PotionEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -15,9 +14,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.explosions.AffectedBlock;
+import xd.arkosammy.explosions.ExplosionHealingMode;
 import xd.arkosammy.handlers.ExplosionListHandler;
 
 import java.util.List;
@@ -43,7 +42,7 @@ public abstract class HealingPotionMixin {
 
             ExplosionListHandler.getExplosionEventList().forEach(explosionEvent -> {
                 List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList();
-                if(affectedBlockPositions.contains(potionHitPosition)){
+                if(affectedBlockPositions.contains(potionHitPosition) && explosionEvent.getExplosionMode() == ExplosionHealingMode.DEFAULT_MODE){
                     explosionEvent.setExplosionTimer(-1);
                 }
             });

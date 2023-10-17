@@ -50,6 +50,13 @@ final class ModeCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Blast resistance based healing mode
+        LiteralCommandNode<ServerCommandSource> blastResistanceBasedHealingNode = CommandManager
+                .literal(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName())
+                .executes(ModeCommands::setBlastResistanceBasedHealingModeCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Root node connections
         creeperHealingNode.addChild(modeMode);
 
@@ -58,6 +65,7 @@ final class ModeCommands {
         modeMode.addChild(daytimeHealingModeNode);
         modeMode.addChild(difficultyBasedHealingModeNode);
         modeMode.addChild(weatherBasedHealingMode);
+        modeMode.addChild(blastResistanceBasedHealingNode);
 
     }
 
@@ -75,18 +83,24 @@ final class ModeCommands {
 
     private static int setDifficultyBasedModeCommand(CommandContext<ServerCommandSource> ctx){
         ModeConfig.setHealingMode(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName());
-        ctx.getSource().sendMessage(Text.literal("Explosion healing mode set to: " + ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getDisplayName()));
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setWeatherBasedHealingModeCommand(CommandContext<ServerCommandSource> ctx){
         ModeConfig.setHealingMode(ExplosionHealingMode.WEATHER_BASED_HEALING_MODE.getName());
-        ctx.getSource().sendMessage(Text.literal("Explosion healing mode set to: " + ExplosionHealingMode.WEATHER_BASED_HEALING_MODE.getDisplayName()));
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.WEATHER_BASED_HEALING_MODE.getDisplayName()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setBlastResistanceBasedHealingModeCommand(CommandContext<ServerCommandSource> ctx){
+        ModeConfig.setHealingMode(ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName());
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealingModeCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Explosion healing mode currently set to: " + ExplosionHealingMode.getFromName(ModeConfig.getHealingMode()).getDisplayName()));
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode currently has been set to: " + ExplosionHealingMode.getFromName(ModeConfig.getHealingMode()).getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
