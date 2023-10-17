@@ -78,6 +78,13 @@ final class SettingsCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal on regeneration potion splash node
+        LiteralCommandNode<ServerCommandSource> healOnRegenerationPotionSplash = CommandManager
+                .literal("heal_on_regeneration_potion_splash")
+                .executes(SettingsCommands::getHealOnRegenerationPotionSplashCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Reload Config node
         LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
                 .literal("reload")
@@ -144,6 +151,13 @@ final class SettingsCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal on Regeneration potion splash argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> healOnRegenerationPotionSplashArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(SettingsCommands::setHealOnRegenerationPotionSplashCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Root node connection
         creeperHealingNode.addChild(settingsNode);
 
@@ -156,6 +170,7 @@ final class SettingsCommands {
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
         settingsNode.addChild(reloadNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
+        settingsNode.addChild(healOnRegenerationPotionSplash);
 
         //Argument nodes
         explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
@@ -165,6 +180,7 @@ final class SettingsCommands {
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
+        healOnRegenerationPotionSplash.addChild(healOnRegenerationPotionSplashArgumentNode);
 
     }
 
@@ -219,7 +235,11 @@ final class SettingsCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-
+    private static int setHealOnRegenerationPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.setHealOnRegenerationPotionSplash(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
 
     private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"));
@@ -256,6 +276,10 @@ final class SettingsCommands {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int getHealOnRegenerationPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + PreferencesConfig.getHealOnRegenerationPotionSplash()));
+        return Command.SINGLE_SUCCESS;
+    }
 
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
         //If this returns true, then the config file exists, and we can update our values from it

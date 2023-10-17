@@ -26,26 +26,33 @@ public abstract class HealingPotionMixin {
 
     @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/PotionEntity;applySplashPotion(Ljava/util/List;Lnet/minecraft/entity/Entity;)V"))
     private void onSplashPotionHit(HitResult hitResult, CallbackInfo ci, @Local Potion potion) {
-        if(!PreferencesConfig.getHealOnHealingPotionSplash()) return;
         List<StatusEffect> statusEffects = potion.getEffects().stream().map(StatusEffectInstance::getEffectType).toList();
-        if(statusEffects.contains(StatusEffects.INSTANT_HEALTH)) {
-            BlockPos potionHitPosition;
-            if (hitResult.getType() == HitResult.Type.BLOCK) {
-                BlockHitResult blockHitResult = (BlockHitResult) hitResult;
-                potionHitPosition = blockHitResult.getBlockPos().offset(blockHitResult.getSide());
-            } else if(hitResult.getType() == HitResult.Type.ENTITY) {
-                EntityHitResult entityHitResult = (EntityHitResult) hitResult;
-                potionHitPosition = entityHitResult.getEntity().getBlockPos();
-            } else {
-                return;
-            }
-
+        BlockPos potionHitPosition;
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult blockHitResult = (BlockHitResult) hitResult;
+            potionHitPosition = blockHitResult.getBlockPos().offset(blockHitResult.getSide());
+        } else if(hitResult.getType() == HitResult.Type.ENTITY) {
+            EntityHitResult entityHitResult = (EntityHitResult) hitResult;
+            potionHitPosition = entityHitResult.getEntity().getBlockPos();
+        } else {
+            return;
+        }
+        if(statusEffects.contains(StatusEffects.INSTANT_HEALTH) && PreferencesConfig.getHealOnHealingPotionSplash()) {
+            ExplosionListHandler.getExplosionEventList().forEach(explosionEvent -> {
+                List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList();
+                if(affectedBlockPositions.contains(potionHitPosition)){
+                    explosionEvent.setExplosionTimer(-1);
+                    explosionEvent.getAffectedBlocksList().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(1));
+                }
+            });
+        } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.getHealOnRegenerationPotionSplash()){
             ExplosionListHandler.getExplosionEventList().forEach(explosionEvent -> {
                 List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList();
                 if(affectedBlockPositions.contains(potionHitPosition) && explosionEvent.getExplosionMode() == ExplosionHealingMode.DEFAULT_MODE){
                     explosionEvent.setExplosionTimer(-1);
                 }
             });
+
         }
     }
 }

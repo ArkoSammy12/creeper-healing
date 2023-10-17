@@ -29,7 +29,11 @@ public final class PreferencesConfig {
                 (Default = true) Whether or not explosions should drop items."""));
 
         preferencesEntryList.add(new ConfigEntry<>("heal_on_healing_potion_splash", true, """
-                (Default = true) Makes explosion begin healing immediately upon throwing a splash potion of Healing on them."""));
+                (Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them."""));
+
+        preferencesEntryList.add(new ConfigEntry<>("heal_on_regeneration_potion_splash", true, """
+                (Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
+                This option only modifies the heal delay of the explosion and only affects explosions created with the default healing mode."""));
 
     }
 
@@ -77,6 +81,14 @@ public final class PreferencesConfig {
         }
     }
 
+    public static void setHealOnRegenerationPotionSplash(boolean healOnRegenerationPotionSplash){
+        for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
+            if(configEntry.getName().equals("heal_on_regeneration_potion_splash")){
+                configEntry.setValue(healOnRegenerationPotionSplash);
+            }
+        }
+    }
+
     public static Boolean getHealOnFlowingWater(){
         Boolean boolToReturn = getValueForNameFromMemory("heal_on_flowing_water");
         if(boolToReturn == null) return true;
@@ -103,6 +115,12 @@ public final class PreferencesConfig {
 
     public static Boolean getHealOnHealingPotionSplash(){
         Boolean boolToReturn = getValueForNameFromMemory("heal_on_healing_potion_splash");
+        if(boolToReturn == null) return true;
+        return boolToReturn;
+    }
+
+    public static Boolean getHealOnRegenerationPotionSplash(){
+        Boolean boolToReturn = getValueForNameFromMemory("heal_on_regeneration_potion_splash");
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
