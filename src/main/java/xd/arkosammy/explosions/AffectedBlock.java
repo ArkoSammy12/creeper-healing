@@ -100,7 +100,7 @@ public class AffectedBlock {
         //If it is, switch the state for the corresponding one in the replace-map.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
         if(ReplaceMapConfig.getReplaceMap().containsKey(blockIdentifier)){
-            state =  Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
+            state = Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
         }
 
         //If the block we are about to place consists of two blocks, handle it separately
@@ -127,7 +127,7 @@ public class AffectedBlock {
     public static void updateAffectedBlocksTimers(){
         CreeperHealing.setHealerHandlerLock(false);
         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
-            if(explosionEvent.getExplosionMode() != ExplosionHealingMode.DAYTIME_HEALING_MODE) {
+            if(explosionEvent.getExplosionMode() == ExplosionHealingMode.DEFAULT_MODE) {
                 for (int i = explosionEvent.getAffectedBlockCounter() + 1; i < explosionEvent.getAffectedBlocksList().size(); i++) {
                     explosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelay());
                 }
