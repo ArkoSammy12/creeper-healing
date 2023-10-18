@@ -145,7 +145,6 @@ public class ExplosionEvent {
 
             case DAYTIME_HEALING_MODE -> this.setupDayTimeHealingMode(world);
             case DIFFICULTY_BASED_HEALING_MODE -> this.setupDifficultyBasedHealingMode(world);
-            case WEATHER_BASED_HEALING_MODE -> this.setupWeatherBasedHealingMode(world);
             case BLAST_RESISTANCE_BASED_HEALING_MODE -> this.setupBlastResistanceBasedHealingMode(world);
 
         }
@@ -161,10 +160,6 @@ public class ExplosionEvent {
     }
 
     private void setupDifficultyBasedHealingMode(World world){
-
-    }
-
-    private void setupWeatherBasedHealingMode(World world){
 
     }
 
