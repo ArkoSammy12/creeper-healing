@@ -54,7 +54,7 @@ public class AffectedBlock {
         return this.worldRegistryKey;
     }
 
-    World getWorld(@NotNull MinecraftServer server){
+    public World getWorld(@NotNull MinecraftServer server){
         return server.getWorld(this.getWorldRegistryKey());
     }
 

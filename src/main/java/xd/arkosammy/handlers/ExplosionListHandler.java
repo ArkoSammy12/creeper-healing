@@ -57,12 +57,15 @@ public final class ExplosionListHandler {
     }
 
     private static void handleBlockPlacement(AffectedBlock currentAffectedBlock, ExplosionEvent currentExplosionEvent, MinecraftServer server){
-        if (currentExplosionEvent.getExplosionMode() == ExplosionHealingMode.DAYTIME_HEALING_MODE && !currentExplosionEvent.hasEnoughLight(server)) {
+        if (currentExplosionEvent.getExplosionMode() == ExplosionHealingMode.DAYTIME_HEALING_MODE && !currentExplosionEvent.hasEnoughLightIfDaytimeHealingMode(server)) {
             getExplosionEventList().remove(currentExplosionEvent);
         }
         currentAffectedBlock.tryPlacing(server, currentExplosionEvent);
         currentAffectedBlock.setPlaced(true);
         currentExplosionEvent.incrementCounter();
+        if(!currentExplosionEvent.shouldKeepHealingIfDifficultyBasedHealingMode(currentAffectedBlock.getWorld(server))) {
+            getExplosionEventList().remove(currentExplosionEvent);
+        }
     }
 
 }

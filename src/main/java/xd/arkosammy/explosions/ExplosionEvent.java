@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.CreeperHealing;
@@ -101,19 +102,6 @@ public class ExplosionEvent {
         return null;
     }
 
-    public boolean hasEnoughLight(MinecraftServer server){
-
-        //We return true if the current block counter is greater than 0,
-        //since we want to allow explosions to heal completely if the light conditions were only met initially
-        if (this.getAffectedBlockCounter() > 0) return true;
-        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
-            if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void delayAffectedBlock(AffectedBlock blockToPostpone, MinecraftServer server){
         int indexOfPostponed = this.getAffectedBlocksList().indexOf(blockToPostpone);
         if(indexOfPostponed != -1) {
@@ -140,15 +128,11 @@ public class ExplosionEvent {
     }
 
     private void setUpExplosionHealingMode(World world){
-
         switch(this.getExplosionMode()){
-
             case DAYTIME_HEALING_MODE -> this.setupDayTimeHealingMode(world);
             case DIFFICULTY_BASED_HEALING_MODE -> this.setupDifficultyBasedHealingMode(world);
             case BLAST_RESISTANCE_BASED_HEALING_MODE -> this.setupBlastResistanceBasedHealingMode(world);
-
         }
-
     }
 
     private void setupDayTimeHealingMode(World world){
@@ -158,9 +142,40 @@ public class ExplosionEvent {
             affectedBlock.setAffectedBlockTimer(daylightBasedBlockPlacementDelay);
         }
     }
+    public boolean hasEnoughLightIfDaytimeHealingMode(MinecraftServer server){
+
+        //We return true if the current block counter is greater than 0,
+        //since we want to allow explosions to heal completely if the light conditions were only met initially
+        if (this.getAffectedBlockCounter() > 0) return true;
+        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
+            if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void setupDifficultyBasedHealingMode(World world){
+        int difficultyOffset = 0;
+        switch(world.getDifficulty()){
+            case PEACEFUL -> difficultyOffset = -2;
+            case EASY -> difficultyOffset = -1;
+            case NORMAL -> difficultyOffset = 1;
+            case HARD -> difficultyOffset = 2;
+        }
+        long finalOffset = Math.max(1, (DelaysConfig.getBlockPlacementDelay()) + (difficultyOffset * 20));
+        long finalOffsetExplosion = Math.max(1, (DelaysConfig.getExplosionHealDelay()) + (difficultyOffset * 20));
+        this.setExplosionTimer(finalOffsetExplosion);
+        this.getAffectedBlocksList().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(finalOffset));
+    }
 
+    public boolean shouldKeepHealingIfDifficultyBasedHealingMode(World world){
+        if(this.getExplosionMode() != ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE || world.getDifficulty() != Difficulty.HARD){
+            return true;
+        }
+        Random random = world.getRandom();
+        int randomNum = random.nextBetween(0, 50);
+        return randomNum != 25;
     }
 
      private void setupBlastResistanceBasedHealingMode(World world){
