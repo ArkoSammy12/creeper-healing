@@ -28,7 +28,7 @@ public class ExplosionEvent {
     // Codec to serialize and deserialize ExplosionEvent instances.
     private static final Codec<ExplosionEvent> EXPLOSION_EVENT_CODEC = RecordCodecBuilder.create(creeperExplosionEventInstance -> creeperExplosionEventInstance.group(
             Codec.list(AffectedBlock.getCodec()).fieldOf("Affected_Blocks_List").forGetter(ExplosionEvent::getAffectedBlocksList),
-            Codec.STRING.fieldOf("Explosion_Mode").forGetter(explosionEvent -> explosionEvent.getExplosionMode().getName()),
+            Codec.STRING.optionalFieldOf("Explosion_Mode", ExplosionHealingMode.DEFAULT_MODE.getName()).forGetter(explosionEvent -> explosionEvent.getExplosionMode().getName()),
             Codec.LONG.fieldOf("Explosion_Timer").forGetter(ExplosionEvent::getExplosionTimer),
             Codec.INT.fieldOf("Current_Block_Counter").forGetter(ExplosionEvent::getCurrentAffectedBlockCounter)
     ).apply(creeperExplosionEventInstance, ExplosionEvent::new));
