@@ -19,7 +19,9 @@ public final class ModeConfig {
     static {
 
         modeEntryList.add(new ConfigEntry<>("mode", ExplosionHealingMode.DEFAULT_MODE.getName(), """
-                (Default = "default_mode")"""));
+                (Default = "default_mode") Select between any of the following healing modes by copying the string (the text enclosed by the double quotes along with the double quotes)
+                and pasting it into the value of the "mode" setting below:
+                ["default_mode", "daytime_healing_mode", "difficulty_based_healing_mode", "blast_resistance_based_healing_mode"]\s"""));
 
     }
 
