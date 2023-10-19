@@ -183,7 +183,7 @@ public class ExplosionEvent {
         this.getAffectedBlocksList().forEach(affectedBlock -> {
             double randomOffset = random.nextBetween(-2, 2);
             double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
-            int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance/9, -5, 5) + randomOffset);
+            int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance/9, -2, 2) + randomOffset);
             long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelay() + (offset * 20L));
             affectedBlock.setAffectedBlockTimer(finalOffset);
         });
