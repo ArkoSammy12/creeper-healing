@@ -41,7 +41,12 @@ By default, the mod includes the following entry in the replace map:
 
 ### Extra settings
 
-You can enable or disable sound effects when blocks are placed, whether an explosion drops items or not, or if an explosion requires light to heal.
+You can also toggle different preference settings to further customize the behavior of the healing of explosions:
+ 
+ - Whether blocks should be healed where there is currently flowing water or lava.
+ - Whether explosions should drop items.
+ - Enable or disable the block placement sound effect when a block is healed.
+ - Heal explosions faster via splash potions of Healing or Regeneration.
 
 ### Commands
 
@@ -107,7 +112,6 @@ The following is the default configuration file generated upon first mod initial
 ## Support
 
 If you would like to report a bug, or make a suggestion, you can do so via the mod's [issue tracker](https://github.com/ArkoSammy12/creeper-healing/issues) or join the Creeper Healing mod's [Discord server](https://discord.gg/UKr8n3b3ze). 
-](https://modrinth.com/mod/creeper-healing/version/0.1.6-1.20.1+)
 
 ## Building
 
