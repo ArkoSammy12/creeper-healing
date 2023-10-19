@@ -107,7 +107,7 @@ The following is the default configuration file generated upon first mod initial
 ## Support
 
 If you would like to report a bug, or make a suggestion, you can do so via the mod's [issue tracker](https://github.com/ArkoSammy12/creeper-healing/issues) or join the Creeper Healing mod's [Discord server](https://discord.gg/UKr8n3b3ze). 
-
+](https://modrinth.com/mod/creeper-healing/version/0.1.6-1.20.1+)
 
 ## Building
 
