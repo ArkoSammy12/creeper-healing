@@ -146,7 +146,7 @@ public class ExplosionEvent {
 
         //We return true if the current block counter is greater than 0,
         //since we want to allow explosions to heal completely if the light conditions were only met initially
-        if (this.getAffectedBlockCounter() > 0) return true;
+        if (this.getAffectedBlockCounter() > 0 || this.getExplosionMode() != ExplosionHealingMode.DAYTIME_HEALING_MODE) return true;
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
             if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0) {
                 return true;
