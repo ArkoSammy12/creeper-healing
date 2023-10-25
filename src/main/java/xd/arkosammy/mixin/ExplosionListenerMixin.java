@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.configuration.tables.ExplosionSourceConfig;
+import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.configuration.tables.WhitelistConfig;
 import xd.arkosammy.explosions.AffectedBlock;
 import xd.arkosammy.explosions.ExplosionEvent;
@@ -53,7 +54,7 @@ public abstract class ExplosionListenerMixin {
                 continue; // Skip the current iteration if the block state is air or TNT
             }
             String blockIdentifier = Registry.BLOCK.getId(world.getBlockState(pos).getBlock()).toString();
-            if (!WhitelistConfig.getEnableWhitelist() || WhitelistConfig.getWhitelist().contains(blockIdentifier)) {
+            if (!PreferencesConfig.getEnableWhitelist() || WhitelistConfig.getWhitelist().contains(blockIdentifier)) {
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
             }
         }
