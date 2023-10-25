@@ -17,7 +17,7 @@ public final class WhitelistConfig {
 
     private static final String TABLE_COMMENT = """
             Use an optional whitelist to customize which blocks are allowed to heal. To add an entry, specify the block's namespace
-            along with its identifier. separated by a colon, and add it in-between the square brackets below. Separate each entry with a comma.
+            along with its identifier, separated by a colon, and add it in-between the square brackets below. Separate each entry with a comma.
             Example entries:
             whitelist_entries = ["minecraft:grass",  "minecraft:stone", "minecraft:sand"]""";
 
