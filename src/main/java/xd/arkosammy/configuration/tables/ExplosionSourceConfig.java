@@ -109,7 +109,7 @@ public final class ExplosionSourceConfig {
         return boolToReturn;
     }
 
-    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
+    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : getExplosionSourceEntryList()){
             configEntry.resetValue();
         }

@@ -69,6 +69,7 @@ public final class Config {
                 if(Files.exists(CONFIG_PATH)){
                     fileConfig.load();
                     ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
+                    WhitelistConfig.loadWhitelistToMemory(fileConfig);
                     saveConfigSettingsToFile(fileConfig);
                     fileConfig.save();
                 } else {
@@ -96,8 +97,8 @@ public final class Config {
                     AffectedBlock.updateAffectedBlocksTimers();
 
                     //Warn the user if these delays were set to 0 or fewer seconds
-                    if(Math.round(Math.max(DelaysConfig.getExplosionHealDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendFeedback(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW), false);
-                    if(Math.round(Math.max(DelaysConfig.getBlockPlacementDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendFeedback(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW), false);
+                    if(Math.round(Math.max(DelaysConfig.getExplosionHealDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
+                    if(Math.round(Math.max(DelaysConfig.getBlockPlacementDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
 
                     return true;
                 } else {
@@ -109,10 +110,11 @@ public final class Config {
     }
 
     private static void saveDefaultConfigSettingsToFile(CommentedFileConfig fileConfig){
-        ModeConfig.saveDefaultSettingsToFile(fileConfig);
-        ExplosionSourceConfig.saveDefaultSettingsToFile(fileConfig);
-        DelaysConfig.saveDefaultSettingsToFile(fileConfig);
-        PreferencesConfig.saveDefaultSettingsToFile(fileConfig);
+        ModeConfig.saveToFileWithDefaultValues(fileConfig);
+        ExplosionSourceConfig.saveToFileWithDefaultValues(fileConfig);
+        DelaysConfig.saveToFileWithDefaultValues(fileConfig);
+        PreferencesConfig.saveToFileWithDefaultValues(fileConfig);
+        WhitelistConfig.saveToFileWithDefaultValues(fileConfig);
         ReplaceMapConfig.saveToFileWithDefaultValues(fileConfig);
     }
 
@@ -121,6 +123,7 @@ public final class Config {
         ExplosionSourceConfig.saveSettingsToFile(fileConfig);
         DelaysConfig.saveSettingsToFile(fileConfig);
         PreferencesConfig.saveSettingsToFile(fileConfig);
+        WhitelistConfig.saveWhitelistToFile(fileConfig);
         ReplaceMapConfig.saveReplaceMapToFile(fileConfig);
     }
 
@@ -129,6 +132,7 @@ public final class Config {
         ExplosionSourceConfig.loadSettingsToMemory(fileConfig);
         DelaysConfig.loadSettingsToMemory(fileConfig);
         PreferencesConfig.loadSettingsToMemory(fileConfig);
+        WhitelistConfig.loadWhitelistToMemory(fileConfig);
         ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
     }
 

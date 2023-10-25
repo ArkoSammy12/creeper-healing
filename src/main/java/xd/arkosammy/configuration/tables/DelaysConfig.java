@@ -70,7 +70,7 @@ public final class DelaysConfig {
         return blockPlacementDelayToReturn;
     }
 
-    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
+    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Double> configEntry : getDelayEntryList()){
             configEntry.resetValue();
         }
