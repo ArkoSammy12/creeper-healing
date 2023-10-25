@@ -2,7 +2,6 @@ package xd.arkosammy.configuration.tables;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.ConfigEntry;
 
 import java.util.ArrayList;
 import java.util.List;
