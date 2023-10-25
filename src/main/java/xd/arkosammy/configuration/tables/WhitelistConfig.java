@@ -22,7 +22,7 @@ public final class WhitelistConfig {
 
 
     public static List<String> getWhitelist(){
-        return  whitelist;
+        return whitelist;
     }
 
     public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
