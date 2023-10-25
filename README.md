@@ -5,7 +5,11 @@ This server and client side, customizable mod allows the world to automatically 
 
 ### Explosion healing modes
 
-Special modes that customize the way explosions are healed even further. 
+Special modes that customize the way explosions are healed even further:
+
+  - **Daytime Healing Mode**: Makes explosions wait until sunrise to begin healing. When they do, they will need a source of light to be able to heal.
+ - **Difficulty-based Healing Mode**: Speeds up or slows down the healing of explosions depending on the difficulty of the world or server.
+ - **Blast-resistance based Healing Mode**: Blocks with a higher blast resistance will take longer to heal. Their delays will also receive a randomized offset, causing blocks to heal in bursts.
 
 ### Different explosion sources
 
@@ -37,7 +41,12 @@ By default, the mod includes the following entry in the replace map:
 
 ### Extra settings
 
-You can enable or disable sound effects when blocks are placed, whether an explosion drops items or not, or if an explosion requires light to heal.
+You can also toggle different preference settings to further customize the behavior of the healing of explosions:
+ 
+ - Whether blocks should be healed where there is currently flowing water or lava.
+ - Whether explosions should drop items.
+ - Enable or disable the block placement sound effect when a block is healed.
+ - Heal explosions faster via splash potions of Healing or Regeneration.
 
 ### Commands
 
@@ -49,12 +58,12 @@ When the server or game is started, the mod will look for an existing `creeper-h
 The following is the default configuration file generated upon first mod initialization or whenever the mod fails to find the config file during server or world shutdown.
 
 ```toml
-#Toggle different special modes for explosion healing.
-[modes]
-	#(Default = false) Whether or not daytime healing mode should be enabled.
-	#Explosions will wait until the next sunrise to start healing, and they will finish healing at nighttime.
-	#Note that this only applies for explosions that occurred while this setting was enabled.
-	daytime_healing_mode = false
+#Choose between different special modes for explosion healing.
+[explosion_healing_mode]
+	#(Default = "default_mode") Select between any of the following healing modes by copying the string (the text enclosed by the double quotes along with the double quotes)
+	#and pasting it into the value of the "mode" setting below:
+	#["default_mode", "daytime_healing_mode", "difficulty_based_healing_mode", "blast_resistance_based_healing_mode"] 
+	mode = "default_mode"
 #Configure which explosions are allowed to heal.
 [explosion_sources]
 	#(Default = true) Heal explosions caused by creepers.
@@ -83,8 +92,11 @@ The following is the default configuration file generated upon first mod initial
 	block_placement_sound_effect = true
 	#(Default = true) Whether or not explosions should drop items.
 	drop_items_on_explosions = true
-	#(Default = false) Whether or not explosions will need light to heal.
-	requires_light = false
+	#(Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them.
+	heal_on_healing_potion_splash = true
+	#(Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
+	#This option only modifies the heal delay of the explosion and only affects explosions created with the default healing mode.
+	heal_on_regeneration_potion_splash = true
 #Add your own replace settings to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
 #Specify the block's namespace along with the block's name identifier, separated by a colon.
 #Example entry:
@@ -94,6 +106,7 @@ The following is the default configuration file generated upon first mod initial
 #"minecraft:diamond_block" = "minecraft:air" 
 [replace_map]
 	"minecraft:diamond_block" = "minecraft:stone"
+
 ```
 
 ## Support
