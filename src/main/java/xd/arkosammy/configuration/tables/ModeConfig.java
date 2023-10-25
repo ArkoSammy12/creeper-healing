@@ -43,7 +43,7 @@ public final class ModeConfig {
         return stringToReturn;
     }
 
-    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
+    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<String> configEntry : getModeEntryList()){
             configEntry.resetValue();
         }
