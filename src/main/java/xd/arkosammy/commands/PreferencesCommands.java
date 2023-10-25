@@ -239,7 +239,7 @@ final class PreferencesCommands {
 
     private static int setEnableWhitelist(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.setEnableWhitelist(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("The whitelist has been " + (BoolArgumentType.getBool(ctx, "value") == true ? "enabled" : "disabled")));
+        ctx.getSource().sendMessage(Text.literal("The whitelist has been " + (BoolArgumentType.getBool(ctx, "value") ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -284,7 +284,7 @@ final class PreferencesCommands {
     }
 
     private static int getEnableWhitelist(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (PreferencesConfig.getEnableWhitelist() == true ? "enabled" : "disabled")));
+        ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (PreferencesConfig.getEnableWhitelist() ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }
 
