@@ -20,6 +20,7 @@ public final class HealingCommandManager {
         ExplosionSourcesCommands.register(creeperHealingNode);
         ModeCommands.register(creeperHealingNode);
         SettingsCommands.register(creeperHealingNode);
+        WhitelistCommands.register(creeperHealingNode);
     }
 
 }

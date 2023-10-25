@@ -8,6 +8,7 @@ import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.vehicle.TntMinecartEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -20,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.configuration.tables.ExplosionSourceConfig;
+import xd.arkosammy.configuration.tables.WhitelistConfig;
 import xd.arkosammy.explosions.AffectedBlock;
 import xd.arkosammy.explosions.ExplosionEvent;
 import xd.arkosammy.handlers.ExplosionListHandler;
@@ -48,7 +50,11 @@ public abstract class ExplosionListenerMixin {
         ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
 
         for (BlockPos pos : affectedBlocksPos) {
-            if (!world.getBlockState(pos).isAir() && !world.getBlockState(pos).getBlock().equals(Blocks.TNT)) {
+            if (world.getBlockState(pos).isAir() || world.getBlockState(pos).getBlock().equals(Blocks.TNT)) {
+                continue; // Skip the current iteration if the block state is air or TNT
+            }
+            String blockIdentifier = Registries.BLOCK.getId(world.getBlockState(pos).getBlock()).toString();
+            if (!WhitelistConfig.getEnableWhitelist() || WhitelistConfig.getWhitelist().contains(blockIdentifier)) {
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
             }
         }

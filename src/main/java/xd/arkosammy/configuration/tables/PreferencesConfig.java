@@ -125,7 +125,7 @@ public final class PreferencesConfig {
         return boolToReturn;
     }
 
-    public static void saveDefaultSettingsToFile(CommentedFileConfig fileConfig){
+    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
             configEntry.resetValue();

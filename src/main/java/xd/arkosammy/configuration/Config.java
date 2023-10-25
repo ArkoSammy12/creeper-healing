@@ -69,6 +69,7 @@ public final class Config {
                 if(Files.exists(CONFIG_PATH)){
                     fileConfig.load();
                     ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
+                    WhitelistConfig.loadWhitelistToMemory(fileConfig);
                     saveConfigSettingsToFile(fileConfig);
                     fileConfig.save();
                 } else {
@@ -109,11 +110,12 @@ public final class Config {
     }
 
     private static void saveDefaultConfigSettingsToFile(CommentedFileConfig fileConfig){
-        ModeConfig.saveDefaultSettingsToFile(fileConfig);
-        ExplosionSourceConfig.saveDefaultSettingsToFile(fileConfig);
-        DelaysConfig.saveDefaultSettingsToFile(fileConfig);
-        PreferencesConfig.saveDefaultSettingsToFile(fileConfig);
+        ModeConfig.saveToFileWithDefaultValues(fileConfig);
+        ExplosionSourceConfig.saveToFileWithDefaultValues(fileConfig);
+        DelaysConfig.saveToFileWithDefaultValues(fileConfig);
+        PreferencesConfig.saveToFileWithDefaultValues(fileConfig);
         ReplaceMapConfig.saveToFileWithDefaultValues(fileConfig);
+        WhitelistConfig.saveToFileWithDefaultValues(fileConfig);
     }
 
     private static void saveConfigSettingsToFile(CommentedFileConfig fileConfig){
@@ -122,6 +124,7 @@ public final class Config {
         DelaysConfig.saveSettingsToFile(fileConfig);
         PreferencesConfig.saveSettingsToFile(fileConfig);
         ReplaceMapConfig.saveReplaceMapToFile(fileConfig);
+        WhitelistConfig.saveWhitelistToFile(fileConfig);
     }
 
     private static void loadConfigSettingsToMemory(CommentedFileConfig fileConfig){
@@ -130,6 +133,7 @@ public final class Config {
         DelaysConfig.loadSettingsToMemory(fileConfig);
         PreferencesConfig.loadSettingsToMemory(fileConfig);
         ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
+        WhitelistConfig.loadWhitelistToMemory(fileConfig);
     }
 
 }
