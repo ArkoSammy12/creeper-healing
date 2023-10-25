@@ -58,6 +58,8 @@ public abstract class ExplosionListenerMixin {
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
             }
         }
+
+        if(affectedBlocks.isEmpty()) return;
         ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
     }
 
