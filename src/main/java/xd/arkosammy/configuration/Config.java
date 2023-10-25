@@ -114,8 +114,8 @@ public final class Config {
         ExplosionSourceConfig.saveToFileWithDefaultValues(fileConfig);
         DelaysConfig.saveToFileWithDefaultValues(fileConfig);
         PreferencesConfig.saveToFileWithDefaultValues(fileConfig);
-        ReplaceMapConfig.saveToFileWithDefaultValues(fileConfig);
         WhitelistConfig.saveToFileWithDefaultValues(fileConfig);
+        ReplaceMapConfig.saveToFileWithDefaultValues(fileConfig);
     }
 
     private static void saveConfigSettingsToFile(CommentedFileConfig fileConfig){
@@ -123,8 +123,8 @@ public final class Config {
         ExplosionSourceConfig.saveSettingsToFile(fileConfig);
         DelaysConfig.saveSettingsToFile(fileConfig);
         PreferencesConfig.saveSettingsToFile(fileConfig);
-        ReplaceMapConfig.saveReplaceMapToFile(fileConfig);
         WhitelistConfig.saveWhitelistToFile(fileConfig);
+        ReplaceMapConfig.saveReplaceMapToFile(fileConfig);
     }
 
     private static void loadConfigSettingsToMemory(CommentedFileConfig fileConfig){
@@ -132,8 +132,8 @@ public final class Config {
         ExplosionSourceConfig.loadSettingsToMemory(fileConfig);
         DelaysConfig.loadSettingsToMemory(fileConfig);
         PreferencesConfig.loadSettingsToMemory(fileConfig);
-        ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
         WhitelistConfig.loadWhitelistToMemory(fileConfig);
+        ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
     }
 
 }
