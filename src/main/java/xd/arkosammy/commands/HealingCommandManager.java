@@ -42,6 +42,7 @@ public final class HealingCommandManager {
 
         //Root connection
         dispatcher.getRoot().addChild(creeperHealingNode);
+        dispatcher.getRoot().addChild(reloadNode);
         ExplosionSourcesCommands.register(creeperHealingNode);
         ModeCommands.register(creeperHealingNode);
         PreferencesCommands.register(creeperHealingNode);
