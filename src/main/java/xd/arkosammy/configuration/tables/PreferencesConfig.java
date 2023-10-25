@@ -35,6 +35,9 @@ public final class PreferencesConfig {
                 (Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
                 This option only modifies the heal delay of the explosion and only affects explosions created with the default healing mode."""));
 
+        preferencesEntryList.add(new ConfigEntry<>("enable_whitelist", false, """
+                (Default = false) Enable or disable the usage of the whitelist"""));
+
     }
 
     private static List<ConfigEntry<Boolean>> getPreferencesEntryList(){
@@ -89,6 +92,16 @@ public final class PreferencesConfig {
         }
     }
 
+    public static void setEnableWhitelist(boolean enableWhitelist){
+        CreeperHealing.LOGGER.info("Incoming value: " + enableWhitelist);
+        for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
+            if(configEntry.getName().equals("enable_whitelist")){
+                configEntry.setValue(enableWhitelist);
+                CreeperHealing.LOGGER.info("Set " + configEntry.getValue() + " for " + configEntry.getName());
+            }
+        }
+    }
+
     public static Boolean getHealOnFlowingWater(){
         Boolean boolToReturn = getValueForNameFromMemory("heal_on_flowing_water");
         if(boolToReturn == null) return true;
@@ -122,6 +135,12 @@ public final class PreferencesConfig {
     public static Boolean getHealOnRegenerationPotionSplash(){
         Boolean boolToReturn = getValueForNameFromMemory("heal_on_regeneration_potion_splash");
         if(boolToReturn == null) return true;
+        return boolToReturn;
+    }
+
+    public static Boolean getEnableWhitelist(){
+        Boolean boolToReturn = getValueForNameFromMemory("enable_whitelist");
+        if(boolToReturn == null) return false;
         return boolToReturn;
     }
 

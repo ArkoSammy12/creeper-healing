@@ -10,151 +10,146 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xd.arkosammy.configuration.Config;
 import xd.arkosammy.configuration.tables.DelaysConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.explosions.AffectedBlock;
 
-import java.io.IOException;
 
-final class SettingsCommands {
+final class PreferencesCommands {
 
-    private SettingsCommands(){}
+    private PreferencesCommands(){}
 
     static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Settings node
         LiteralCommandNode<ServerCommandSource> settingsNode = CommandManager
-                .literal("settings")
+                .literal("preferences")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Explosion Heal Delay node
         LiteralCommandNode<ServerCommandSource> explosionHealDelayNode = CommandManager
                 .literal("explosion_heal_delay")
-                .executes(SettingsCommands::getExplosionHealDelayCommand)
+                .executes(PreferencesCommands::getExplosionHealDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Block Placement Delay node
         LiteralCommandNode<ServerCommandSource> blockPlacementDelayNode = CommandManager
                 .literal("block_placement_delay")
-                .executes(SettingsCommands::getBlockPlacementDelayCommand)
+                .executes(PreferencesCommands::getBlockPlacementDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on Flowing Water node
         LiteralCommandNode<ServerCommandSource> shouldHealOnFlowingWaterNode = CommandManager
                 .literal("heal_on_flowing_water")
-                .executes(SettingsCommands::getShouldHealOnFlowingWaterCommand)
+                .executes(PreferencesCommands::getShouldHealOnFlowingWaterCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on Flowing Lava node
         LiteralCommandNode<ServerCommandSource> shouldHealOnFlowingLavaNode = CommandManager
                 .literal("heal_on_flowing_lava")
-                .executes(SettingsCommands::getShouldHealOnFlowingLavaCommand)
+                .executes(PreferencesCommands::getShouldHealOnFlowingLavaCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Play sound on block placement node
         LiteralCommandNode<ServerCommandSource> shouldPlaySoundOnBlockPlacementNode = CommandManager
                 .literal("block_placement_sound_effect")
-                .executes(SettingsCommands::getShouldPlaySoundOnBlockPlacement)
+                .executes(PreferencesCommands::getShouldPlaySoundOnBlockPlacement)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Drop items on creeper explosions node
         LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
                 .literal("drop_items_on_creeper_explosions")
-                .executes(SettingsCommands::getDropItemsOnExplosionCommand)
+                .executes(PreferencesCommands::getDropItemsOnExplosionCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on healing potion splash node
         LiteralCommandNode<ServerCommandSource> healOnHealingPotionSplashNode = CommandManager
                 .literal("heal_on_healing_potion_splash")
-                .executes(SettingsCommands::getHealOnHealingPotionSplashCommand)
+                .executes(PreferencesCommands::getHealOnHealingPotionSplashCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on regeneration potion splash node
         LiteralCommandNode<ServerCommandSource> healOnRegenerationPotionSplash = CommandManager
                 .literal("heal_on_regeneration_potion_splash")
-                .executes(SettingsCommands::getHealOnRegenerationPotionSplashCommand)
+                .executes(PreferencesCommands::getHealOnRegenerationPotionSplashCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Reload Config node
-        LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
-                .literal("reload")
+        //Enable whitelist node
+        LiteralCommandNode<ServerCommandSource> enableWhitelistNode = CommandManager
+                .literal("enable_whitelist")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(context -> {
-
-                    try {
-                        SettingsCommands.reload(context);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    return Command.SINGLE_SUCCESS;
-
-                })
+                .executes(PreferencesCommands::getEnableWhitelist)
                 .build();
 
         //Explosion heal delay argument node
         ArgumentCommandNode<ServerCommandSource, Double> explosionHealDelayArgumentNode = CommandManager
                 .argument("seconds", DoubleArgumentType.doubleArg())
-                .executes(SettingsCommands::setExplosionHealDelayCommand)
+                .executes(PreferencesCommands::setExplosionHealDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Block placement delay argument node
         ArgumentCommandNode<ServerCommandSource, Double> blockPlacementDelayArgumentNode = CommandManager
                 .argument("seconds", DoubleArgumentType.doubleArg())
-                .executes(SettingsCommands::setBlockPlacementDelayCommand)
+                .executes(PreferencesCommands::setBlockPlacementDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on flowing water argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnFlowingWaterArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(SettingsCommands::setHealOnFlowingWaterCommand)
+                .executes(PreferencesCommands::setHealOnFlowingWaterCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on flowing lava argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnFlowingLavaArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(SettingsCommands::setHealOnFlowingLavaCommand)
+                .executes(PreferencesCommands::setHealOnFlowingLavaCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Play sound on block placement argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> playSoundOnBlockPlacementArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(SettingsCommands::setPlaySoundOnBlockPlacement)
+                .executes(PreferencesCommands::setPlaySoundOnBlockPlacement)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Drop items on creeper argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(SettingsCommands::setDropItemsOnExplosionCommand)
+                .executes(PreferencesCommands::setDropItemsOnExplosionCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on Healing potion splash argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnHealingPotionSplashArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(SettingsCommands::setHealOnHealingPotionSplashCommand)
+                .executes(PreferencesCommands::setHealOnHealingPotionSplashCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on Regeneration potion splash argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnRegenerationPotionSplashArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(SettingsCommands::setHealOnRegenerationPotionSplashCommand)
+                .executes(PreferencesCommands::setHealOnRegenerationPotionSplashCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Enable whitelist argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> enableWhitelistArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(PreferencesCommands::setEnableWhitelist)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -168,9 +163,9 @@ final class SettingsCommands {
         settingsNode.addChild(shouldHealOnFlowingWaterNode);
         settingsNode.addChild(shouldHealOnFlowingLavaNode);
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
-        settingsNode.addChild(reloadNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
         settingsNode.addChild(healOnRegenerationPotionSplash);
+        settingsNode.addChild(enableWhitelistNode);
 
         //Argument nodes
         explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
@@ -181,6 +176,7 @@ final class SettingsCommands {
         dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
         healOnRegenerationPotionSplash.addChild(healOnRegenerationPotionSplashArgumentNode);
+        enableWhitelistNode.addChild(enableWhitelistArgumentNode);
 
     }
 
@@ -241,6 +237,12 @@ final class SettingsCommands {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int setEnableWhitelist(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.setEnableWhitelist(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("The whitelist has been " + (BoolArgumentType.getBool(ctx, "value") == true ? "enabled" : "disabled")));
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"));
         return Command.SINGLE_SUCCESS;
@@ -281,10 +283,10 @@ final class SettingsCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
-        //If this returns true, then the config file exists, and we can update our values from it
-        if(Config.reloadConfigSettingsInMemory(ctx)) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
-        else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
+    private static int getEnableWhitelist(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (PreferencesConfig.getEnableWhitelist() == true ? "enabled" : "disabled")));
+        return Command.SINGLE_SUCCESS;
     }
+
 
 }
