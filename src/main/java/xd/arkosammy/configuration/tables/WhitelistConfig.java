@@ -33,7 +33,7 @@ public final class WhitelistConfig {
 
     public static void saveWhitelistToFile(CommentedFileConfig fileConfig){
          if(!getWhitelist().isEmpty()){
-             fileConfig.set(TABLE_NAME + "."+ "whitelist_entries", getWhitelist());
+             fileConfig.set(TABLE_NAME + "." + "whitelist_entries", getWhitelist());
          } else {
              fileConfig.set(TABLE_NAME + "." + "whitelist_entries", List.of("minecraft:placeholder"));
          }
