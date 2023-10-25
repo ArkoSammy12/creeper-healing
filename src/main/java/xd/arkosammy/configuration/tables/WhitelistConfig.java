@@ -48,7 +48,7 @@ public final class WhitelistConfig {
                 if(entry instanceof String stringEntry){
                     tempWhitelist.add(stringEntry);
                 } else {
-                    CreeperHealing.LOGGER.error("Found non-string entry in Whitelist. Please make sure to only include string entries in the whitelist.");
+                    CreeperHealing.LOGGER.error("Found non-string entry in the whitelist. Please make sure to only include string entries in the whitelist.");
                 }
             }
             getWhitelist().clear();
