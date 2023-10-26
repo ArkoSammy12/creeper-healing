@@ -67,10 +67,10 @@ You can also toggle different preference settings to further customize the behav
 
 ### Commands
 
-All of the mod's settings can also be modified in-game via commands. Access all of them via the `/creeper-healing` parent command. The config file also supports being reloaded in-game via `/creeper-healing settings reload` to avoid having to restart the server or world. Note that all commands require operator permission.
+All of the mod's settings can also be modified in-game via commands. Access all of them via the `/creeper-healing` parent command. The config file also supports being reloaded in-game via `/creeper-healing reload_config` to avoid having to restart the server or world. Note that all commands require operator permission.
 
 ## Configuration  File
-When the server or game is started, the mod will look for an existing `creeper-healing.toml` file for the config folder of your game. If it exists, it will read the values from there. If not, it will create a new config file in `/config/creeper-healing.toml`. You can then edit this file to configure the mod, and restart the server or game to apply the changes, or use the `/creeper-healing settings reload` in-game command. 
+When the server or game is started, the mod will look for an existing `creeper-healing.toml` file for the config folder of your game. If it exists, it will read the values from there. If not, it will create a new config file in `/config/creeper-healing.toml`. You can then edit this file to configure the mod, and restart the server or game to apply the changes, or use the `/creeper-healing reload_config` in-game command. 
 
 The following is the default configuration file generated upon first mod initialization or whenever the mod fails to find the config file during server or world shutdown.
 
