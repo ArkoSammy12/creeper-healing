@@ -21,6 +21,23 @@ Configure the amount of time it takes for an explosion to start healing, and the
 
 - **Warning**: Both delays have a minimum value of 0.05 seconds. Attempting to force a lower value by setting it manually in the config will make the mod use the default values instead.
 
+### Whitelist
+
+You can  configure an optional whitelist that allows you to specify the blocks that are allowed to heal in an explosion. To do this, you can open the mod's configuration file, and find the following section:
+
+```toml
+#Use an optional whitelist to customize which blocks are allowed to heal. To add an entry, specify the block's namespace
+#along with its identifier, separated by a colon, and add it in-between the square brackets below. Separate each entry with a comma.
+#Example entries:
+#whitelist_entries = ["minecraft:grass",  "minecraft:stone", "minecraft:sand"]
+[whitelist]
+	whitelist_entries = ["minecraft:placeholder"]
+```
+
+To add entries to the whitelist, you can add a string containing the block's namespace and identifier separated by a colon to the array, like shown in the example above. Separate each entry with a comma.
+You can also find a preference setting named "enable_whitelist" to enable or disable the usage of the whitelist. 
+
+
 ### Replace map
 
 In the mod's config file, you can customize a "replace map". This is used if you would like a certain block to be healed with another one, instead of using the same block. If a block is healed with another one, the properties of the original block will be carried over to the new block, preserving things like the block's orientation. 
@@ -97,6 +114,14 @@ The following is the default configuration file generated upon first mod initial
 	#(Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
 	#This option only modifies the heal delay of the explosion and only affects explosions created with the default healing mode.
 	heal_on_regeneration_potion_splash = true
+	#(Default = false) Enable or disable the usage of the whitelist
+	enable_whitelist = false
+#Use an optional whitelist to customize which blocks are allowed to heal. To add an entry, specify the block's namespace
+#along with its identifier, separated by a colon, and add it in-between the square brackets below. Separate each entry with a comma.
+#Example entries:
+#whitelist_entries = ["minecraft:grass",  "minecraft:stone", "minecraft:sand"]
+[whitelist]
+	whitelist_entries = ["minecraft:placeholder"]
 #Add your own replace settings to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
 #Specify the block's namespace along with the block's name identifier, separated by a colon.
 #Example entry:
