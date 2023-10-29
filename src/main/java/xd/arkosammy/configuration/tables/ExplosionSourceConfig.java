@@ -80,31 +80,31 @@ public final class ExplosionSourceConfig {
     }
 
     public static Boolean getHealCreeperExplosions(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_creeper_explosions");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_creeper_explosions", getExplosionSourceEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
 
     public static Boolean getHealGhastExplosions(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_ghast_explosions");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_ghast_explosions", getExplosionSourceEntryList());
         if(boolToReturn == null) return false;
         return boolToReturn;
     }
 
     public static Boolean getHealWitherExplosions(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_wither_explosions");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_wither_explosions", getExplosionSourceEntryList());
         if(boolToReturn == null) return false;
         return boolToReturn;
     }
 
     public static Boolean getHealTNTExplosions(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_tnt_explosions");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_tnt_explosions", getExplosionSourceEntryList());
         if(boolToReturn == null) return false;
         return boolToReturn;
     }
 
     public static Boolean getHealTNTMinecartExplosions(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_tnt_minecart_explosions");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_tnt_minecart_explosions", getExplosionSourceEntryList());
         if(boolToReturn == null) return false;
         return boolToReturn;
     }
@@ -134,15 +134,6 @@ public final class ExplosionSourceConfig {
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
             }
         }
-    }
-
-    private static Boolean getValueForNameFromMemory(String settingName){
-        for(ConfigEntry<Boolean> entry : getExplosionSourceEntryList()){
-            if(entry.getName().equals(settingName)){
-                return entry.getValue();
-            }
-        }
-        return null;
     }
 
 }
