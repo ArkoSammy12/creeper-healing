@@ -9,6 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import xd.arkosammy.commands.categories.DelaysCommands;
 import xd.arkosammy.commands.categories.ExplosionSourcesCommands;
 import xd.arkosammy.commands.categories.ModeCommands;
 import xd.arkosammy.commands.categories.PreferencesCommands;
@@ -49,6 +50,7 @@ public final class HealingCommandManager {
         ExplosionSourcesCommands.register(creeperHealingNode);
         ModeCommands.register(creeperHealingNode);
         PreferencesCommands.register(creeperHealingNode);
+        DelaysCommands.register(creeperHealingNode);
     }
 
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
