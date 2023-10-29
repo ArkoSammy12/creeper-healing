@@ -64,7 +64,7 @@ final class PreferencesCommands {
 
         //Drop items on creeper explosions node
         LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
-                .literal("drop_items_on_creeper_explosions")
+                .literal("drop_items_on_explosions")
                 .executes(PreferencesCommands::getDropItemsOnExplosionCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
