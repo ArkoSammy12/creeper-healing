@@ -45,27 +45,27 @@ public final class DelaysConfig {
     }
 
     public static long getExplosionHealDelay(){
-        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
+        Double explosionHealDelayToReturn = ConfigEntry.getValueForNameFromMemory("explosion_heal_delay", getDelayEntryList());
         if(explosionHealDelayToReturn == null) return 60;
         long rounded = Math.round(Math.max(explosionHealDelayToReturn, 0) * 20L);
         return rounded == 0 ? 20L : rounded;
     }
 
     public static long getBlockPlacementDelay(){
-        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
+        Double blockPlacementDelayToReturn = ConfigEntry.getValueForNameFromMemory("block_placement_delay", getDelayEntryList());
         if(blockPlacementDelayToReturn == null) return 20;
         long rounded = Math.round(Math.max(blockPlacementDelayToReturn, 0) * 20L);
         return rounded == 0 ? 20L : rounded;
     }
 
     public static double getExplosionHealDelayRaw(){
-        Double explosionHealDelayToReturn = getValueForNameFromMemory("explosion_heal_delay");
+        Double explosionHealDelayToReturn = ConfigEntry.getValueForNameFromMemory("explosion_heal_delay", getDelayEntryList());
         if(explosionHealDelayToReturn == null) return 3;
         return explosionHealDelayToReturn;
     }
 
     public static double getBlockPlacementDelayRaw(){
-        Double blockPlacementDelayToReturn = getValueForNameFromMemory("block_placement_delay");
+        Double blockPlacementDelayToReturn = ConfigEntry.getValueForNameFromMemory("block_placement_delay", getDelayEntryList());
         if(blockPlacementDelayToReturn == null) return 1;
         return blockPlacementDelayToReturn;
     }
@@ -95,15 +95,6 @@ public final class DelaysConfig {
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
             }
         }
-    }
-
-    private static Double getValueForNameFromMemory(String settingName){
-        for(ConfigEntry<Double> entry : getDelayEntryList()){
-            if(entry.getName().equals(settingName)){
-                return entry.getValue();
-            }
-        }
-        return null;
     }
 
 }
