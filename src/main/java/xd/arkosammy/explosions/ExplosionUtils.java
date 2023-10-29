@@ -29,6 +29,15 @@ public final class ExplosionUtils {
         }
     }
 
+    private static boolean areAboveBlocksFree(World world, BlockPos pos, Entity entity, int amountToPush){
+        for(int i = pos.getY(); i < pos.offset(Direction.Axis.Y, (int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++){
+            BlockPos currentPos = pos.withY(i + amountToPush);
+            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos))
+                return false;
+        }
+        return true;
+    }
+
     /*
     Obtain colliding explosions by filtering out explosions that have already started healing.
     An explosion collides with another if the distance between their centers is less than or equal to the sum of their radii
@@ -150,7 +159,9 @@ public final class ExplosionUtils {
     public static boolean shouldPlaceBlock(@NotNull World world, BlockPos pos){
         if(world.isAir(pos)) return true;
         else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && PreferencesConfig.getHealOnFlowingWater()) return true;
-        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && PreferencesConfig.getHealOnFlowingLava();
+        else if (world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.WATER) && PreferencesConfig.getHealOnSourceWater()) return true;
+        else if (world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && PreferencesConfig.getHealOnFlowingLava()) return true;
+        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.LAVA) && PreferencesConfig.getHealOnSourceLava();
     }
 
     public static boolean shouldPlaceDoubleBlock(@NotNull World world, BlockPos firstHalfPos, BlockPos secondHalfPos){
@@ -161,20 +172,20 @@ public final class ExplosionUtils {
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER)))
                 && PreferencesConfig.getHealOnFlowingWater()){
             return true;
-        } else return (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
+        } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.WATER) && world.isAir(secondHalfPos))
+                || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.WATER))
+                || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.WATER)))
+                && PreferencesConfig.getHealOnSourceWater()) {
+            return true;
+        } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA)))
-                && PreferencesConfig.getHealOnFlowingLava());
+                && PreferencesConfig.getHealOnFlowingLava()) {
+            return true;
+        } else return (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.LAVA) && world.isAir(secondHalfPos))
+                || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.LAVA))
+                || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.LAVA)))
+                && PreferencesConfig.getHealOnSourceLava());
     }
-
-    private static boolean areAboveBlocksFree(World world, BlockPos pos, Entity entity, int amountToPush){
-        for(int i = pos.getY(); i < pos.offset(Direction.Axis.Y, (int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++){
-            BlockPos currentPos = pos.withY(i + amountToPush);
-            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos))
-                return false;
-        }
-        return true;
-    }
-
 
 }

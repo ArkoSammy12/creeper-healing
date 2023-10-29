@@ -1,4 +1,4 @@
-package xd.arkosammy.commands;
+package xd.arkosammy.commands.categories;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,11 +9,11 @@ import net.minecraft.text.Text;
 import xd.arkosammy.configuration.tables.ModeConfig;
 import xd.arkosammy.explosions.ExplosionHealingMode;
 
-final class ModeCommands {
+public final class ModeCommands {
 
     private ModeCommands(){}
 
-    static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+    public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Mode node
         LiteralCommandNode<ServerCommandSource> modeMode = CommandManager
