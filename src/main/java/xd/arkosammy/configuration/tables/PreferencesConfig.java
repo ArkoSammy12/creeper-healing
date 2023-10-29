@@ -19,8 +19,14 @@ public final class PreferencesConfig {
         preferencesEntryList.add(new ConfigEntry<>("heal_on_flowing_water", true, """
                 (Default = true) Whether or not blocks should be healed where there is currently flowing water."""));
 
+        preferencesEntryList.add(new ConfigEntry<>("heal_on_source_water", false, """
+                (Default = false) Whether or not blocks should healed where there is currently a source water block."""));
+
         preferencesEntryList.add(new ConfigEntry<>("heal_on_flowing_lava", true, """
                 (Default = true) Whether or not blocks should be healed where there is currently flowing lava."""));
+
+        preferencesEntryList.add(new ConfigEntry<>("heal_on_source_lava", false, """
+                (Default = false) Whether or not blocks should be healed where there is currently a source lava block."""));
 
         preferencesEntryList.add(new ConfigEntry<>("block_placement_sound_effect", true, """
                 (Default = true) Whether or not a block heal should play a sound effect."""));
@@ -52,10 +58,26 @@ public final class PreferencesConfig {
         }
     }
 
+    public static void setHealOnSourceWater(boolean healOnSourceWater){
+        for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
+            if(configEntry.getName().equals("heal_on_source_water")){
+                configEntry.setValue(healOnSourceWater);
+            }
+        }
+    }
+
     public static void setHealOnFlowingLava(boolean healOnFlowingLava){
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
             if(configEntry.getName().equals("heal_on_flowing_lava")){
                 configEntry.setValue(healOnFlowingLava);
+            }
+        }
+    }
+
+    public static void setHealOnSourceLava(boolean healOnSourceLava){
+        for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
+            if(configEntry.getName().equals("heal_on_source_lava")){
+                configEntry.setValue(healOnSourceLava);
             }
         }
     }
@@ -108,9 +130,21 @@ public final class PreferencesConfig {
         return boolToReturn;
     }
 
+    public static Boolean getHealOnSourceWater(){
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_on_source_water", getPreferencesEntryList());
+        if(boolToReturn == null) return false;
+        return boolToReturn;
+    }
+
     public static Boolean getHealOnFlowingLava(){
         Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_on_flowing_lava", getPreferencesEntryList());
         if(boolToReturn == null) return true;
+        return boolToReturn;
+    }
+
+    public static Boolean getHealOnSourceLava(){
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_on_source_lava", getPreferencesEntryList());
+        if(boolToReturn == null) return false;
         return boolToReturn;
     }
 

@@ -9,6 +9,9 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import xd.arkosammy.commands.categories.ExplosionSourcesCommands;
+import xd.arkosammy.commands.categories.ModeCommands;
+import xd.arkosammy.commands.categories.PreferencesCommands;
 import xd.arkosammy.configuration.Config;
 
 import java.io.IOException;
