@@ -103,43 +103,43 @@ public final class PreferencesConfig {
     }
 
     public static Boolean getHealOnFlowingWater(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_on_flowing_water");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_on_flowing_water", getPreferencesEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
 
     public static Boolean getHealOnFlowingLava(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_on_flowing_lava");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_on_flowing_lava", getPreferencesEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
 
     public static Boolean getBlockPlacementSoundEffect(){
-        Boolean boolToReturn = getValueForNameFromMemory("block_placement_sound_effect");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("block_placement_sound_effect", getPreferencesEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
 
     public static Boolean getDropItemsOnExplosions(){
-        Boolean boolToReturn = getValueForNameFromMemory("drop_items_on_explosions");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("drop_items_on_explosions", getPreferencesEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
 
     public static Boolean getHealOnHealingPotionSplash(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_on_healing_potion_splash");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_on_healing_potion_splash", getPreferencesEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
 
     public static Boolean getHealOnRegenerationPotionSplash(){
-        Boolean boolToReturn = getValueForNameFromMemory("heal_on_regeneration_potion_splash");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_on_regeneration_potion_splash", getPreferencesEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }
 
     public static Boolean getEnableWhitelist(){
-        Boolean boolToReturn = getValueForNameFromMemory("enable_whitelist");
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("enable_whitelist", getPreferencesEntryList());
         if(boolToReturn == null) return false;
         return boolToReturn;
     }
@@ -186,15 +186,6 @@ public final class PreferencesConfig {
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
             }
         }
-    }
-
-    private static Boolean getValueForNameFromMemory(String settingName){
-        for(ConfigEntry<Boolean> entry : getPreferencesEntryList()){
-            if(entry.getName().equals(settingName)){
-                return entry.getValue();
-            }
-        }
-        return null;
     }
 
 }

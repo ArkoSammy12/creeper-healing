@@ -1,5 +1,7 @@
 package xd.arkosammy.configuration;
 
+import java.util.List;
+
 public class ConfigEntry<T> {
 
     private T value;
@@ -43,6 +45,15 @@ public class ConfigEntry<T> {
 
     public void resetValue(){
         this.value = this.defaultValue;
+    }
+
+    public static <S> S getValueForNameFromMemory(String entryName, List<ConfigEntry<S>> entries){
+        for(ConfigEntry<S> entry : entries){
+            if(entry.getName().equals(entryName)){
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
 }

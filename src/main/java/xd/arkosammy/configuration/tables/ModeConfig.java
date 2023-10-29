@@ -38,7 +38,7 @@ public final class ModeConfig {
     }
 
     public static String getHealingMode(){
-        String stringToReturn = getValueForNameFromMemory("mode");
+        String stringToReturn = ConfigEntry.getValueForNameFromMemory("mode", getModeEntryList());
         if(stringToReturn == null) return ExplosionHealingMode.DEFAULT_MODE.getName();
         return stringToReturn;
     }
@@ -70,12 +70,4 @@ public final class ModeConfig {
         }
     }
 
-    private static String getValueForNameFromMemory(String settingName){
-        for(ConfigEntry<String> entry : getModeEntryList()){
-            if(entry.getName().equals(settingName)){
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
 }
