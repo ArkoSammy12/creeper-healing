@@ -2,17 +2,13 @@ package xd.arkosammy.commands.categories;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import xd.arkosammy.configuration.tables.DelaysConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
-import xd.arkosammy.explosions.AffectedBlock;
 
 
 public final class PreferencesCommands {
@@ -21,23 +17,9 @@ public final class PreferencesCommands {
 
     public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
-        //Settings node
+        //Preferences node
         LiteralCommandNode<ServerCommandSource> settingsNode = CommandManager
                 .literal("preferences")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Explosion Heal Delay node
-        LiteralCommandNode<ServerCommandSource> explosionHealDelayNode = CommandManager
-                .literal("explosion_heal_delay")
-                .executes(PreferencesCommands::getExplosionHealDelayCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Block Placement Delay node
-        LiteralCommandNode<ServerCommandSource> blockPlacementDelayNode = CommandManager
-                .literal("block_placement_delay")
-                .executes(PreferencesCommands::getBlockPlacementDelayCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -102,20 +84,6 @@ public final class PreferencesCommands {
                 .literal("enable_whitelist")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .executes(PreferencesCommands::getEnableWhitelist)
-                .build();
-
-        //Explosion heal delay argument node
-        ArgumentCommandNode<ServerCommandSource, Double> explosionHealDelayArgumentNode = CommandManager
-                .argument("seconds", DoubleArgumentType.doubleArg())
-                .executes(PreferencesCommands::setExplosionHealDelayCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
-        //Block placement delay argument node
-        ArgumentCommandNode<ServerCommandSource, Double> blockPlacementDelayArgumentNode = CommandManager
-                .argument("seconds", DoubleArgumentType.doubleArg())
-                .executes(PreferencesCommands::setBlockPlacementDelayCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Heal on flowing water argument node
@@ -184,9 +152,7 @@ public final class PreferencesCommands {
         //Root node connection
         creeperHealingNode.addChild(settingsNode);
 
-        //Settings commands nodes
-        settingsNode.addChild(explosionHealDelayNode);
-        settingsNode.addChild(blockPlacementDelayNode);
+        //Preferences commands nodes
         settingsNode.addChild(dropItemsOnCreeperExplosionsNode);
         settingsNode.addChild(shouldHealOnFlowingWaterNode);
         settingsNode.addChild(shouldHealOnSourceWaterNode);
@@ -198,8 +164,6 @@ public final class PreferencesCommands {
         settingsNode.addChild(enableWhitelistNode);
 
         //Argument nodes
-        explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
-        blockPlacementDelayNode.addChild(blockPlacementDelayArgumentNode);
         shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
         shouldHealOnSourceWaterNode.addChild(healOnSourceWaterArgumentNode);
         shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
@@ -210,27 +174,6 @@ public final class PreferencesCommands {
         healOnRegenerationPotionSplash.addChild(healOnRegenerationPotionSplashArgumentNode);
         enableWhitelistNode.addChild(enableWhitelistArgumentNode);
 
-    }
-
-    private static int setExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx) {
-        if(Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
-            DelaysConfig.setExplosionHealDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
-            ctx.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
-        } else {
-            ctx.getSource().sendMessage(Text.literal("Cannot set explosion heal delay to a very low value").formatted(Formatting.RED));
-        }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx) {
-        if (Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
-            DelaysConfig.setBlockPlacementDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
-            AffectedBlock.updateAffectedBlocksTimers();
-            ctx.getSource().sendMessage(Text.literal("Block placement delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
-        } else {
-            ctx.getSource().sendMessage(Text.literal("Cannot set block placement delay to a very low value").formatted(Formatting.RED));
-        }
-        return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx) {
@@ -284,16 +227,6 @@ public final class PreferencesCommands {
     private static int setEnableWhitelist(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.setEnableWhitelist(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("The whitelist has been " + (BoolArgumentType.getBool(ctx, "value") ? "enabled" : "disabled")));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double) DelaysConfig.getBlockPlacementDelay() / 20) + " second(s)"));
         return Command.SINGLE_SUCCESS;
     }
 
