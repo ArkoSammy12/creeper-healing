@@ -1,4 +1,4 @@
-package xd.arkosammy.commands;
+package xd.arkosammy.commands.categories;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -10,11 +10,11 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.configuration.tables.ExplosionSourceConfig;
 
-final class ExplosionSourcesCommands {
+public final class ExplosionSourcesCommands {
 
     private ExplosionSourcesCommands(){}
 
-    static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+    public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Explosion source node
         LiteralCommandNode<ServerCommandSource> explosionSourceMode = CommandManager

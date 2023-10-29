@@ -20,13 +20,22 @@ public final class ExplosionUtils {
 
     private ExplosionUtils(){}
 
-     public static void pushPlayersUpwards(World world, BlockPos pos, boolean isTallBlock) {
-         int amountToPush = isTallBlock ? 2 : 1;
-         for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
+    public static void pushPlayersUpwards(World world, BlockPos pos, boolean isTallBlock) {
+        int amountToPush = isTallBlock ? 2 : 1;
+        for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
             if(areAboveBlocksFree(world, pos, entity, amountToPush)) {
                 entity.refreshPositionAfterTeleport(entity.getPos().withAxis(Direction.Axis.Y, entity.getBlockY() + amountToPush));
             }
         }
+    }
+
+    private static boolean areAboveBlocksFree(World world, BlockPos pos, Entity entity, int amountToPush){
+        for(int i = pos.getY(); i < pos.offset(Direction.Axis.Y, (int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++){
+            BlockPos currentPos = pos.withY(i + amountToPush);
+            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos))
+                return false;
+        }
+        return true;
     }
 
     /*
@@ -39,31 +48,31 @@ public final class ExplosionUtils {
         int newExplosionAverageRadius = getMaxExplosionRadius(affectedBlockPosList);
 
         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
-             if(explosionEvent.getExplosionTimer() > 0){
-                 BlockPos centerOfCurrentExplosion = new BlockPos(getCenterXCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())), getCenterYCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())), getCenterZCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())));
-                 int currentExplosionAverageRadius = getMaxExplosionRadius(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
-                 if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
-                     collidingExplosions.add(explosionEvent);
-                 }
-             }
-         }
-         return collidingExplosions;
+            if(explosionEvent.getExplosionTimer() > 0){
+                BlockPos centerOfCurrentExplosion = new BlockPos(getCenterXCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())), getCenterYCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())), getCenterZCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList())));
+                int currentExplosionAverageRadius = getMaxExplosionRadius(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
+                if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
+                    collidingExplosions.add(explosionEvent);
+                }
+            }
+        }
+        return collidingExplosions;
     }
 
-     public static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
+    public static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
 
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
 
         int centerX = getCenterXCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
         int centerZ = getCenterZCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
 
-         Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
-         sortedAffectedBlocks.sort(distanceToCenterComparator);
+        Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
+        sortedAffectedBlocks.sort(distanceToCenterComparator);
 
-         Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());
-         sortedAffectedBlocks.sort(yLevelComparator);
+        Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());
+        sortedAffectedBlocks.sort(yLevelComparator);
 
-         Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
+        Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
             boolean isBlockInfo1Transparent = affectedBlock1.getState().isTranslucent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
             boolean isBlockInfo2Transparent = affectedBlock2.getState().isTranslucent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
             return Boolean.compare(isBlockInfo1Transparent, isBlockInfo2Transparent);
@@ -150,7 +159,9 @@ public final class ExplosionUtils {
     public static boolean shouldPlaceBlock(@NotNull World world, BlockPos pos){
         if(world.isAir(pos)) return true;
         else if(world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && PreferencesConfig.getHealOnFlowingWater()) return true;
-        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && PreferencesConfig.getHealOnFlowingLava();
+        else if (world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.WATER) && PreferencesConfig.getHealOnSourceWater()) return true;
+        else if (world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && PreferencesConfig.getHealOnFlowingLava()) return true;
+        else return world.getBlockState(pos).getFluidState().getFluid().equals(Fluids.LAVA) && PreferencesConfig.getHealOnSourceLava();
     }
 
     public static boolean shouldPlaceDoubleBlock(@NotNull World world, BlockPos firstHalfPos, BlockPos secondHalfPos){
@@ -161,20 +172,20 @@ public final class ExplosionUtils {
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_WATER)))
                 && PreferencesConfig.getHealOnFlowingWater()){
             return true;
-        } else return (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
+        } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.WATER) && world.isAir(secondHalfPos))
+                || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.WATER))
+                || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.WATER) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.WATER)))
+                && PreferencesConfig.getHealOnSourceWater()) {
+            return true;
+        } else if (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.isAir(secondHalfPos))
                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA))
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.FLOWING_LAVA)))
-                && PreferencesConfig.getHealOnFlowingLava());
+                && PreferencesConfig.getHealOnFlowingLava()) {
+            return true;
+        } else return (((world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.LAVA) && world.isAir(secondHalfPos))
+                || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.LAVA))
+                || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.LAVA)))
+                && PreferencesConfig.getHealOnSourceLava());
     }
-
-    private static boolean areAboveBlocksFree(World world, BlockPos pos, Entity entity, int amountToPush){
-        for(int i = pos.getY(); i < pos.offset(Direction.Axis.Y, (int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++){
-            BlockPos currentPos = pos.withY(i + amountToPush);
-            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos))
-                return false;
-        }
-        return true;
-    }
-
 
 }

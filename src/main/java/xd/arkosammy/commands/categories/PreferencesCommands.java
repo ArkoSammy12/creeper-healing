@@ -1,4 +1,4 @@
-package xd.arkosammy.commands;
+package xd.arkosammy.commands.categories;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -15,11 +15,11 @@ import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.explosions.AffectedBlock;
 
 
-final class PreferencesCommands {
+public final class PreferencesCommands {
 
     private PreferencesCommands(){}
 
-    static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+    public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Settings node
         LiteralCommandNode<ServerCommandSource> settingsNode = CommandManager
@@ -48,10 +48,24 @@ final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal on Source Water node
+        LiteralCommandNode<ServerCommandSource> shouldHealOnSourceWaterNode = CommandManager
+                .literal("heal_on_source_water")
+                .executes(PreferencesCommands::getShouldHealOnSourceWaterCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Heal on Flowing Lava node
         LiteralCommandNode<ServerCommandSource> shouldHealOnFlowingLavaNode = CommandManager
                 .literal("heal_on_flowing_lava")
                 .executes(PreferencesCommands::getShouldHealOnFlowingLavaCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Heal on Source Lava node
+        LiteralCommandNode<ServerCommandSource> shouldHealOnSourceLavaNode = CommandManager
+                .literal("heal_on_source_lava")
+                .executes(PreferencesCommands::getShouldHealOnSourceLavaCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -111,10 +125,24 @@ final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal on source water argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> healOnSourceWaterArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(PreferencesCommands::setHealOnSourceWaterCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Heal on flowing lava argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnFlowingLavaArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
                 .executes(PreferencesCommands::setHealOnFlowingLavaCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Heal on source lava argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> healOnSourceLavaArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(PreferencesCommands::setHealOnSourceLavaCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -161,7 +189,9 @@ final class PreferencesCommands {
         settingsNode.addChild(blockPlacementDelayNode);
         settingsNode.addChild(dropItemsOnCreeperExplosionsNode);
         settingsNode.addChild(shouldHealOnFlowingWaterNode);
+        settingsNode.addChild(shouldHealOnSourceWaterNode);
         settingsNode.addChild(shouldHealOnFlowingLavaNode);
+        settingsNode.addChild(shouldHealOnSourceLavaNode);
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
         settingsNode.addChild(healOnRegenerationPotionSplash);
@@ -171,7 +201,9 @@ final class PreferencesCommands {
         explosionHealDelayNode.addChild(explosionHealDelayArgumentNode);
         blockPlacementDelayNode.addChild(blockPlacementDelayArgumentNode);
         shouldHealOnFlowingWaterNode.addChild(healOnFlowingWaterArgumentNode);
+        shouldHealOnSourceWaterNode.addChild(healOnSourceWaterArgumentNode);
         shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
+        shouldHealOnSourceLavaNode.addChild(healOnSourceLavaArgumentNode);
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
@@ -207,9 +239,21 @@ final class PreferencesCommands {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int setHealOnSourceWaterCommand(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.setHealOnSourceWater(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal on source water has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static int setHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx) {
         PreferencesConfig.setHealOnFlowingLava(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on flowing lava has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setHealOnSourceLavaCommand(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.setHealOnSourceLava(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal on source lava has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -258,8 +302,18 @@ final class PreferencesCommands {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int getShouldHealOnSourceWaterCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal on source water currently set to: " + PreferencesConfig.getHealOnSourceWater()));
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + PreferencesConfig.getHealOnFlowingLava()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getShouldHealOnSourceLavaCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal on source lava currently set to: " + PreferencesConfig.getHealOnSourceLava()));
         return Command.SINGLE_SUCCESS;
     }
 
