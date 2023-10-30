@@ -31,9 +31,6 @@ public final class PreferencesConfig {
         preferencesEntryList.add(new ConfigEntry<>("block_placement_sound_effect", true, """
                 (Default = true) Whether or not a block heal should play a sound effect."""));
 
-        preferencesEntryList.add(new ConfigEntry<>("drop_items_on_explosions", true, """
-                (Default = true) Whether or not explosions should drop items."""));
-
         preferencesEntryList.add(new ConfigEntry<>("heal_on_healing_potion_splash", true, """
                 (Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them."""));
 
@@ -90,14 +87,6 @@ public final class PreferencesConfig {
         }
     }
 
-    public static void setDropItemsOnExplosions(boolean dropItemsOnExplosions){
-        for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
-            if(configEntry.getName().equals("drop_items_on_explosions")){
-                configEntry.setValue(dropItemsOnExplosions);
-            }
-        }
-    }
-
     public static void setHealOnHealingPotionSplash(boolean healOnHealingPotionSplash){
         for(ConfigEntry<Boolean> configEntry : getPreferencesEntryList()){
             if(configEntry.getName().equals("heal_on_healing_potion_splash")){
@@ -150,12 +139,6 @@ public final class PreferencesConfig {
 
     public static Boolean getBlockPlacementSoundEffect(){
         Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("block_placement_sound_effect", getPreferencesEntryList());
-        if(boolToReturn == null) return true;
-        return boolToReturn;
-    }
-
-    public static Boolean getDropItemsOnExplosions(){
-        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("drop_items_on_explosions", getPreferencesEntryList());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }

@@ -58,12 +58,6 @@ public final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Drop items on creeper explosions node
-        LiteralCommandNode<ServerCommandSource> dropItemsOnCreeperExplosionsNode = CommandManager
-                .literal("drop_items_on_explosions")
-                .executes(PreferencesCommands::getDropItemsOnExplosionCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
 
         //Heal on healing potion splash node
         LiteralCommandNode<ServerCommandSource> healOnHealingPotionSplashNode = CommandManager
@@ -121,13 +115,6 @@ public final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Drop items on creeper argument node
-        ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
-                .argument("value", BoolArgumentType.bool())
-                .executes(PreferencesCommands::setDropItemsOnExplosionCommand)
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .build();
-
         //Heal on Healing potion splash argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healOnHealingPotionSplashArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
@@ -153,7 +140,6 @@ public final class PreferencesCommands {
         creeperHealingNode.addChild(settingsNode);
 
         //Preferences commands nodes
-        settingsNode.addChild(dropItemsOnCreeperExplosionsNode);
         settingsNode.addChild(shouldHealOnFlowingWaterNode);
         settingsNode.addChild(shouldHealOnSourceWaterNode);
         settingsNode.addChild(shouldHealOnFlowingLavaNode);
@@ -169,7 +155,6 @@ public final class PreferencesCommands {
         shouldHealOnFlowingLavaNode.addChild(healOnFlowingLavaArgumentNode);
         shouldHealOnSourceLavaNode.addChild(healOnSourceLavaArgumentNode);
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
-        dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
         healOnRegenerationPotionSplash.addChild(healOnRegenerationPotionSplashArgumentNode);
         enableWhitelistNode.addChild(enableWhitelistArgumentNode);
@@ -203,12 +188,6 @@ public final class PreferencesCommands {
     private static int setPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
         PreferencesConfig.setBlockPlacementSoundEffect(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int setDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setDropItemsOnExplosions(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Drop items on explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -255,11 +234,6 @@ public final class PreferencesCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int getDropItemsOnExplosionCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on explosions currently set to: " + PreferencesConfig.getDropItemsOnExplosions()));
-        return Command.SINGLE_SUCCESS;
-    }
-
     private static int getHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + PreferencesConfig.getHealOnHealingPotionSplash()));
         return Command.SINGLE_SUCCESS;
@@ -274,6 +248,5 @@ public final class PreferencesCommands {
         ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (PreferencesConfig.getEnableWhitelist() ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }
-
 
 }
