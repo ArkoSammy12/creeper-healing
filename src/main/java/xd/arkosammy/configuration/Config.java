@@ -112,6 +112,7 @@ public final class Config {
     private static void saveDefaultConfigSettingsToFile(CommentedFileConfig fileConfig){
         ModeConfig.saveToFileWithDefaultValues(fileConfig);
         ExplosionSourceConfig.saveToFileWithDefaultValues(fileConfig);
+        ExplosionItemDropConfig.saveToFileWithDefaultValues(fileConfig);
         DelaysConfig.saveToFileWithDefaultValues(fileConfig);
         PreferencesConfig.saveToFileWithDefaultValues(fileConfig);
         WhitelistConfig.saveToFileWithDefaultValues(fileConfig);
@@ -121,6 +122,7 @@ public final class Config {
     private static void saveConfigSettingsToFile(CommentedFileConfig fileConfig){
         ModeConfig.saveSettingsToFile(fileConfig);
         ExplosionSourceConfig.saveSettingsToFile(fileConfig);
+        ExplosionItemDropConfig.saveSettingsToFile(fileConfig);
         DelaysConfig.saveSettingsToFile(fileConfig);
         PreferencesConfig.saveSettingsToFile(fileConfig);
         WhitelistConfig.saveWhitelistToFile(fileConfig);
@@ -130,6 +132,7 @@ public final class Config {
     private static void loadConfigSettingsToMemory(CommentedFileConfig fileConfig){
         ModeConfig.loadSettingsToMemory(fileConfig);
         ExplosionSourceConfig.loadSettingsToMemory(fileConfig);
+        ExplosionItemDropConfig.loadSettingsToMemory(fileConfig);
         DelaysConfig.loadSettingsToMemory(fileConfig);
         PreferencesConfig.loadSettingsToMemory(fileConfig);
         WhitelistConfig.loadWhitelistToMemory(fileConfig);
