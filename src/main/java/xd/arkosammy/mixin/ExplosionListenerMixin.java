@@ -5,6 +5,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.damage.BadRespawnPointDamageSource;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.vehicle.TntMinecartEntity;
@@ -37,9 +40,12 @@ public abstract class ExplosionListenerMixin {
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
     @Shadow public abstract List<BlockPos> getAffectedBlocks();
     @Shadow @Final @Nullable private Entity entity;
+
+    @Shadow public abstract DamageSource getDamageSource();
+
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void getExplodedBlocks(CallbackInfo ci){
-        if(canStoreExplosion(this.getCausingEntity(), this.entity))
+        if(canStoreExplosion(this.getCausingEntity(), this.entity, this.getDamageSource()))
             storeExplosion(this.getAffectedBlocks());
     }
 
@@ -64,12 +70,15 @@ public abstract class ExplosionListenerMixin {
     }
 
     @Unique
-    private boolean canStoreExplosion(LivingEntity causingLivingEntity, Entity causingEntity){
+    private boolean canStoreExplosion(LivingEntity causingLivingEntity, Entity causingEntity, DamageSource damageSource){
         return (causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.getHealCreeperExplosions())
                 || (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.getHealGhastExplosions())
                 || (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.getHealWitherExplosions())
                 || (causingEntity instanceof TntEntity && ExplosionSourceConfig.getHealTNTExplosions())
-                || (causingEntity instanceof TntMinecartEntity && ExplosionSourceConfig.getHealTNTMinecartExplosions());
+                || (causingEntity instanceof TntMinecartEntity && ExplosionSourceConfig.getHealTNTMinecartExplosions())
+                || (damageSource instanceof BadRespawnPointDamageSource && ExplosionSourceConfig.getHealBedAndRespawnAnchorExplosions())
+                || (causingEntity instanceof EndCrystalEntity && ExplosionSourceConfig.getHealEndCrystalExplosions());
+
 
     }
 
