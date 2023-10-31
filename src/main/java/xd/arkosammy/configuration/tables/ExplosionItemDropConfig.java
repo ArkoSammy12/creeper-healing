@@ -32,6 +32,12 @@ public final class ExplosionItemDropConfig{
         explosionItemDropEntries.add(new ConfigEntry<>("drop_items_on_tnt_minecart_explosions", true, """
                 (Default = true) Explosions caused by TNT minecarts will drop items."""));
 
+        explosionItemDropEntries.add(new ConfigEntry<>("drop_items_on_bed_and_respawn_anchor_explosions", true, """
+                (Default = true) Explosions caused by beds and respawn anchors will drop items."""));
+
+        explosionItemDropEntries.add(new ConfigEntry<>("drop_items_on_end_crystal_explosions", true, """
+                (Default = true) Explosions caused by end crystals will drop items."""));
+
     }
 
     private static List<ConfigEntry<Boolean>> getExplosionItemDropEntries(){
@@ -78,6 +84,22 @@ public final class ExplosionItemDropConfig{
         }
     }
 
+    public static void setDropItemsOnBedAndRespawnAnchorExplosions(boolean dropItemsOnBedAndRespawnAnchorExplosions){
+        for(ConfigEntry<Boolean> configEntry : getExplosionItemDropEntries()){
+            if(configEntry.getName().equals("drop_items_on_bed_and_respawn_anchor_explosions")){
+                configEntry.setValue(dropItemsOnBedAndRespawnAnchorExplosions);
+            }
+        }
+    }
+
+    public static void setDropItemsOnEndCrystalExplosions(boolean dropItemsOnEndCrystalExplosions){
+        for(ConfigEntry<Boolean> configEntry : getExplosionItemDropEntries()){
+            if(configEntry.getName().equals("drop_items_on_end_crystal_explosions")){
+                configEntry.setValue(dropItemsOnEndCrystalExplosions);
+            }
+        }
+    }
+
     public static Boolean getDropItemsOnCreeperExplosions(){
         Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("drop_items_on_creeper_explosions", getExplosionItemDropEntries());
         if(boolToReturn == null) return true;
@@ -104,6 +126,18 @@ public final class ExplosionItemDropConfig{
 
     public static Boolean getDropItemsOnTNTMinecartExplosions(){
         Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("drop_items_on_tnt_minecart_explosions", getExplosionItemDropEntries());
+        if(boolToReturn == null) return true;
+        return boolToReturn;
+    }
+
+    public static Boolean getDropItemsOnBedAndRespawnAnchorExplosions(){
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("drop_items_on_bed_and_respawn_anchor_explosions", getExplosionItemDropEntries());
+        if(boolToReturn == null) return true;
+        return boolToReturn;
+    }
+
+    public static Boolean getDropItemsOnEndCrystalExplosions(){
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("drop_items_on_end_crystal_explosions", getExplosionItemDropEntries());
         if(boolToReturn == null) return true;
         return boolToReturn;
     }

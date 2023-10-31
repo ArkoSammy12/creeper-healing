@@ -19,19 +19,25 @@ public final class ExplosionSourceConfig {
     static {
 
         explosionSourceEntryList.add(new ConfigEntry<>("heal_creeper_explosions", true, """
-                (Default = true) Heal explosions caused by creepers."""));
+                (Default = true) Heal explosions caused by Creepers."""));
 
         explosionSourceEntryList.add(new ConfigEntry<>("heal_ghast_explosions", false, """
-                (Default = false) Heal explosions caused by ghasts."""));
+                (Default = false) Heal explosions caused by Ghasts."""));
 
         explosionSourceEntryList.add(new ConfigEntry<>("heal_wither_explosions", false, """
-                (Default = false) Heal explosions caused by withers."""));
+                (Default = false) Heal explosions caused by Withers."""));
 
         explosionSourceEntryList.add(new ConfigEntry<>("heal_tnt_explosions", false, """
                 (Default = false) Heal explosions caused by TNT blocks."""));
 
         explosionSourceEntryList.add(new ConfigEntry<>("heal_tnt_minecart_explosions", false, """
                 (Default = false) Heal explosions caused by TNT minecarts."""));
+
+        explosionSourceEntryList.add(new ConfigEntry<>("heal_bed_and_respawn_anchor_explosions", false, """
+                (Default = false) Heal explosions caused by beds and respawn anchors."""));
+
+        explosionSourceEntryList.add(new ConfigEntry<>("heal_end_crystal_explosions", false, """
+                (Default = false) Heal explosions caused by end crystals."""));
 
     }
 
@@ -79,6 +85,22 @@ public final class ExplosionSourceConfig {
         }
     }
 
+    public static void setHealBedAndRespawnAnchorExplosions(boolean healBedAndRespawnAnchorExplosions){
+        for(ConfigEntry<Boolean> configEntry : getExplosionSourceEntryList()){
+            if(configEntry.getName().equals("heal_bed_and_respawn_anchor_explosions")){
+                configEntry.setValue(healBedAndRespawnAnchorExplosions);
+            }
+        }
+    }
+
+    public static void setHealEndCrystalExplosions(boolean healEndCrystalExplosions){
+        for(ConfigEntry<Boolean> configEntry : getExplosionSourceEntryList()){
+        if(configEntry.getName().equals("heal_end_crystal_explosions")) {
+                configEntry.setValue(healEndCrystalExplosions);
+            }
+        }
+    }
+
     public static Boolean getHealCreeperExplosions(){
         Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_creeper_explosions", getExplosionSourceEntryList());
         if(boolToReturn == null) return true;
@@ -105,6 +127,18 @@ public final class ExplosionSourceConfig {
 
     public static Boolean getHealTNTMinecartExplosions(){
         Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_tnt_minecart_explosions", getExplosionSourceEntryList());
+        if(boolToReturn == null) return false;
+        return boolToReturn;
+    }
+
+    public static Boolean getHealBedAndRespawnAnchorExplosions(){
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_bed_and_respawn_anchor_explosions", getExplosionSourceEntryList());
+        if(boolToReturn == null) return false;
+        return boolToReturn;
+    }
+
+    public static Boolean getHealEndCrystalExplosions(){
+        Boolean boolToReturn = ConfigEntry.getValueForNameFromMemory("heal_end_crystal_explosions", getExplosionSourceEntryList());
         if(boolToReturn == null) return false;
         return boolToReturn;
     }

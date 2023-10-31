@@ -57,6 +57,20 @@ public final class ExplosionSourcesCommands {
                 .executes(ExplosionSourcesCommands::getHealTNTMinecartExplosionCommand)
                 .build();
 
+        //Heal bed and respawn anchor explosions
+        LiteralCommandNode<ServerCommandSource> healBedAndRespawnAnchorExplosionsNode = CommandManager
+                .literal("heal_bed_and_respawn_anchor_explosions")
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .executes(ExplosionSourcesCommands::getHealBedAndRespawnAnchorExplosionsCommand)
+                .build();
+
+        //Heal end crystal explosions
+        LiteralCommandNode<ServerCommandSource> healEndCrystalExplosionsNode = CommandManager
+                .literal("heal_end_crystal_explosions")
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .executes(ExplosionSourcesCommands::getHealEndCrystalExplosionsCommand)
+                .build();
+
         //Heal creeper explosions argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> healCreeperExplosionsArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
@@ -92,6 +106,20 @@ public final class ExplosionSourcesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal bed and respawn anchor explosions argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> healBedAndRespawnAnchorExplosionsArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(ExplosionSourcesCommands::setHealBedAndRespawnAnchorExplosionsCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Heal end crystal explosions argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> healEndCrystalExplosionsArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(ExplosionSourcesCommands::setHealEndCrystalExplosionsCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Root node connection
         creeperHealingNode.addChild(explosionSourceMode);
 
@@ -101,6 +129,8 @@ public final class ExplosionSourcesCommands {
         explosionSourceMode.addChild(healWitherExplosionsNode);
         explosionSourceMode.addChild(healTNTExplosionsNode);
         explosionSourceMode.addChild(healTNTMinecartExplosionsNode);
+        explosionSourceMode.addChild(healBedAndRespawnAnchorExplosionsNode);
+        explosionSourceMode.addChild(healEndCrystalExplosionsNode);
 
         //Argument nodes
         healCreeperExplosionsNode.addChild(healCreeperExplosionsArgumentNode);
@@ -108,6 +138,8 @@ public final class ExplosionSourcesCommands {
         healWitherExplosionsNode.addChild(healWitherExplosionsArgumentNode);
         healTNTExplosionsNode.addChild(healTNTExplosionsArgumentNode);
         healTNTMinecartExplosionsNode.addChild(healTNTMinecartExplosionsArgumentNode);
+        healBedAndRespawnAnchorExplosionsNode.addChild(healBedAndRespawnAnchorExplosionsArgumentNode);
+        healEndCrystalExplosionsNode.addChild(healEndCrystalExplosionsArgumentNode);
 
     }
 
@@ -141,6 +173,18 @@ public final class ExplosionSourcesCommands {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int setHealBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ExplosionSourceConfig.setHealBedAndRespawnAnchorExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal bed and respawn anchor explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setHealEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ExplosionSourceConfig.setHealEndCrystalExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal end crystal explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static int getHealCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions currently set to: " + ExplosionSourceConfig.getHealCreeperExplosions()));
         return Command.SINGLE_SUCCESS;
@@ -163,6 +207,16 @@ public final class ExplosionSourcesCommands {
 
     private static int getHealTNTMinecartExplosionCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Heal TNT minecart explosions currently set to: " + ExplosionSourceConfig.getHealTNTMinecartExplosions()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getHealBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal bed and respawn anchor explosions currently set to: " + ExplosionSourceConfig.getHealBedAndRespawnAnchorExplosions()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getHealEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal end crystal explosions currently set to: " + ExplosionSourceConfig.getHealEndCrystalExplosions()));
         return Command.SINGLE_SUCCESS;
     }
 

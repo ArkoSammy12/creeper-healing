@@ -57,6 +57,20 @@ public final class ExplosionItemDropCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Drop items on bed and respawn anchors explosions
+        LiteralCommandNode<ServerCommandSource> dropItemsOnBedAndRspawnAnchorExplosions = CommandManager
+                .literal("drop_items_on_bed_and_respawn_anchor_explosions")
+                .executes(ExplosionItemDropCommands::getDropItemsOnBedAndRespawnAnchorExplosionsCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Drop items on end crystal explosions
+        LiteralCommandNode<ServerCommandSource> dropItemsOnEndCrystalExplosions = CommandManager
+                .literal("drop_items_on_end_crystal_explosions")
+                .executes(ExplosionItemDropCommands::getDropItemsOnEndCrystalExplosionsCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Drop items on creeper explosions argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnCreeperExplosionsArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
@@ -92,6 +106,20 @@ public final class ExplosionItemDropCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Drop items on bed and respawn anchor explosions argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnBedAndRespawnAnchorExplosionsArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(ExplosionItemDropCommands::setDropItemsOnBedAndRespawnAnchorExplosionsCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        //Drop items on end crystal explosions argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> dropItemsOnEndCrystalExplosionsArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(ExplosionItemDropCommands::setDropItemsOnEndCrystalExplosionsCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Root node connection
         creeperHealingNode.addChild(explosionItemDropNode);
 
@@ -101,6 +129,8 @@ public final class ExplosionItemDropCommands {
         explosionItemDropNode.addChild(dropItemsOnWitherExplosionsNode);
         explosionItemDropNode.addChild(dropItemsOnTNTExplosionsNode);
         explosionItemDropNode.addChild(dropItemsOnTNTMinecartExplosionsNode);
+        explosionItemDropNode.addChild(dropItemsOnBedAndRspawnAnchorExplosions);
+        explosionItemDropNode.addChild(dropItemsOnEndCrystalExplosions);
 
         //Argument nodes
         dropItemsOnCreeperExplosionsNode.addChild(dropItemsOnCreeperExplosionsArgumentNode);
@@ -108,6 +138,8 @@ public final class ExplosionItemDropCommands {
         dropItemsOnWitherExplosionsNode.addChild(dropItemsOnWitherExplosionsArgumentNode);
         dropItemsOnTNTExplosionsNode.addChild(dropItemsOnTNTExplosionsArgumentNode);
         dropItemsOnTNTMinecartExplosionsNode.addChild(dropItemsOnTNTMinecartExplosionsArgumentNode);
+        dropItemsOnBedAndRspawnAnchorExplosions.addChild(dropItemsOnBedAndRespawnAnchorExplosionsArgumentNode);
+        dropItemsOnEndCrystalExplosions.addChild(dropItemsOnEndCrystalExplosionsArgumentNode);
 
     }
 
@@ -141,6 +173,18 @@ public final class ExplosionItemDropCommands {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int setDropItemsOnBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ExplosionItemDropConfig.setDropItemsOnBedAndRespawnAnchorExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setDropItemsOnEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ExplosionItemDropConfig.setDropItemsOnEndCrystalExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Drop items on Creeper explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnCreeperExplosions()));
         return Command.SINGLE_SUCCESS;
@@ -163,6 +207,16 @@ public final class ExplosionItemDropCommands {
 
     private static int getDropItemsOnTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Drop items on TNT minecart explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnTNTMinecartExplosions()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getDropItemsOnBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnBedAndRespawnAnchorExplosions()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getDropItemsOnEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions currently set to: "+ ExplosionItemDropConfig.getDropItemsOnEndCrystalExplosions()));
         return Command.SINGLE_SUCCESS;
     }
 
