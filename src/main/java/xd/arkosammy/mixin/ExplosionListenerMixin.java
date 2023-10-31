@@ -56,7 +56,7 @@ public abstract class ExplosionListenerMixin {
         ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
 
         for (BlockPos pos : affectedBlocksPos) {
-            if (world.getBlockState(pos).isAir() || world.getBlockState(pos).getBlock().equals(Blocks.TNT) || world.getBlockState(pos).getBlock().equals(Blocks.FIRE)) {
+            if (world.getBlockState(pos).isAir() || world.getBlockState(pos).getBlock().equals(Blocks.TNT) || world.getBlockState(pos).getBlock().equals(Blocks.FIRE) || world.getBlockState(pos).getBlock().equals(Blocks.SOUL_FIRE)) {
                 continue; // Skip the current iteration if the block state is air, TNT, or fire
             }
             String blockIdentifier = Registries.BLOCK.getId(world.getBlockState(pos).getBlock()).toString();
