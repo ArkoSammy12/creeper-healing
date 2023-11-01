@@ -102,19 +102,19 @@ public class ExplosionEvent {
         return null;
     }
 
-    public void delayAffectedBlock(AffectedBlock blockToPostpone, MinecraftServer server){
-        int indexOfPostponed = this.getAffectedBlocksList().indexOf(blockToPostpone);
+    public void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
+        int indexOfPostponed = this.getAffectedBlocksList().indexOf(affectedBlockToDelay);
         if(indexOfPostponed != -1) {
             Integer indexOfNextPlaceable = this.findNextPlaceableBlock(server);
             if (indexOfNextPlaceable != null) {
                 Collections.swap(this.getAffectedBlocksList(), indexOfPostponed, indexOfNextPlaceable);
             } else {
                 this.incrementCounter();
-                blockToPostpone.setPlaced(true);
+                affectedBlockToDelay.setPlaced(true);
             }
         } else {
             this.incrementCounter();
-            blockToPostpone.setPlaced(true);
+            affectedBlockToDelay.setPlaced(true);
         }
     }
 

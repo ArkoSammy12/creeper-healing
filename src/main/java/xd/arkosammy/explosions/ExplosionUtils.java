@@ -21,22 +21,22 @@ import java.util.stream.Collectors;
 public final class ExplosionUtils {
 
     private ExplosionUtils(){}
+    public static final ThreadLocal<Boolean> SHOULD_NOT_DROP_ITEMS = new ThreadLocal<>();
 
     public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;
-        for (Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)) {
-            if (areAboveBlocksFree(world, pos, entity, amountToPush)) {
+        for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
+            if(areAboveBlocksFree(world, pos, entity, amountToPush)) {
                 entity.refreshPositionAfterTeleport(entity.getPos().withAxis(Direction.Axis.Y, entity.getBlockY() + amountToPush));
             }
         }
     }
 
-    private static boolean areAboveBlocksFree(World world, BlockPos pos, Entity entity, int amountToPush) {
-        for (int i = pos.getY(); i < pos.up((int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++) {
-            BlockPos currentPos = pos.up(i + amountToPush);
-            if (world.getBlockState(currentPos).isSolidBlock(world, currentPos)) {
+    private static boolean areAboveBlocksFree(World world, BlockPos pos, Entity entity, int amountToPush){
+        for(int i = pos.getY(); i < pos.offset(Direction.Axis.Y, (int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++){
+            BlockPos currentPos = pos.withY(i + amountToPush);
+            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos))
                 return false;
-            }
         }
         return true;
     }
@@ -62,22 +62,25 @@ public final class ExplosionUtils {
          return collidingExplosions;
     }
 
-    public static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server) {
+    public static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
+
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
 
-        int centerX = getCenterXCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).toList());
-        int centerZ = getCenterZCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).toList());
+        int centerX = getCenterXCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
+        int centerZ = getCenterZCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
 
-        Comparator<AffectedBlock> affectedBlockComparator = Comparator
-                .comparingInt((AffectedBlock affectedBlock) -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))))
-                .thenComparingInt(affectedBlock -> affectedBlock.getPos().getY())
-                .thenComparing((affectedBlock1, affectedBlock2) -> {
-                    boolean isAffectedBlock1Transparent = affectedBlock1.getState().isTransparent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
-                    boolean isAffectedBlock2Transparent = affectedBlock2.getState().isTransparent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
-                    return Boolean.compare(isAffectedBlock1Transparent, isAffectedBlock2Transparent);
-                });
+        Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
+        sortedAffectedBlocks.sort(distanceToCenterComparator);
 
-        sortedAffectedBlocks.sort(affectedBlockComparator);
+        Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());
+        sortedAffectedBlocks.sort(yLevelComparator);
+
+        Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
+            boolean isAffectedBlock1Transparent = affectedBlock1.getState().isTransparent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
+            boolean isAffectedBlock2Transparent = affectedBlock2.getState().isTransparent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
+            return Boolean.compare(isAffectedBlock1Transparent, isAffectedBlock2Transparent);
+        };
+        sortedAffectedBlocks.sort(transparencyComparator);
         return sortedAffectedBlocks;
     }
 

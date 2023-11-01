@@ -15,8 +15,8 @@ import net.minecraft.entity.vehicle.TntMinecartEntity;
 import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.configuration.tables.ExplosionItemDropConfig;
+import xd.arkosammy.explosions.ExplosionUtils;
 
 @Mixin(Block.class)
 public abstract class ExplosionItemDropMixin {
@@ -34,7 +34,7 @@ public abstract class ExplosionItemDropMixin {
                 || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && !ExplosionItemDropConfig.getDropItemsOnBedAndRespawnAnchorExplosions())
                 || (causingEntity instanceof EndCrystalEntity && !ExplosionItemDropConfig.getDropItemsOnEndCrystalExplosions());
         if (shouldNotDropItems) {
-            CreeperHealing.SHOULD_NOT_DROP_ITEMS.set(true);
+            ExplosionUtils.SHOULD_NOT_DROP_ITEMS.set(true);
         }
         return !shouldNotDropItems && dropItems;
     }
