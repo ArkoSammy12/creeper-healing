@@ -25,7 +25,7 @@ import java.util.List;
 public abstract class HealingPotionMixin {
 
     @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/PotionEntity;applySplashPotion(Ljava/util/List;Lnet/minecraft/entity/Entity;)V"))
-    private void onSplashPotionHit(HitResult hitResult, CallbackInfo ci, @Local Potion potion) {
+    private void affectExplosionOnSplashPotionHit(HitResult hitResult, CallbackInfo ci, @Local Potion potion) {
         List<StatusEffect> statusEffects = potion.getEffects().stream().map(StatusEffectInstance::getEffectType).toList();
         BlockPos potionHitPosition;
         if (hitResult.getType() == HitResult.Type.BLOCK) {
