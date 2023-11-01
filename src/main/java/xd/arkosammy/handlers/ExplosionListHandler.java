@@ -4,7 +4,6 @@ import net.minecraft.server.MinecraftServer;
 import xd.arkosammy.explosions.AffectedBlock;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.explosions.ExplosionEvent;
-import xd.arkosammy.explosions.ExplosionHealingMode;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -60,7 +59,7 @@ public final class ExplosionListHandler {
         if (!currentExplosionEvent.hasEnoughLightIfDaytimeHealingMode(server)) {
             getExplosionEventList().remove(currentExplosionEvent);
         }
-        currentAffectedBlock.tryPlacing(server, currentExplosionEvent);
+        currentAffectedBlock.tryHealing(server, currentExplosionEvent);
         currentAffectedBlock.setPlaced(true);
         currentExplosionEvent.incrementCounter();
         if(!currentExplosionEvent.shouldKeepHealingIfDifficultyBasedHealingMode(currentAffectedBlock.getWorld(server))) {

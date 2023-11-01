@@ -90,7 +90,7 @@ public class AffectedBlock {
         return AFFECTED_BLOCK_CODEC;
     }
 
-    public void tryPlacing(MinecraftServer server, ExplosionEvent currentExplosionEvent){
+    public void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent){
 
         BlockState state = this.getState();
         BlockPos pos = this.getPos();
@@ -109,14 +109,14 @@ public class AffectedBlock {
             return;
         }
 
-        if(ExplosionUtils.shouldPlaceBlock(world, pos)) {
+        if(ExplosionUtils.shouldHealBlock(world, pos)) {
 
             if(state.isSolidBlock(world, pos))
-                ExplosionUtils.pushPlayersUpwards(world, pos, false);
+                ExplosionUtils.pushEntitiesUpwards(world, pos, false);
 
             world.setBlockState(pos, state);
 
-            if(ExplosionUtils.shouldPlaySound(world, state))
+            if(ExplosionUtils.shouldPlaySoundOnBlockHeal(world, state))
                 world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
 
         }

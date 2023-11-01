@@ -147,22 +147,17 @@ public class ExplosionEvent {
         //We return true if the current block counter is greater than 0,
         //since we want to allow explosions to heal completely if the light conditions were only met initially
         if (this.getAffectedBlockCounter() > 0 || this.getExplosionMode() != ExplosionHealingMode.DAYTIME_HEALING_MODE) return true;
-        for(AffectedBlock affectedBlock : this.getAffectedBlocksList()){
-            if (affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0) {
-                return true;
-            }
-        }
-        return false;
+        return this.getAffectedBlocksList().stream()
+                .anyMatch(affectedBlock -> affectedBlock.getWorld(server).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(server).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0);
     }
 
     private void setupDifficultyBasedHealingMode(World world){
-        int difficultyOffset = 0;
-        switch(world.getDifficulty()){
-            case PEACEFUL -> difficultyOffset = -2;
-            case EASY -> difficultyOffset = -1;
-            case NORMAL -> difficultyOffset = 1;
-            case HARD -> difficultyOffset = 2;
-        }
+        int difficultyOffset = switch (world.getDifficulty()) {
+            case PEACEFUL -> -2;
+            case EASY -> -1;
+            case NORMAL -> 1;
+            case HARD -> 2;
+        };
         long finalOffset = Math.max(1, (DelaysConfig.getBlockPlacementDelay()) + (difficultyOffset * 20));
         long finalOffsetExplosion = Math.max(1, (DelaysConfig.getExplosionHealDelay()) + (difficultyOffset * 20));
         this.setExplosionTimer(finalOffsetExplosion);
@@ -170,23 +165,20 @@ public class ExplosionEvent {
     }
 
     public boolean shouldKeepHealingIfDifficultyBasedHealingMode(World world){
-        if(this.getExplosionMode() != ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE || world.getDifficulty() != Difficulty.HARD){
-            return true;
-        }
+        if (this.getExplosionMode() != ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE || world.getDifficulty() != Difficulty.HARD) return true;
         Random random = world.getRandom();
-        int randomNum = random.nextBetween(0, 50);
-        return randomNum != 25;
+        return random.nextBetween(0, 50) != 25;
     }
 
      private void setupBlastResistanceBasedHealingMode(World world){
-        Random random = world.getRandom();
-        this.getAffectedBlocksList().forEach(affectedBlock -> {
-            double randomOffset = random.nextBetween(-2, 2);
-            double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
-            int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance/9, -2, 2) + randomOffset);
-            long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelay() + (offset * 20L));
-            affectedBlock.setAffectedBlockTimer(finalOffset);
-        });
+         Random random = world.getRandom();
+         this.getAffectedBlocksList().forEach(affectedBlock -> {
+             double randomOffset = random.nextBetween(-2, 2);
+             double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
+             int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance / 9, -2, 2) + randomOffset);
+             long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelay() + (offset * 20L));
+             affectedBlock.setAffectedBlockTimer(finalOffset);
+         });
     }
 
     private static ExplosionEvent combineCollidingExplosions(Set<ExplosionEvent> collidingExplosions, ExplosionEvent newestExplosion, World world){
@@ -201,13 +193,13 @@ public class ExplosionEvent {
     }
 
     public void markAffectedBlockAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
+        CreeperHealing.setHealerHandlerLock(false);
         for(AffectedBlock affectedBlock : this.getAffectedBlocksList()) {
             if(affectedBlock.getState().equals(secondHalfState) && affectedBlock.getPos().equals(secondHalfPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
-                CreeperHealing.setHealerHandlerLock(false);
                 affectedBlock.setPlaced(true);
-                CreeperHealing.setHealerHandlerLock(true);
             }
         }
+        CreeperHealing.setHealerHandlerLock(true);
     }
 
 }
