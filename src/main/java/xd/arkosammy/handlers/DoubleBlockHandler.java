@@ -33,17 +33,17 @@ public final class DoubleBlockHandler {
         BlockState secondHalfState = firstHalfState.getBlock().getStateWithProperties(firstHalfState).with(Properties.DOUBLE_BLOCK_HALF, secondHalf);
         BlockPos secondHalfPos = secondHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? firstHalfPos.offset(Direction.Axis.Y, 1) :  firstHalfPos.offset(Direction.Axis.Y, -1);
 
-        if(ExplosionUtils.shouldPlaceDoubleBlock(world, firstHalfPos, secondHalfPos)) {
+        if(ExplosionUtils.shouldHealDoubleBlock(world, firstHalfPos, secondHalfPos)) {
             BlockState stateToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfState : secondHalfState;
             BlockPos posToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfPos : firstHalfPos.offset(Direction.Axis.Y, -1);
 
             if(stateToPushFrom.isSolidBlock(world, posToPushFrom))
-                ExplosionUtils.pushPlayersUpwards(world, posToPushFrom, true);
+                ExplosionUtils.pushEntitiesUpwards(world, posToPushFrom, true);
 
             world.setBlockState(firstHalfPos, firstHalfState);
             world.setBlockState(secondHalfPos, secondHalfState);
 
-            if(ExplosionUtils.shouldPlaySound(world, firstHalfState))
+            if(ExplosionUtils.shouldPlaySoundOnBlockHeal(world, firstHalfState))
                 world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
         }
         currentExplosionEvent.markAffectedBlockAsPlaced(secondHalfState, secondHalfPos, world);
@@ -71,17 +71,17 @@ public final class DoubleBlockHandler {
             }
         }
 
-        if (ExplosionUtils.shouldPlaceDoubleBlock(world, firstHalfPos, secondHalfPos)) {
+        if (ExplosionUtils.shouldHealDoubleBlock(world, firstHalfPos, secondHalfPos)) {
 
             if(firstHalfState.isSolidBlock(world, firstHalfPos))
-                ExplosionUtils.pushPlayersUpwards(world, firstHalfPos, false);
+                ExplosionUtils.pushEntitiesUpwards(world, firstHalfPos, false);
             if(secondHalfState.isSolidBlock(world, secondHalfPos))
-                ExplosionUtils.pushPlayersUpwards(world, secondHalfPos, false);
+                ExplosionUtils.pushEntitiesUpwards(world, secondHalfPos, false);
 
             world.setBlockState(firstHalfPos, firstHalfState);
             world.setBlockState(secondHalfPos, secondHalfState);
 
-            if (ExplosionUtils.shouldPlaySound(world, firstHalfState))
+            if (ExplosionUtils.shouldPlaySoundOnBlockHeal(world, firstHalfState))
                 world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
 
         }
