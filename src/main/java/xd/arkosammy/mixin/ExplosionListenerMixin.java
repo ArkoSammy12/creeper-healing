@@ -45,8 +45,8 @@ public abstract class ExplosionListenerMixin {
     @Shadow public abstract DamageSource getDamageSource();
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
-    private void getExplodedBlocks(CallbackInfo ci){
-        if(canStoreExplosion(this.getCausingEntity(), this.getEntity(), this.getDamageSource()))
+    private void storeCurrentExplosionIfNeeded(CallbackInfo ci){
+        if(shouldStoreExplosionFromSourceType(this.getCausingEntity(), this.getEntity(), this.getDamageSource()))
             storeExplosion(this.getAffectedBlocks());
     }
 
@@ -71,7 +71,7 @@ public abstract class ExplosionListenerMixin {
     }
 
     @Unique
-    private boolean canStoreExplosion(LivingEntity causingLivingEntity, Entity causingEntity, DamageSource damageSource){
+    private boolean shouldStoreExplosionFromSourceType(LivingEntity causingLivingEntity, Entity causingEntity, DamageSource damageSource){
         return (causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.getHealCreeperExplosions())
                 || (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.getHealGhastExplosions())
                 || (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.getHealWitherExplosions())
