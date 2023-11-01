@@ -23,12 +23,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.configuration.tables.ExplosionSourceConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.configuration.tables.WhitelistConfig;
 import xd.arkosammy.explosions.AffectedBlock;
 import xd.arkosammy.explosions.ExplosionEvent;
+import xd.arkosammy.explosions.ExplosionUtils;
 import xd.arkosammy.handlers.ExplosionListHandler;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,11 +85,11 @@ public abstract class ExplosionListenerMixin {
 
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        CreeperHealing.SHOULD_NOT_DROP_ITEMS.set(false);
+        ExplosionUtils.SHOULD_NOT_DROP_ITEMS.set(false);
     }
 
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
     private void clearDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        CreeperHealing.SHOULD_NOT_DROP_ITEMS.set(false);
+        ExplosionUtils.SHOULD_NOT_DROP_ITEMS.set(false);
     }
 }
