@@ -3,6 +3,14 @@ package xd.arkosammy.explosions;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
+import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.entity.mob.GhastEntity;
+import net.minecraft.entity.vehicle.TntMinecartEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -10,7 +18,10 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.NotNull;
+import xd.arkosammy.CreeperHealing;
+import xd.arkosammy.configuration.tables.ExplosionItemDropConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
 import java.util.*;
@@ -186,6 +197,23 @@ public final class ExplosionUtils {
                 || (world.isAir(firstHalfPos) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.LAVA))
                 || (world.getBlockState(firstHalfPos).getFluidState().getFluid().equals(Fluids.LAVA) && world.getBlockState(secondHalfPos).getFluidState().getFluid().equals(Fluids.LAVA)))
                 && PreferencesConfig.getHealOnSourceLava());
+    }
+
+    public static boolean shouldExplosionDropItems(boolean dropItems, Explosion explosion) {
+        Entity causingEntity = explosion.getEntity();
+        Entity causingLivingEntity = explosion.getCausingEntity();
+        DamageSource damageSource = explosion.getDamageSource();
+        boolean shouldNotDropItems = (causingLivingEntity instanceof CreeperEntity && !ExplosionItemDropConfig.getDropItemsOnCreeperExplosions())
+                || (causingLivingEntity instanceof GhastEntity && !ExplosionItemDropConfig.getDropItemsOnGhastExplosions())
+                || (causingLivingEntity instanceof WitherEntity && !ExplosionItemDropConfig.getDropItemsOnWitherExplosions())
+                || (causingEntity instanceof TntEntity && !ExplosionItemDropConfig.getDropItemsOnTNTExplosions())
+                || (causingEntity instanceof TntMinecartEntity && !ExplosionItemDropConfig.getDropItemsOnTNTMinecartExplosions())
+                || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && !ExplosionItemDropConfig.getDropItemsOnBedAndRespawnAnchorExplosions())
+                || (causingEntity instanceof EndCrystalEntity && !ExplosionItemDropConfig.getDropItemsOnEndCrystalExplosions());
+        if (shouldNotDropItems) {
+            CreeperHealing.SHOULD_NOT_DROP_ITEMS.set(true);
+        }
+        return !shouldNotDropItems && dropItems;
     }
 
 }

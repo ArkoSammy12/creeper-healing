@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.configuration.tables.ExplosionSourceConfig;
 import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.configuration.tables.WhitelistConfig;
@@ -82,4 +83,13 @@ public abstract class ExplosionListenerMixin {
 
     }
 
+    @Inject(method = "affectWorld", at = @At(value = "HEAD"))
+    private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
+        CreeperHealing.SHOULD_NOT_DROP_ITEMS.set(false);
+    }
+
+    @Inject(method = "affectWorld", at = @At(value = "RETURN"))
+    private void clearDropItemsThreadLocal(boolean particles, CallbackInfo ci){
+        CreeperHealing.SHOULD_NOT_DROP_ITEMS.set(false);
+    }
 }

@@ -18,6 +18,7 @@ import java.io.IOException;
 public class CreeperHealing implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
+	public static final ThreadLocal<Boolean> SHOULD_NOT_DROP_ITEMS = new ThreadLocal<>();
 	private static boolean healerHandlerLock;
 
 	@Override

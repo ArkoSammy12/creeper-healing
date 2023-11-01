@@ -6,7 +6,8 @@
     "ExplosionItemDropMixin",
     "ExplosionListenerMixin",
     "HealingPotionMixin",
-    "UpdateDayLightTimersMixin"
+    "UpdateDayLightTimersMixin",
+    "WorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1
