@@ -144,79 +144,79 @@ public final class ExplosionItemDropCommands {
     }
 
     private static int setDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionItemDropConfig.setDropItemsOnCreeperExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ExplosionItemDropConfig.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Drop items on Creeper explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionItemDropConfig.setDropItemsOnGhastExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ExplosionItemDropConfig.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Drop items on Ghast explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionItemDropConfig.setDropItemsOnWitherExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ExplosionItemDropConfig.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Drop items on Wither explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionItemDropConfig.setDropItemsOnTNTExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_EXPLOSIONS.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Drop items on TNT explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionItemDropConfig.setDropItemsOnTNTMinecartExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Drop items on TNT minecart explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionItemDropConfig.setDropItemsOnBedAndRespawnAnchorExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ExplosionItemDropConfig.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ExplosionItemDropConfig.setDropItemsOnEndCrystalExplosions(BoolArgumentType.getBool(ctx, "value"));
+        ExplosionItemDropConfig.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on Creeper explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnCreeperExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on Creeper explosions currently set to: " + ExplosionItemDropConfig.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on Ghast explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnGhastExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on Ghast explosions currently set to: " + ExplosionItemDropConfig.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on Wither explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnWitherExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on Wither explosions currently set to: " + ExplosionItemDropConfig.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on TNT explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnTNTExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on TNT explosions currently set to: " + ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_EXPLOSIONS.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on TNT minecart explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnTNTMinecartExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on TNT minecart explosions currently set to: " + ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions currently set to: " + ExplosionItemDropConfig.getDropItemsOnBedAndRespawnAnchorExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions currently set to: " + ExplosionItemDropConfig.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions currently set to: "+ ExplosionItemDropConfig.getDropItemsOnEndCrystalExplosions()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions currently set to: "+ ExplosionItemDropConfig.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 

@@ -37,7 +37,7 @@ public abstract class HealingPotionMixin {
         } else {
             return;
         }
-        if(statusEffects.contains(StatusEffects.INSTANT_HEALTH) && PreferencesConfig.getHealOnHealingPotionSplash()) {
+        if(statusEffects.contains(StatusEffects.INSTANT_HEALTH) && PreferencesConfig.HEAL_ON_HEALING_POTION_SPLASH.getEntry().getValue()) {
             ExplosionListHandler.getExplosionEventList().forEach(explosionEvent -> {
                 List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList();
                 if(affectedBlockPositions.contains(potionHitPosition)){
@@ -45,7 +45,7 @@ public abstract class HealingPotionMixin {
                     explosionEvent.getAffectedBlocksList().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(1));
                 }
             });
-        } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.getHealOnRegenerationPotionSplash()){
+        } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().getValue()){
             ExplosionListHandler.getExplosionEventList().forEach(explosionEvent -> {
                 List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList();
                 if(affectedBlockPositions.contains(potionHitPosition) && explosionEvent.getExplosionMode() == ExplosionHealingMode.DEFAULT_MODE){

@@ -162,90 +162,90 @@ public final class PreferencesCommands {
     }
 
     private static int setHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx) {
-        PreferencesConfig.setHealOnFlowingWater(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.HEAL_ON_FLOWING_WATER.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on flowing water has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnSourceWaterCommand(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setHealOnSourceWater(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.HEAL_ON_SOURCE_WATER.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on source water has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx) {
-        PreferencesConfig.setHealOnFlowingLava(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.HEAL_ON_FLOWING_LAVA.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on flowing lava has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnSourceLavaCommand(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setHealOnSourceLava(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.HEAL_ON_SOURCE_LAVA.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on source lava has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
-        PreferencesConfig.setBlockPlacementSoundEffect(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setHealOnHealingPotionSplash(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.HEAL_ON_HEALING_POTION_SPLASH.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnRegenerationPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setHealOnRegenerationPotionSplash(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setEnableWhitelist(CommandContext<ServerCommandSource> ctx){
-        PreferencesConfig.setEnableWhitelist(BoolArgumentType.getBool(ctx, "value"));
+        PreferencesConfig.ENABLE_WHITELIST.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("The whitelist has been " + (BoolArgumentType.getBool(ctx, "value") ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldHealOnFlowingWaterCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + PreferencesConfig.getHealOnFlowingWater()));
+        ctx.getSource().sendMessage(Text.literal("Heal on flowing water currently set to: " + PreferencesConfig.HEAL_ON_FLOWING_WATER.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldHealOnSourceWaterCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on source water currently set to: " + PreferencesConfig.getHealOnSourceWater()));
+        ctx.getSource().sendMessage(Text.literal("Heal on source water currently set to: " + PreferencesConfig.HEAL_ON_SOURCE_WATER.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldHealOnFlowingLavaCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + PreferencesConfig.getHealOnFlowingLava()));
+        ctx.getSource().sendMessage(Text.literal("Heal on flowing lava currently set to: " + PreferencesConfig.HEAL_ON_FLOWING_LAVA.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldHealOnSourceLavaCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on source lava currently set to: " + PreferencesConfig.getHealOnSourceLava()));
+        ctx.getSource().sendMessage(Text.literal("Heal on source lava currently set to: " + PreferencesConfig.HEAL_ON_SOURCE_LAVA.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + PreferencesConfig.getBlockPlacementSoundEffect()));
+        ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + PreferencesConfig.getHealOnHealingPotionSplash()));
+        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + PreferencesConfig.HEAL_ON_HEALING_POTION_SPLASH.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealOnRegenerationPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + PreferencesConfig.getHealOnRegenerationPotionSplash()));
+        ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getEnableWhitelist(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (PreferencesConfig.getEnableWhitelist() ? "enabled" : "disabled")));
+        ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (PreferencesConfig.ENABLE_WHITELIST.getEntry().getValue() ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }
 
