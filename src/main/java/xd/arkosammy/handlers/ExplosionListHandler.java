@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class ExplosionListHandler {
 
     private ExplosionListHandler(){}
+
     private static final List<ExplosionEvent> explosionEventList = new CopyOnWriteArrayList<>();
 
     public static List<ExplosionEvent> getExplosionEventList(){

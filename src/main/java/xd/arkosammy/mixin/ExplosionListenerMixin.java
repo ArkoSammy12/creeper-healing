@@ -41,7 +41,6 @@ public abstract class ExplosionListenerMixin {
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
     @Shadow public abstract List<BlockPos> getAffectedBlocks();
     @Shadow @Nullable public abstract Entity getEntity();
-
     @Shadow public abstract DamageSource getDamageSource();
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
@@ -52,34 +51,30 @@ public abstract class ExplosionListenerMixin {
 
     @Unique
     private void storeExplosion(List<BlockPos> affectedBlocksPos){
-
         if(affectedBlocksPos.isEmpty()) return;
         ArrayList<AffectedBlock> affectedBlocks = new ArrayList<>();
-
         for (BlockPos pos : affectedBlocksPos) {
             if (world.getBlockState(pos).isAir() || world.getBlockState(pos).getBlock().equals(Blocks.TNT) || world.getBlockState(pos).getBlock().equals(Blocks.FIRE) || world.getBlockState(pos).getBlock().equals(Blocks.SOUL_FIRE)) {
                 continue; // Skip the current iteration if the block state is air, TNT, or fire
             }
             String blockIdentifier = Registries.BLOCK.getId(world.getBlockState(pos).getBlock()).toString();
-            if (!PreferencesConfig.getEnableWhitelist() || WhitelistConfig.getWhitelist().contains(blockIdentifier)) {
+            if (!PreferencesConfig.ENABLE_WHITELIST.getEntry().getValue() || WhitelistConfig.getWhitelist().contains(blockIdentifier)) {
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
             }
         }
-
         if(affectedBlocks.isEmpty()) return;
         ExplosionListHandler.getExplosionEventList().add(ExplosionEvent.newExplosionEvent(affectedBlocks, world));
     }
 
     @Unique
     private boolean shouldStoreExplosionFromSourceType(LivingEntity causingLivingEntity, Entity causingEntity, DamageSource damageSource){
-        return (causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.getHealCreeperExplosions())
-                || (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.getHealGhastExplosions())
-                || (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.getHealWitherExplosions())
-                || (causingEntity instanceof TntEntity && ExplosionSourceConfig.getHealTNTExplosions())
-                || (causingEntity instanceof TntMinecartEntity && ExplosionSourceConfig.getHealTNTMinecartExplosions())
-                || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ExplosionSourceConfig.getHealBedAndRespawnAnchorExplosions())
-                || (causingEntity instanceof EndCrystalEntity && ExplosionSourceConfig.getHealEndCrystalExplosions());
-
+        return (causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.HEAL_CREEPER_EXPLOSIONS.getEntry().getValue())
+                || (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.HEAL_GHAST_EXPLOSIONS.getEntry().getValue())
+                || (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.HEAL_WITHER_EXPLOSIONS.getEntry().getValue())
+                || (causingEntity instanceof TntEntity && ExplosionSourceConfig.HEAL_TNT_EXPLOSIONS.getEntry().getValue())
+                || (causingEntity instanceof TntMinecartEntity && ExplosionSourceConfig.HEAL_TNT_MINECART_EXPLOSIONS.getEntry().getValue())
+                || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ExplosionSourceConfig.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue())
+                || (causingEntity instanceof EndCrystalEntity && ExplosionSourceConfig.HEAL_END_CRYSTAL_EXPLOSIONS.getEntry().getValue());
 
     }
 

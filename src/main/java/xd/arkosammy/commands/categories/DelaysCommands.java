@@ -66,7 +66,7 @@ public final class DelaysCommands {
 
     private static int setExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx) {
         if(Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
-            DelaysConfig.setExplosionHealDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
+            DelaysConfig.EXPLOSION_HEAL_DELAY.getEntry().setValue(DoubleArgumentType.getDouble(ctx, "seconds"));
             ctx.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
         } else {
             ctx.getSource().sendMessage(Text.literal("Cannot set explosion heal delay to a very low value").formatted(Formatting.RED));
@@ -76,7 +76,7 @@ public final class DelaysCommands {
 
     private static int setBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx) {
         if (Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
-            DelaysConfig.setBlockPlacementDelay(DoubleArgumentType.getDouble(ctx, "seconds"));
+            DelaysConfig.BLOCK_PLACEMENT_DELAY.getEntry().setValue(DoubleArgumentType.getDouble(ctx, "seconds"));
             AffectedBlock.updateAffectedBlocksTimers();
             ctx.getSource().sendMessage(Text.literal("Block placement delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
         } else {

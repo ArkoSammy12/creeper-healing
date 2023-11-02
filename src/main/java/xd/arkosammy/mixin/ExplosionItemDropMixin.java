@@ -26,13 +26,13 @@ public abstract class ExplosionItemDropMixin {
         Entity causingEntity = explosion.getEntity();
         Entity causingLivingEntity = explosion.getCausingEntity();
         DamageSource damageSource = explosion.getDamageSource();
-        boolean shouldNotDropItems = (causingLivingEntity instanceof CreeperEntity && !ExplosionItemDropConfig.getDropItemsOnCreeperExplosions())
-                || (causingLivingEntity instanceof GhastEntity && !ExplosionItemDropConfig.getDropItemsOnGhastExplosions())
-                || (causingLivingEntity instanceof WitherEntity && !ExplosionItemDropConfig.getDropItemsOnWitherExplosions())
-                || (causingEntity instanceof TntEntity && !ExplosionItemDropConfig.getDropItemsOnTNTExplosions())
-                || (causingEntity instanceof TntMinecartEntity && !ExplosionItemDropConfig.getDropItemsOnTNTMinecartExplosions())
-                || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && !ExplosionItemDropConfig.getDropItemsOnBedAndRespawnAnchorExplosions())
-                || (causingEntity instanceof EndCrystalEntity && !ExplosionItemDropConfig.getDropItemsOnEndCrystalExplosions());
+        boolean shouldNotDropItems = (causingLivingEntity instanceof CreeperEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getEntry().getValue())
+                || (causingLivingEntity instanceof GhastEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getEntry().getValue())
+                || (causingLivingEntity instanceof WitherEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getEntry().getValue())
+                || (causingEntity instanceof TntEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_EXPLOSIONS.getEntry().getValue())
+                || (causingEntity instanceof TntMinecartEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getEntry().getValue())
+                || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && !ExplosionItemDropConfig.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue())
+                || (causingEntity instanceof EndCrystalEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getEntry().getValue());
         if (shouldNotDropItems) {
             ExplosionUtils.SHOULD_NOT_DROP_ITEMS.set(true);
         }
