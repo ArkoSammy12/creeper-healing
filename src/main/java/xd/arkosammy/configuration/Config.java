@@ -24,7 +24,6 @@ public final class Config {
     private static final GenericBuilder<CommentedConfig, CommentedFileConfig> CONFIG_BUILDER;
 
     static {
-
         System.setProperty("nightconfig.preserveInsertionOrder", "true");
         GenericBuilder<CommentedConfig, CommentedFileConfig> builder;
 
@@ -55,8 +54,8 @@ public final class Config {
                     updateConfigFile();
 
                     //Warn the user if these delays were set to 0 or fewer seconds
-                    if(Math.round(Math.max(DelaysConfig.getExplosionHealDelayRaw(), 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
-                    if(Math.round(Math.max(DelaysConfig.getBlockPlacementDelayRaw(), 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+                    if(Math.round(Math.max(DelaysConfig.EXPLOSION_HEAL_DELAY.getEntry().getValue(), 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
+                    if(Math.round(Math.max(DelaysConfig.BLOCK_PLACEMENT_DELAY.getEntry().getValue(), 0) * 20L) == 0) CreeperHealing.LOGGER.warn("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file");
                     CreeperHealing.LOGGER.info("Applied custom config settings");
                 }
             }
@@ -88,17 +87,14 @@ public final class Config {
             try(CommentedFileConfig fileConfig = CONFIG_BUILDER.build()){
                 if(Files.exists(CONFIG_PATH)){
                     CreeperHealing.setHealerHandlerLock(false);
-
                     fileConfig.load();
                     loadConfigSettingsToMemory(fileConfig);
-
                     CreeperHealing.setHealerHandlerLock(true);
-
                     AffectedBlock.updateAffectedBlocksTimers();
 
                     //Warn the user if these delays were set to 0 or fewer seconds
-                    if(Math.round(Math.max(DelaysConfig.getExplosionHealDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
-                    if(Math.round(Math.max(DelaysConfig.getBlockPlacementDelayRaw(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
+                    if(Math.round(Math.max(DelaysConfig.EXPLOSION_HEAL_DELAY.getEntry().getValue(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
+                    if(Math.round(Math.max(DelaysConfig.BLOCK_PLACEMENT_DELAY.getEntry().getValue(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Block placement delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));
 
                     return true;
                 } else {

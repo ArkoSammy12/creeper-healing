@@ -42,10 +42,10 @@ public class ExplosionEvent {
     }
 
     public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world) {
-        ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer()), ModeConfig.getHealingMode(), DelaysConfig.getExplosionHealDelay(), 0);
+        ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer()), ModeConfig.MODE.getEntry().getValue(), DelaysConfig.getExplosionHealDelay(), 0);
         explosionEvent.setUpExplosionHealingMode(world);
 
-        Set<ExplosionEvent> collidingExplosions =  ExplosionUtils.getCollidingWaitingExplosions(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
+        Set<ExplosionEvent> collidingExplosions =  ExplosionUtils.getCollidingWaitingExplosions(affectedBlocksList.stream().map(AffectedBlock::getPos).toList());
         if(collidingExplosions.isEmpty()){
             return explosionEvent;
         } else {

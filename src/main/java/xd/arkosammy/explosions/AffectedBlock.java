@@ -3,6 +3,8 @@ package xd.arkosammy.explosions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -13,6 +15,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
 import xd.arkosammy.configuration.tables.DelaysConfig;
+import xd.arkosammy.configuration.tables.PreferencesConfig;
 import xd.arkosammy.configuration.tables.ReplaceMapConfig;
 import xd.arkosammy.handlers.DoubleBlockHandler;
 import xd.arkosammy.handlers.ExplosionListHandler;
@@ -26,13 +29,13 @@ public class AffectedBlock {
     private boolean placed;
 
     // Codec to serialize and deserialize AffectedBlock instances.
-    private static final Codec<AffectedBlock> AFFECTED_BLOCK_CODEC = RecordCodecBuilder.create(blockInfoInstance -> blockInfoInstance.group(
+    private static final Codec<AffectedBlock> AFFECTED_BLOCK_CODEC = RecordCodecBuilder.create(affectedBlockInstance -> affectedBlockInstance.group(
             BlockPos.CODEC.fieldOf("Block_Position").forGetter(AffectedBlock::getPos),
             BlockState.CODEC.fieldOf("Block_State").forGetter(AffectedBlock::getState),
             World.CODEC.fieldOf("World").forGetter(AffectedBlock::getWorldRegistryKey),
             Codec.LONG.fieldOf("Block_Timer").forGetter(AffectedBlock::getAffectedBlockTimer),
             Codec.BOOL.fieldOf("Placed").forGetter(AffectedBlock::isAlreadyPlaced)
-    ).apply(blockInfoInstance, AffectedBlock::new));
+    ).apply(affectedBlockInstance, AffectedBlock::new));
 
     private AffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
         this.pos = pos;
@@ -109,7 +112,7 @@ public class AffectedBlock {
             return;
         }
 
-        if(ExplosionUtils.shouldHealBlock(world, pos)) {
+        if(this.shouldHealBlock(server)) {
 
             if(state.isSolidBlock(world, pos))
                 ExplosionUtils.pushEntitiesUpwards(world, pos, false);
@@ -121,6 +124,19 @@ public class AffectedBlock {
 
         }
 
+    }
+
+    private boolean shouldHealBlock(MinecraftServer server) {
+        BlockState blockState = this.getWorld(server).getBlockState(this.pos);
+        FluidState fluidState = blockState.getFluidState();
+
+        if (ExplosionUtils.isStateAirOrFire(blockState)) {
+            return true;
+        } else if ((fluidState.getFluid().equals(Fluids.FLOWING_WATER) && PreferencesConfig.HEAL_ON_FLOWING_WATER.getEntry().getValue()) ||
+                (fluidState.getFluid().equals(Fluids.WATER) && PreferencesConfig.HEAL_ON_SOURCE_WATER.getEntry().getValue())) {
+            return true;
+        } else return (fluidState.getFluid().equals(Fluids.FLOWING_LAVA) && PreferencesConfig.HEAL_ON_FLOWING_LAVA.getEntry().getValue()) ||
+                (fluidState.getFluid().equals(Fluids.LAVA) && PreferencesConfig.HEAL_ON_SOURCE_LAVA.getEntry().getValue());
     }
 
     //Called whenever the config is reloaded and when the server/world starts
