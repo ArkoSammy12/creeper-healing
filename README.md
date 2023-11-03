@@ -15,6 +15,10 @@ Special modes that customize the way explosions are healed even further:
 
 This mod also supports healing explosions of different sources, such as Ghasts and Withers. By default, the mod will only heal Creeper explosions, but you can toggle each explosion source individually.
 
+### Toggle whether explosions from different sources should drop items
+
+ You can individually configure whether explosions coming from different sources should drop their items. By default, all of the explosion source types are allowed to drop their items, but you can configure these settings individually via the configu file or via commands.
+
 ### Configurable delays
 
 Configure the amount of time it takes for an explosion to start healing, and the amount of time between each block placement.
@@ -83,16 +87,36 @@ The following is the default configuration file generated upon first mod initial
 	mode = "default_mode"
 #Configure which explosions are allowed to heal.
 [explosion_sources]
-	#(Default = true) Heal explosions caused by creepers.
+	#(Default = true) Heal explosions caused by Creepers.
 	heal_creeper_explosions = true
-	#(Default = false) Heal explosions caused by ghasts.
+	#(Default = false) Heal explosions caused by Ghasts.
 	heal_ghast_explosions = false
-	#(Default = false) Heal explosions caused by withers.
+	#(Default = false) Heal explosions caused by Withers.
 	heal_wither_explosions = false
 	#(Default = false) Heal explosions caused by TNT blocks.
 	heal_tnt_explosions = false
 	#(Default = false) Heal explosions caused by TNT minecarts.
 	heal_tnt_minecart_explosions = false
+	#(Default = false) Heal explosions caused by beds and respawn anchors.
+	heal_bed_and_respawn_anchor_explosions = false
+	#(Default = false) Heal explosions caused by end crystals.
+	heal_end_crystal_explosions = false
+#These settings allow you to configure whether explosions from specific sources are allowed to drop items or not.
+[explosion_item_drops]
+	#(Default = true) Explosions caused by Creepers will drop items.
+	drop_items_on_creeper_explosions = true
+	#(Default = true) Explosions caused by Ghasts will drop items.
+	drop_items_on_ghast_explosions = true
+	#(Default = true) Explosions caused by Withers will drop items.
+	drop_items_on_wither_explosions = true
+	#(Default = true) Explosions caused by TNT will drop items.
+	drop_items_on_tnt_explosions = true
+	#(Default = true) Explosions caused by TNT minecarts will drop items.
+	drop_items_on_tnt_minecart_explosions = true
+	#(Default = true) Explosions caused by beds and respawn anchors will drop items.
+	drop_items_on_bed_and_respawn_anchor_explosions = true
+	#(Default = true) Explosions caused by end crystals will drop items.
+	drop_items_on_end_crystal_explosions = true
 #Configure the delays related to the healing of explosions.
 [delays]
 	#(Default = 3) Change the delay in seconds between each explosion and its corresponding healing process.
@@ -103,12 +127,14 @@ The following is the default configuration file generated upon first mod initial
 [preferences]
 	#(Default = true) Whether or not blocks should be healed where there is currently flowing water.
 	heal_on_flowing_water = true
+	#(Default = false) Whether or not blocks should healed where there is currently a source water block.
+	heal_on_source_water = false
 	#(Default = true) Whether or not blocks should be healed where there is currently flowing lava.
 	heal_on_flowing_lava = true
+	#(Default = false) Whether or not blocks should be healed where there is currently a source lava block.
+	heal_on_source_lava = false
 	#(Default = true) Whether or not a block heal should play a sound effect.
 	block_placement_sound_effect = true
-	#(Default = true) Whether or not explosions should drop items.
-	drop_items_on_explosions = true
 	#(Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them.
 	heal_on_healing_potion_splash = true
 	#(Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
