@@ -26,12 +26,12 @@ public enum DelaysConfig {
     private static final String TABLE_COMMENT = """
             Configure the delays related to the healing of explosions.""";
 
-    public static long getExplosionHealDelay(){
+    public static long getExplosionHealDelayAsTicks(){
         long rounded = Math.round(Math.max(EXPLOSION_HEAL_DELAY.getEntry().getValue(), 0) * 20L);
         return rounded == 0 ? 20L : rounded;
     }
 
-    public static long getBlockPlacementDelay(){
+    public static long getBlockPlacementDelayAsTicks(){
         long rounded = Math.round(Math.max(BLOCK_PLACEMENT_DELAY.getEntry().getValue(), 0) * 20L);
         return rounded == 0 ? 20L : rounded;
     }
