@@ -42,7 +42,7 @@ public class ExplosionEvent {
     }
 
     public static ExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocksList, World world) {
-        ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer()), ModeConfig.MODE.getEntry().getValue(), DelaysConfig.getExplosionHealDelay(), 0);
+        ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(affectedBlocksList, world.getServer()), ModeConfig.MODE.getEntry().getValue(), DelaysConfig.getExplosionHealDelayAsTicks(), 0);
         explosionEvent.setUpExplosionHealingMode(world);
 
         Set<ExplosionEvent> collidingExplosions =  ExplosionUtils.getCollidingWaitingExplosions(affectedBlocksList.stream().map(AffectedBlock::getPos).toList());
@@ -95,18 +95,19 @@ public class ExplosionEvent {
         }
     }
 
-    public AffectedBlock getCurrentAffectedBlock(){
+    public Optional<AffectedBlock> getCurrentAffectedBlock(){
         if(this.affectedBlockCounter < this.getAffectedBlocksList().size()){
-            return this.getAffectedBlocksList().get(affectedBlockCounter);
+            return Optional.of(this.getAffectedBlocksList().get(affectedBlockCounter));
         }
-        return null;
+        return Optional.empty();
     }
 
     public void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
         int indexOfPostponed = this.getAffectedBlocksList().indexOf(affectedBlockToDelay);
         if(indexOfPostponed != -1) {
-            Integer indexOfNextPlaceable = this.findNextPlaceableBlock(server);
-            if (indexOfNextPlaceable != null) {
+            Optional<Integer> indexOfNextPlaceableOptional = this.findNextPlaceableBlock(server);
+            if (indexOfNextPlaceableOptional.isPresent()) {
+                int indexOfNextPlaceable = indexOfNextPlaceableOptional.get();
                 Collections.swap(this.getAffectedBlocksList(), indexOfPostponed, indexOfNextPlaceable);
             } else {
                 this.incrementCounter();
@@ -118,13 +119,13 @@ public class ExplosionEvent {
         }
     }
 
-    private Integer findNextPlaceableBlock(MinecraftServer server) {
+    private Optional<Integer> findNextPlaceableBlock(MinecraftServer server) {
         for (int i = this.getCurrentAffectedBlockCounter(); i < this.getAffectedBlocksList().size(); i++) {
             if (this.getAffectedBlocksList().get(i).canBePlaced(server)) {
-                return i;
+                return Optional.of(i);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private void setUpExplosionHealingMode(World world){
@@ -158,8 +159,8 @@ public class ExplosionEvent {
             case NORMAL -> 1;
             case HARD -> 2;
         };
-        long finalOffset = Math.max(1, (DelaysConfig.getBlockPlacementDelay()) + (difficultyOffset * 20));
-        long finalOffsetExplosion = Math.max(1, (DelaysConfig.getExplosionHealDelay()) + (difficultyOffset * 20));
+        long finalOffset = Math.max(1, (DelaysConfig.getBlockPlacementDelayAsTicks()) + (difficultyOffset * 20));
+        long finalOffsetExplosion = Math.max(1, (DelaysConfig.getExplosionHealDelayAsTicks()) + (difficultyOffset * 20));
         this.setExplosionTimer(finalOffsetExplosion);
         this.getAffectedBlocksList().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(finalOffset));
     }
@@ -176,7 +177,7 @@ public class ExplosionEvent {
              double randomOffset = random.nextBetween(-2, 2);
              double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
              int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance / 9, -2, 2) + randomOffset);
-             long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelay() + (offset * 20L));
+             long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelayAsTicks() + (offset * 20L));
              affectedBlock.setAffectedBlockTimer(finalOffset);
          });
     }
@@ -186,7 +187,7 @@ public class ExplosionEvent {
                 .flatMap(explosionEvent -> explosionEvent.getAffectedBlocksList().stream())
                 .collect(Collectors.toList());
         ExplosionEvent explosionEvent = new ExplosionEvent(ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world.getServer()), newestExplosion.getExplosionMode().getName(), newestExplosion.getExplosionTimer(), newestExplosion.getCurrentAffectedBlockCounter());
-        long newestExplosionBlockTimers = DelaysConfig.getBlockPlacementDelay();
+        long newestExplosionBlockTimers = DelaysConfig.getBlockPlacementDelayAsTicks();
         explosionEvent.getAffectedBlocksList().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(newestExplosionBlockTimers));
         explosionEvent.setUpExplosionHealingMode(world);
         return explosionEvent;

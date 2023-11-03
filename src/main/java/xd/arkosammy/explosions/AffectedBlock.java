@@ -46,7 +46,7 @@ public class AffectedBlock {
     }
 
     public static AffectedBlock newAffectedBlock(BlockPos pos, World world){
-        return new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), DelaysConfig.getBlockPlacementDelay(), false);
+        return new AffectedBlock(pos, world.getBlockState(pos), world.getRegistryKey(), DelaysConfig.getBlockPlacementDelayAsTicks(), false);
     }
 
     public void setAffectedBlockTimer(long delay){
@@ -145,7 +145,7 @@ public class AffectedBlock {
         for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
             if(explosionEvent.getExplosionMode() == ExplosionHealingMode.DEFAULT_MODE) {
                 for (int i = explosionEvent.getAffectedBlockCounter() + 1; i < explosionEvent.getAffectedBlocksList().size(); i++) {
-                    explosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelay());
+                    explosionEvent.getAffectedBlocksList().get(i).setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelayAsTicks());
                 }
             }
         }

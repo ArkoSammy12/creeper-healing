@@ -86,12 +86,12 @@ public final class DelaysCommands {
     }
 
     private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelay() / 20) + " second(s)"));
+        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelayAsTicks() / 20) + " second(s)"));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double) DelaysConfig.getBlockPlacementDelay() / 20) + " second(s)"));
+        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double) DelaysConfig.getBlockPlacementDelayAsTicks() / 20) + " second(s)"));
         return Command.SINGLE_SUCCESS;
     }
 
