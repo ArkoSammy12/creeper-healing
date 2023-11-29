@@ -10,7 +10,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xd.arkosammy.commands.categories.*;
-import xd.arkosammy.configuration.Config;
+import xd.arkosammy.configuration.CreeperHealingConfig;
 
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ public final class HealingCommandManager {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Reload Config node
+        //Reload CreeperHealingConfig node
         LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
                 .literal("reload_config")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
@@ -53,7 +53,7 @@ public final class HealingCommandManager {
 
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
         //If this returns true, then the config file exists, and we can update our values from it
-        if(Config.reloadConfigSettingsInMemory(ctx)) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
+        if(CreeperHealingConfig.reloadConfigSettingsInMemory(ctx)) ctx.getSource().sendMessage(Text.literal("CreeperHealingConfig successfully reloaded"));
         else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
     }
 

@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xd.arkosammy.configuration.Config;
+import xd.arkosammy.configuration.CreeperHealingConfig;
 import xd.arkosammy.explosions.ExplosionListCodec;
 import xd.arkosammy.explosions.AffectedBlock;
 import xd.arkosammy.handlers.ExplosionListHandler;
@@ -23,7 +23,7 @@ public class CreeperHealing implements ModInitializer {
 	@Override
 	public void onInitialize() {
 
-		Config.initializeConfig();
+		CreeperHealingConfig.initializeConfig();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
 			try {
@@ -57,7 +57,7 @@ public class CreeperHealing implements ModInitializer {
 		ExplosionListCodec explosionListCodec = new ExplosionListCodec(ExplosionListHandler.getExplosionEventList());
 		explosionListCodec.serializeExplosionEvents(server);
 		ExplosionListHandler.getExplosionEventList().clear();
-		Config.updateConfigFile();
+		CreeperHealingConfig.updateConfigFile();
 	}
 
 	public static boolean isExplosionHandlingUnlocked(){
