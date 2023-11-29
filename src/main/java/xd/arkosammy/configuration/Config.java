@@ -73,7 +73,7 @@ public final class Config {
                     fileConfig.save();
                 } else {
                     CreeperHealing.LOGGER.warn("Found no preexisting config to load settings from. Creating a new config with default values in " + CONFIG_PATH);
-                    CreeperHealing.LOGGER.warn("Change the settings in the config file, then reload the config by using /creeper-healing settings reload, or restart the server.");
+                    CreeperHealing.LOGGER.warn("Change the settings in the config file, then reload the config by using /creeper-healing reload_config, or restart the server.");
 
                     saveDefaultConfigSettingsToFile(fileConfig);
                     fileConfig.save();
