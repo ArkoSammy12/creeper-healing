@@ -16,9 +16,9 @@ import xd.arkosammy.explosions.AffectedBlock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final class Config {
+public final class CreeperHealingConfig {
 
-    private Config(){}
+    private CreeperHealingConfig(){}
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.toml");
     @Nullable
     private static final GenericBuilder<CommentedConfig, CommentedFileConfig> CONFIG_BUILDER;
