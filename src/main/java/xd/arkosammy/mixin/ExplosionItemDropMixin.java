@@ -25,7 +25,7 @@ public abstract class ExplosionItemDropMixin {
     private boolean shouldExplosionDropItems(boolean dropItems, @Local Explosion explosion){
         Entity causingEntity = explosion.getEntity();
         Entity causingLivingEntity = explosion.getCausingEntity();
-        DamageSource damageSource = explosion.getDamageSource();
+        DamageSource damageSource = ((ExplosionDamageSourceInvoker)explosion).creeper_healing$getDamageSource();
         boolean shouldNotDropItems = (causingLivingEntity instanceof CreeperEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getEntry().getValue())
                 || (causingLivingEntity instanceof GhastEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getEntry().getValue())
                 || (causingLivingEntity instanceof WitherEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getEntry().getValue())

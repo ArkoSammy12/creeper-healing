@@ -35,17 +35,23 @@ import java.util.List;
 
 
 @Mixin(Explosion.class)
-public abstract class ExplosionListenerMixin {
+public abstract class ExplosionListenerMixin implements ExplosionDamageSourceInvoker {
 
     @Shadow @Final private World world;
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
     @Shadow public abstract List<BlockPos> getAffectedBlocks();
     @Shadow @Nullable public abstract Entity getEntity();
-    @Shadow public abstract DamageSource getDamageSource();
+
+    @Shadow @Final private DamageSource damageSource;
+
+    @Override
+    public DamageSource creeper_healing$getDamageSource() {
+        return this.damageSource;
+    }
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void storeCurrentExplosionIfNeeded(CallbackInfo ci){
-        if(shouldStoreExplosionFromSourceType(this.getCausingEntity(), this.getEntity(), this.getDamageSource()))
+        if(shouldStoreExplosionFromSourceType(this.getCausingEntity(), this.getEntity(), this.damageSource))
             storeExplosion(this.getAffectedBlocks());
     }
 

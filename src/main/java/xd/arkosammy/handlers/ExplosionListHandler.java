@@ -22,7 +22,7 @@ public final class ExplosionListHandler {
 
     public static void handleExplosionList(MinecraftServer server){
 
-        if(!CreeperHealing.isExplosionHandlingUnlocked() || getExplosionEventList().isEmpty()) return;
+        if(!CreeperHealing.isExplosionHandlingUnlocked() || getExplosionEventList().isEmpty() || !server.getTickManager().shouldTick()) return;
 
         ExplosionEvent.tickExplosions();
         for (ExplosionEvent currentExplosionEvent : getExplosionEventList()) {
