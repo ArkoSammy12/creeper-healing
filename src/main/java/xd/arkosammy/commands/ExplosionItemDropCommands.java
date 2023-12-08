@@ -1,4 +1,4 @@
-package xd.arkosammy.commands.categories;
+package xd.arkosammy.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -8,13 +8,13 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import xd.arkosammy.configuration.tables.ExplosionItemDropConfig;
+import xd.arkosammy.configuration.ExplosionItemDropConfig;
 
 public final class ExplosionItemDropCommands {
 
     private ExplosionItemDropCommands(){}
 
-    public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+     static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Explosion item drop node
         LiteralCommandNode<ServerCommandSource> explosionItemDropNode = CommandManager

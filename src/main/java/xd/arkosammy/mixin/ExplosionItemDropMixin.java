@@ -15,7 +15,7 @@ import net.minecraft.entity.vehicle.TntMinecartEntity;
 import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import xd.arkosammy.configuration.tables.ExplosionItemDropConfig;
+import xd.arkosammy.configuration.ExplosionItemDropConfig;
 import xd.arkosammy.explosions.ExplosionUtils;
 
 @Mixin(Block.class)

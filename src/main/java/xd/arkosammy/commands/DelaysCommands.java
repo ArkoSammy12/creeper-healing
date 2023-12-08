@@ -1,4 +1,4 @@
-package xd.arkosammy.commands.categories;
+package xd.arkosammy.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -9,14 +9,14 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xd.arkosammy.configuration.tables.DelaysConfig;
+import xd.arkosammy.configuration.DelaysConfig;
 import xd.arkosammy.explosions.AffectedBlock;
 
 public final class DelaysCommands {
 
     private DelaysCommands(){}
 
-    public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+     static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         LiteralCommandNode<ServerCommandSource> delaysNode = CommandManager
                 .literal("delays")

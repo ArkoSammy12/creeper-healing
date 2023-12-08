@@ -11,8 +11,8 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.tables.DelaysConfig;
-import xd.arkosammy.configuration.tables.ModeConfig;
+import xd.arkosammy.configuration.DelaysConfig;
+import xd.arkosammy.configuration.ModeConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
 
 import java.util.*;

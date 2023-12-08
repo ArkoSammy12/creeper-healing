@@ -11,8 +11,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.tables.*;
 import xd.arkosammy.explosions.AffectedBlock;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -70,6 +72,11 @@ public final class CreeperHealingConfig {
                     ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
                     WhitelistConfig.loadWhitelistToMemory(fileConfig);
                     saveConfigSettingsToFile(fileConfig);
+                    try(PrintWriter printWriter = new PrintWriter(String.valueOf(CONFIG_PATH))){
+                        printWriter.write("");
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     fileConfig.save();
                 } else {
                     CreeperHealing.LOGGER.warn("Found no preexisting config to load settings from. Creating a new config with default values in " + CONFIG_PATH);

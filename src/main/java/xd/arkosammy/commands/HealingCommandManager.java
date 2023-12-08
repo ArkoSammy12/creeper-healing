@@ -9,7 +9,6 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xd.arkosammy.commands.categories.*;
 import xd.arkosammy.configuration.CreeperHealingConfig;
 
 import java.io.IOException;
@@ -17,7 +16,7 @@ import java.io.IOException;
 public final class HealingCommandManager {
 
     private HealingCommandManager(){}
-    public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
+     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         //Root node
         LiteralCommandNode<ServerCommandSource> creeperHealingNode = CommandManager
                 .literal("creeper-healing")

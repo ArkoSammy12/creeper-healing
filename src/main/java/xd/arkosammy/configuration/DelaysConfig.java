@@ -1,8 +1,8 @@
-package xd.arkosammy.configuration.tables;
+package xd.arkosammy.configuration;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.ConfigEntry;
+
 import java.util.Arrays;
 
 public enum DelaysConfig {
@@ -37,14 +37,14 @@ public enum DelaysConfig {
     }
 
 
-    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Double> configEntry : Arrays.stream(DelaysConfig.values()).map(DelaysConfig::getEntry).toList()){
             configEntry.resetValue();
         }
         saveSettingsToFile(fileConfig);
     }
 
-    public static void saveSettingsToFile(CommentedFileConfig fileConfig){
+    static void saveSettingsToFile(CommentedFileConfig fileConfig){
         for(ConfigEntry<Double> entry : Arrays.stream(DelaysConfig.values()).map(DelaysConfig::getEntry).toList()){
             fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
@@ -53,7 +53,7 @@ public enum DelaysConfig {
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-    public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
+    static void loadSettingsToMemory(CommentedFileConfig fileConfig){
         for(ConfigEntry<Double> configEntry : Arrays.stream(DelaysConfig.values()).map(DelaysConfig::getEntry).toList()){
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
             if(value instanceof Number numberValue){

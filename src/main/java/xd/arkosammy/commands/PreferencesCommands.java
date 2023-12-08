@@ -1,4 +1,4 @@
-package xd.arkosammy.commands.categories;
+package xd.arkosammy.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -8,14 +8,14 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import xd.arkosammy.configuration.tables.PreferencesConfig;
+import xd.arkosammy.configuration.PreferencesConfig;
 
 
 public final class PreferencesCommands {
 
     private PreferencesCommands(){}
 
-    public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+     static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Preferences node
         LiteralCommandNode<ServerCommandSource> settingsNode = CommandManager
