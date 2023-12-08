@@ -1,8 +1,7 @@
-package xd.arkosammy.configuration.tables;
+package xd.arkosammy.configuration;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.ConfigEntry;
 import xd.arkosammy.explosions.ExplosionHealingMode;
 import java.util.Arrays;
 
@@ -25,14 +24,14 @@ public enum ModeConfig {
     private static final String TABLE_COMMENT = """
             Choose between different special modes for explosion healing.""";
 
-    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<String> configEntry : Arrays.stream(ModeConfig.values()).map(ModeConfig::getEntry).toList()){
             configEntry.resetValue();
         }
         saveSettingsToFile(fileConfig);
     }
 
-    public static void saveSettingsToFile(CommentedFileConfig fileConfig){
+    static void saveSettingsToFile(CommentedFileConfig fileConfig){
         for(ConfigEntry<String> entry : Arrays.stream(ModeConfig.values()).map(ModeConfig::getEntry).toList()){
             fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
@@ -41,7 +40,7 @@ public enum ModeConfig {
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-    public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
+    static void loadSettingsToMemory(CommentedFileConfig fileConfig){
         for(ConfigEntry<String> configEntry : Arrays.stream(ModeConfig.values()).map(ModeConfig::getEntry).toList()){
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
             if(value instanceof String stringValue){

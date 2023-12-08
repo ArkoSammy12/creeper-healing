@@ -11,7 +11,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import xd.arkosammy.configuration.tables.PreferencesConfig;
+import xd.arkosammy.configuration.PreferencesConfig;
 import xd.arkosammy.handlers.ExplosionListHandler;
 import java.util.*;
 import java.util.stream.Collectors;

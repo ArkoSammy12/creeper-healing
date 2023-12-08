@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import xd.arkosammy.configuration.tables.PreferencesConfig;
+import xd.arkosammy.configuration.PreferencesConfig;
 import xd.arkosammy.explosions.ExplosionUtils;
 import xd.arkosammy.explosions.ExplosionEvent;
 

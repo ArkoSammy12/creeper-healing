@@ -1,4 +1,4 @@
-package xd.arkosammy.configuration.tables;
+package xd.arkosammy.configuration;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
@@ -25,13 +25,13 @@ public final class WhitelistConfig {
         return whitelist;
     }
 
-    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         getWhitelist().clear();
         getWhitelist().add("minecraft:placeholder");
         saveWhitelistToFile(fileConfig);
     }
 
-    public static void saveWhitelistToFile(CommentedFileConfig fileConfig){
+    static void saveWhitelistToFile(CommentedFileConfig fileConfig){
          if(!getWhitelist().isEmpty()){
              fileConfig.set(TABLE_NAME + "." + "whitelist_entries", getWhitelist());
          } else {
@@ -40,7 +40,7 @@ public final class WhitelistConfig {
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-    public static void loadWhitelistToMemory(CommentedFileConfig fileConfig){
+     static void loadWhitelistToMemory(CommentedFileConfig fileConfig){
         List<Object> list = fileConfig.getOrElse(TABLE_NAME + "." + "whitelist_entries", List.of("minecraft:placeholder"));
         List<String> tempWhitelist = new ArrayList<>();
         if(list != null){

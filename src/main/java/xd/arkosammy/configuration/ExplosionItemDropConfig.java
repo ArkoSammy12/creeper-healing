@@ -1,8 +1,8 @@
-package xd.arkosammy.configuration.tables;
+package xd.arkosammy.configuration;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.ConfigEntry;
+
 import java.util.Arrays;
 
 public enum ExplosionItemDropConfig{
@@ -35,14 +35,14 @@ public enum ExplosionItemDropConfig{
     private static final String TABLE_COMMENT = """
             These settings allow you to configure whether explosions from specific sources are allowed to drop items or not.""";
 
-    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(ExplosionItemDropConfig.values()).map(ExplosionItemDropConfig::getEntry).toList()){
             configEntry.resetValue();
         }
         saveSettingsToFile(fileConfig);
     }
 
-    public static void saveSettingsToFile(CommentedFileConfig fileConfig){
+    static void saveSettingsToFile(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> entry : Arrays.stream(ExplosionItemDropConfig.values()).map(ExplosionItemDropConfig::getEntry).toList()){
             fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
@@ -51,7 +51,7 @@ public enum ExplosionItemDropConfig{
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-    public static void loadSettingsToMemory(CommentedFileConfig fileConfig){
+    static void loadSettingsToMemory(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(ExplosionItemDropConfig.values()).map(ExplosionItemDropConfig::getEntry).toList()){
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
             if(value instanceof Boolean boolValue){

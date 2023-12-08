@@ -14,9 +14,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.CreeperHealing;
-import xd.arkosammy.configuration.tables.DelaysConfig;
-import xd.arkosammy.configuration.tables.PreferencesConfig;
-import xd.arkosammy.configuration.tables.ReplaceMapConfig;
+import xd.arkosammy.configuration.DelaysConfig;
+import xd.arkosammy.configuration.PreferencesConfig;
+import xd.arkosammy.configuration.ReplaceMapConfig;
 import xd.arkosammy.handlers.DoubleBlockHandler;
 import xd.arkosammy.handlers.ExplosionListHandler;
 

@@ -1,4 +1,4 @@
-package xd.arkosammy.configuration.tables;
+package xd.arkosammy.configuration;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
@@ -25,13 +25,13 @@ public final class ReplaceMapConfig {
         return replaceMap;
     }
 
-    public static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
         replaceMap.clear();
         replaceMap.put("minecraft:diamond_block", "minecraft:stone");
         saveReplaceMapToFile(fileConfig);
     }
 
-    public static void saveReplaceMapToFile(CommentedFileConfig fileConfig){
+    static void saveReplaceMapToFile(CommentedFileConfig fileConfig){
         if(!replaceMap.isEmpty()) {
             for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
                 fileConfig.set(TABLE_NAME + "." + entry.getKey(), entry.getValue());
@@ -42,7 +42,7 @@ public final class ReplaceMapConfig {
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-    public static void loadReplaceMapToMemory(CommentedFileConfig fileConfig){
+    static void loadReplaceMapToMemory(CommentedFileConfig fileConfig){
 
         CommentedConfig replaceMapConfig = fileConfig.get(TABLE_NAME);
         HashMap<String, String> tempReplaceMap = new HashMap<>();
