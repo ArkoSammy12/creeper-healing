@@ -16,7 +16,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"xd.arkosammy.CreeperHealing"
+			"xd.arkosammy.creeperhealing.CreeperHealing"
 		]
 	},
 	"mixins": [
