@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import xd.arkosammy.creeperhealing.configuration.ExplosionItemDropConfig;
 import xd.arkosammy.creeperhealing.explosions.ExplosionUtils;
+import xd.arkosammy.creeperhealing.explosions.invokers.ExplosionDamageSourceInvoker;
 
 @Mixin(Block.class)
 public abstract class ExplosionItemDropMixin {

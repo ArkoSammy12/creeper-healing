@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.mixin;
+package xd.arkosammy.creeperhealing.explosions.invokers;
 
 import net.minecraft.entity.damage.DamageSource;
 
