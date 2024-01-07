@@ -30,14 +30,14 @@ import xd.arkosammy.creeperhealing.explosions.AffectedBlock;
 import xd.arkosammy.creeperhealing.explosions.ExplosionEvent;
 import xd.arkosammy.creeperhealing.explosions.ExplosionUtils;
 import xd.arkosammy.creeperhealing.handlers.ExplosionListHandler;
-import xd.arkosammy.creeperhealing.explosions.invokers.ExplosionDamageSourceInvoker;
+import xd.arkosammy.creeperhealing.explosions.ducks.IExplosionDamageSourceAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Mixin(Explosion.class)
-public abstract class ExplosionListenerMixin implements ExplosionDamageSourceInvoker {
+public abstract class ExplosionListenerMixin implements IExplosionDamageSourceAccessor {
 
     @Shadow @Final private World world;
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
