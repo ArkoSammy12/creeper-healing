@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public final class ExplosionUtils {
 
     private ExplosionUtils(){}
-    public static final ThreadLocal<Boolean> SHOULD_NOT_DROP_ITEMS = new ThreadLocal<>();
+    public static final ThreadLocal<Boolean> SHOULD_DROP_ITEMS = new ThreadLocal<>();
 
      public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;

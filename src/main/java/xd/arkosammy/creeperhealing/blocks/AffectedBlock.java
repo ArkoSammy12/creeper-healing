@@ -24,23 +24,23 @@ public class AffectedBlock {
     private final BlockPos pos;
     private final BlockState state;
     private final RegistryKey<World> worldRegistryKey;
-    private long affectedBlockTimer;
+    private long timer;
     private boolean placed;
 
-    public AffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
+    public AffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long timer, boolean placed){
         this.pos = pos;
         this.state = state;
         this.worldRegistryKey = registryKey;
         this.placed = placed;
-        this.affectedBlockTimer = affectedBlockTimer;
+        this.timer = timer;
     }
 
     public static AffectedBlock newAffectedBlock(BlockPos pos, BlockState state, World world){
         return state.contains(Properties.DOUBLE_BLOCK_HALF) || state.contains(Properties.BED_PART) ? new DoubleAffectedBlock(pos, state, world.getRegistryKey(), DelaysConfig.getBlockPlacementDelayAsTicks(), false) : new AffectedBlock(pos, state, world.getRegistryKey(), DelaysConfig.getBlockPlacementDelayAsTicks(), false);
     }
 
-    public void setAffectedBlockTimer(long delay){
-        this.affectedBlockTimer = delay;
+    public void setTimer(long delay){
+        this.timer = delay;
     }
 
     public RegistryKey<World> getWorldRegistryKey(){
@@ -63,8 +63,8 @@ public class AffectedBlock {
         this.placed = true;
     }
 
-    public long getAffectedBlockTimer(){
-        return this.affectedBlockTimer;
+    public long getTimer(){
+        return this.timer;
     }
 
     public boolean isAlreadyPlaced(){
@@ -72,7 +72,7 @@ public class AffectedBlock {
     }
 
     public void tickAffectedBlock(){
-        this.affectedBlockTimer--;
+        this.timer--;
     }
 
     public boolean canBePlaced(MinecraftServer server){
@@ -84,7 +84,7 @@ public class AffectedBlock {
     }
 
     public SerializedAffectedBlock toSerialized(){
-        return new SerializedAffectedBlock(this.getAffectedBlockType(), this.pos, this.state, this.worldRegistryKey, this.affectedBlockTimer, this.placed);
+        return new SerializedAffectedBlock(this.getAffectedBlockType(), this.pos, this.state, this.worldRegistryKey, this.timer, this.placed);
     }
 
     public void tryHealing(MinecraftServer server, AbstractExplosionEvent currentExplosionEvent){

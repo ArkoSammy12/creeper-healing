@@ -91,10 +91,9 @@ public class ExplosionManager {
             return;
         }
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(affectedBlocks, world);
-        AbstractExplosionEvent explosionEvent = AbstractExplosionEvent.newExplosionEvent(sortedAffectedBlocks);
+        AbstractExplosionEvent explosionEvent = AbstractExplosionEvent.newExplosionEvent(sortedAffectedBlocks, world);
         Set<AbstractExplosionEvent> collidingExplosions = this.getCollidingExplosions(affectedBlocks.stream().map(AffectedBlock::getPos).toList());
         if(collidingExplosions.isEmpty()){
-            explosionEvent.setupExplosion(world);
             this.explosionEvents.add(explosionEvent);
         } else {
             this.explosionEvents.removeIf(collidingExplosions::contains);
@@ -106,19 +105,19 @@ public class ExplosionManager {
     private AbstractExplosionEvent combineCollidingExplosions(Set<AbstractExplosionEvent> collidingExplosions, AbstractExplosionEvent newestExplosion, World world){
         List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream().flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream()).collect(Collectors.toList());
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world);
-        AbstractExplosionEvent explosionEvent;
+        AbstractExplosionEvent combinedExplosionEvent;
         if(newestExplosion instanceof DaytimeExplosionEvent){
-            explosionEvent = new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+            combinedExplosionEvent = new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
         } else if (newestExplosion instanceof DifficultyBasedExplosionEvent){
-            explosionEvent = new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+            combinedExplosionEvent = new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
         } else if (newestExplosion instanceof BlastResistanceBasedExplosionEvent){
-            explosionEvent = new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+            combinedExplosionEvent = new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
         } else {
-            explosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+            combinedExplosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
         }
-        explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelayAsTicks()));
-        explosionEvent.setupExplosion(world);
-        return explosionEvent;
+        combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(DelaysConfig.getBlockPlacementDelayAsTicks()));
+        combinedExplosionEvent.setupExplosion(world);
+        return combinedExplosionEvent;
     }
 
     private Set<AbstractExplosionEvent> getCollidingExplosions(List<BlockPos> affectedPositions){
@@ -145,13 +144,23 @@ public class ExplosionManager {
         if(explosion.getAffectedBlocks().isEmpty()){
             return false;
         }
-        return (causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.HEAL_CREEPER_EXPLOSIONS.getEntry().getValue())
-                || (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.HEAL_GHAST_EXPLOSIONS.getEntry().getValue())
-                || (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.HEAL_WITHER_EXPLOSIONS.getEntry().getValue())
-                || (causingEntity instanceof TntEntity && ExplosionSourceConfig.HEAL_TNT_EXPLOSIONS.getEntry().getValue())
-                || (causingEntity instanceof TntMinecartEntity && ExplosionSourceConfig.HEAL_TNT_MINECART_EXPLOSIONS.getEntry().getValue())
-                || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ExplosionSourceConfig.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue())
-                || (causingEntity instanceof EndCrystalEntity && ExplosionSourceConfig.HEAL_END_CRYSTAL_EXPLOSIONS.getEntry().getValue());
+        boolean shouldHealExplosion = false;
+        if(causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.HEAL_CREEPER_EXPLOSIONS.getEntry().getValue()){
+            shouldHealExplosion = true;
+        } else if (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.HEAL_GHAST_EXPLOSIONS.getEntry().getValue()){
+            shouldHealExplosion = true;
+        } else if (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.HEAL_WITHER_EXPLOSIONS.getEntry().getValue()){
+            shouldHealExplosion = true;
+        } else if (causingEntity instanceof TntEntity && ExplosionSourceConfig.HEAL_TNT_EXPLOSIONS.getEntry().getValue()){
+            shouldHealExplosion = true;
+        } else if (causingEntity instanceof TntMinecartEntity && ExplosionSourceConfig.HEAL_TNT_MINECART_EXPLOSIONS.getEntry().getValue()){
+            shouldHealExplosion = true;
+        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ExplosionSourceConfig.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue()){
+            shouldHealExplosion = true;
+        } else if (causingEntity instanceof EndCrystalEntity && ExplosionSourceConfig.HEAL_END_CRYSTAL_EXPLOSIONS.getEntry().getValue()){
+            shouldHealExplosion = true;
+        }
+        return shouldHealExplosion;
     }
 
     public void tick(MinecraftServer server){
@@ -182,7 +191,7 @@ public class ExplosionManager {
             return;
         }
         affectedBlock.tickAffectedBlock();
-        if(affectedBlock.getAffectedBlockTimer() < 0){
+        if(affectedBlock.getTimer() < 0){
             this.onAffectedBlockFinishedTimer(affectedBlock, currentExplosion, server);
         }
     }
@@ -238,7 +247,7 @@ public class ExplosionManager {
         for(AbstractExplosionEvent explosionEvent : this.explosionEvents){
             if(explosionEvent instanceof DefaultExplosionEvent) {
                 for (int i = explosionEvent.getBlockCounter() + 1; i < explosionEvent.getAffectedBlocks().size(); i++) {
-                    explosionEvent.getAffectedBlocks().get(i).setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelayAsTicks());
+                    explosionEvent.getAffectedBlocks().get(i).setTimer(DelaysConfig.getBlockPlacementDelayAsTicks());
                 }
             }
         }

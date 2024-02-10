@@ -32,14 +32,16 @@ public abstract class AbstractExplosionEvent {
         this.blockCounter = 0;
     }
 
-    public static AbstractExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocks){
+    public static AbstractExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocks, World world){
         ExplosionHealingMode explosionHealingMode = ExplosionHealingMode.getFromName(ModeConfig.MODE.getEntry().getValue());
-        return switch (explosionHealingMode) {
+        AbstractExplosionEvent explosionEvent = switch (explosionHealingMode) {
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks);
             case DIFFICULTY_BASED_HEALING_MODE -> new DifficultyBasedExplosionEvent(affectedBlocks);
             case BLAST_RESISTANCE_BASED_HEALING_MODE -> new BlastResistanceBasedExplosionEvent(affectedBlocks);
             default -> new DefaultExplosionEvent(affectedBlocks);
         };
+        explosionEvent.setupExplosion(world);
+        return explosionEvent;
     }
 
     public final void setHealTimer(long healTimer){

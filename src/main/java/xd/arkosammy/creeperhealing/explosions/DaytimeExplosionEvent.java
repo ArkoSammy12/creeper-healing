@@ -25,7 +25,7 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
     public void setupExplosion(World world){
         this.setHealTimer(24000 - (world.getTimeOfDay() % 24000));
         int daylightBasedBlockPlacementDelay = 13000 / Math.max(this.getAffectedBlocks().size(), 1);
-        this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(daylightBasedBlockPlacementDelay));
+        this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(daylightBasedBlockPlacementDelay));
     }
 
     @Override
@@ -35,7 +35,6 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
         if (this.getBlockCounter() > 0){
             return true;
         }
-
         return this.getAffectedBlocks().stream().anyMatch(affectedBlock -> affectedBlock.getWorld(world.getServer()).getLightLevel(LightType.BLOCK, affectedBlock.getPos()) > 0 || affectedBlock.getWorld(world.getServer()).getLightLevel(LightType.SKY, affectedBlock.getPos()) > 0);
     }
 

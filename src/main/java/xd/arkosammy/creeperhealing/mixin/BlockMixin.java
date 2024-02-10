@@ -23,21 +23,28 @@ import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
 public abstract class BlockMixin {
 
     @ModifyReturnValue(method = "shouldDropItemsOnExplosion", at=@At("RETURN"))
-    private boolean shouldExplosionDropItems(boolean dropItems, @Local Explosion explosion){
+    private boolean shouldExplosionDropItems(boolean original, @Local Explosion explosion){
         Entity causingEntity = explosion.getEntity();
         Entity causingLivingEntity = explosion.getCausingEntity();
         DamageSource damageSource = ((ExplosionAccessor)explosion).creeper_healing$getDamageSource();
-        boolean shouldNotDropItems = (causingLivingEntity instanceof CreeperEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getEntry().getValue())
-                || (causingLivingEntity instanceof GhastEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getEntry().getValue())
-                || (causingLivingEntity instanceof WitherEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getEntry().getValue())
-                || (causingEntity instanceof TntEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_EXPLOSIONS.getEntry().getValue())
-                || (causingEntity instanceof TntMinecartEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getEntry().getValue())
-                || (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && !ExplosionItemDropConfig.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue())
-                || (causingEntity instanceof EndCrystalEntity && !ExplosionItemDropConfig.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getEntry().getValue());
-        if (shouldNotDropItems) {
-            ExplosionUtils.SHOULD_NOT_DROP_ITEMS.set(true);
+        boolean shouldDropItems = false;
+        if (causingLivingEntity instanceof CreeperEntity && ExplosionItemDropConfig.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getEntry().getValue()){
+            shouldDropItems = true;
+        } else if (causingLivingEntity instanceof GhastEntity && ExplosionItemDropConfig.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getEntry().getValue()){
+            shouldDropItems = true;
+        } else if (causingLivingEntity instanceof WitherEntity && ExplosionItemDropConfig.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getEntry().getValue()){
+            shouldDropItems = true;
+        } else if (causingEntity instanceof TntEntity && ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_EXPLOSIONS.getEntry().getValue()){
+            shouldDropItems = true;
+        } else if (causingEntity instanceof TntMinecartEntity && ExplosionItemDropConfig.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getEntry().getValue()){
+            shouldDropItems = true;
+        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ExplosionItemDropConfig.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue()){
+            shouldDropItems = true;
+        } else if (causingEntity instanceof EndCrystalEntity && ExplosionItemDropConfig.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getEntry().getValue()){
+            shouldDropItems = true;
         }
-        return !shouldNotDropItems && dropItems;
+        ExplosionUtils.SHOULD_DROP_ITEMS.set(shouldDropItems);
+        return shouldDropItems && original;
     }
 
 }

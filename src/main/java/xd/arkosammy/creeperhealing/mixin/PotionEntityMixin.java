@@ -40,7 +40,7 @@ public abstract class PotionEntityMixin {
                 boolean potionHitExplosion = explosionEvent.getAffectedBlocks().stream().anyMatch(affectedBlock -> affectedBlock.getPos().equals(potionHitPosition));
                 if(potionHitExplosion){
                     explosionEvent.setHealTimer(1);
-                    explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(1));
+                    explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(1));
                 }
             }
         } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().getValue()){

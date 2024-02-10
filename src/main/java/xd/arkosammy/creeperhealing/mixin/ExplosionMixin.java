@@ -38,11 +38,11 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
 
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        ExplosionUtils.SHOULD_NOT_DROP_ITEMS.set(false);
+        ExplosionUtils.SHOULD_DROP_ITEMS.set(true);
     }
 
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
     private void clearDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        ExplosionUtils.SHOULD_NOT_DROP_ITEMS.set(false);
+        ExplosionUtils.SHOULD_DROP_ITEMS.set(true);
     }
 }

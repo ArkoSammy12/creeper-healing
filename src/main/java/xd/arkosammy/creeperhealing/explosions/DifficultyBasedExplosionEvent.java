@@ -34,7 +34,7 @@ public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
         long newBlockTimer = Math.max(1, (DelaysConfig.getBlockPlacementDelayAsTicks()) + (difficultyMultiplier * 20));
         long newExplosionTimer = Math.max(1, (DelaysConfig.getExplosionHealDelayAsTicks()) + (difficultyMultiplier * 20));
         this.setHealTimer(newExplosionTimer);
-        this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(newBlockTimer));
+        this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(newBlockTimer));
     }
 
     // 1/50 chance of the explosion stopping its healing process if the difficulty is hard

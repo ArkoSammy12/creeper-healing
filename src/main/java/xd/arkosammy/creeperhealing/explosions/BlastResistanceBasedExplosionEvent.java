@@ -31,7 +31,7 @@ public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
             double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
             int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance / 9, -2, 2) + randomOffset);
             long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelayAsTicks() + (offset * 20L));
-            affectedBlock.setAffectedBlockTimer(finalOffset);
+            affectedBlock.setTimer(finalOffset);
         });
     }
 
