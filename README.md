@@ -138,7 +138,6 @@ The following is the default configuration file generated upon first mod initial
 	#(Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them.
 	heal_on_healing_potion_splash = true
 	#(Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
-	#This option only modifies the heal delay of the explosion and only affects explosions created with the default healing mode.
 	heal_on_regeneration_potion_splash = true
 	#(Default = false) Enable or disable the usage of the whitelist
 	enable_whitelist = false

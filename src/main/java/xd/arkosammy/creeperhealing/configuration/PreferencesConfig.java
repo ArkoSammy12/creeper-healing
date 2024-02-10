@@ -20,8 +20,7 @@ public enum PreferencesConfig {
     HEAL_ON_HEALING_POTION_SPLASH(new ConfigEntry<>("heal_on_healing_potion_splash", true, """
                 (Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them.""")),
     HEAL_ON_REGENERATION_POTION_SPLASH(new ConfigEntry<>("heal_on_regeneration_potion_splash", true, """
-                (Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
-                This option only modifies the heal delay of the explosion and only affects explosions created with the default healing mode.""")),
+                (Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.""")),
     ENABLE_WHITELIST(new ConfigEntry<>("enable_whitelist", false, """
                 (Default = false) Enable or disable the usage of the whitelist"""));
 

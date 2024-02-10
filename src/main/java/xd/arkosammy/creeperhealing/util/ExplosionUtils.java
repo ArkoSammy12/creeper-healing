@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public final class ExplosionUtils {
 
     private ExplosionUtils(){}
-    public static final ThreadLocal<Boolean> SHOULD_DROP_ITEMS = new ThreadLocal<>();
+    public static final ThreadLocal<Boolean> SHOULD_DROP_ITEMS_THREAD_LOCAL = new ThreadLocal<>();
 
      public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;
@@ -43,7 +43,6 @@ public final class ExplosionUtils {
     }
 
      static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, World world){
-
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
         List<BlockPos> affectedBlocksAsPositions = sortedAffectedBlocks.stream().map(AffectedBlock::getPos).collect(Collectors.toList());
         int centerX = getCenterXCoordinate(affectedBlocksAsPositions);

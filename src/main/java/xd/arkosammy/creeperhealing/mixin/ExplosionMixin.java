@@ -36,13 +36,14 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         ExplosionManager.getInstance().processExplosion((Explosion) (Object) this);
     }
 
+    // Make sure the thread local is reset when entering and after exiting "affectWorld"
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        ExplosionUtils.SHOULD_DROP_ITEMS.set(true);
+        ExplosionUtils.SHOULD_DROP_ITEMS_THREAD_LOCAL.set(true);
     }
 
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
     private void clearDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        ExplosionUtils.SHOULD_DROP_ITEMS.set(true);
+        ExplosionUtils.SHOULD_DROP_ITEMS_THREAD_LOCAL.set(true);
     }
 }

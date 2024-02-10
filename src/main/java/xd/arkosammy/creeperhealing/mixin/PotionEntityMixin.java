@@ -46,7 +46,7 @@ public abstract class PotionEntityMixin {
         } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().getValue()){
             for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
                 boolean potionHitExplosion = explosionEvent.getAffectedBlocks().stream().anyMatch(affectedBlock -> affectedBlock.getPos().equals(potionHitPosition));
-                if(potionHitExplosion && explosionEvent instanceof DefaultExplosionEvent){
+                if(potionHitExplosion){
                     explosionEvent.setHealTimer(1);
                 }
             }
