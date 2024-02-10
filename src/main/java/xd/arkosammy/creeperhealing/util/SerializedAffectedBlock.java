@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.explosions;
+package xd.arkosammy.creeperhealing.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -6,6 +6,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
+import xd.arkosammy.creeperhealing.blocks.DoubleAffectedBlock;
 
 public record SerializedAffectedBlock(String affectedBlockType, BlockPos blockPos, BlockState state, RegistryKey<World> worldRegistryKey, long affectedBlockTimer, boolean placed) {
 

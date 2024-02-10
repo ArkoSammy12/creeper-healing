@@ -5,7 +5,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import xd.arkosammy.creeperhealing.explosions.ExplosionUtils;
+import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 
 @Mixin(World.class)
 public abstract class WorldMixin {

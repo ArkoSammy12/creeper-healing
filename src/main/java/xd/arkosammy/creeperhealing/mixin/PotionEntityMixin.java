@@ -15,44 +15,44 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
-import xd.arkosammy.creeperhealing.explosions.AffectedBlock;
+import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.explosions.DefaultExplosionEvent;
-import xd.arkosammy.creeperhealing.explosions.ExplosionManager;
+import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 import java.util.List;
 
 @Mixin(PotionEntity.class)
-public abstract class HealingPotionMixin {
+public abstract class PotionEntityMixin {
 
     @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/PotionEntity;applySplashPotion(Ljava/util/List;Lnet/minecraft/entity/Entity;)V"))
     private void affectExplosionOnSplashPotionHit(HitResult hitResult, CallbackInfo ci, @Local Potion potion) {
         List<StatusEffect> statusEffects = potion.getEffects().stream().map(StatusEffectInstance::getEffectType).toList();
-        BlockPos potionHitPosition;
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-            BlockHitResult blockHitResult = (BlockHitResult) hitResult;
-            potionHitPosition = blockHitResult.getBlockPos().offset(blockHitResult.getSide());
-        } else if(hitResult.getType() == HitResult.Type.ENTITY) {
-            EntityHitResult entityHitResult = (EntityHitResult) hitResult;
-            potionHitPosition = entityHitResult.getEntity().getBlockPos();
-        } else {
+        BlockPos potionHitPosition = switch (hitResult.getType()){
+            case BLOCK -> ((BlockHitResult)hitResult).getBlockPos().offset(((BlockHitResult)hitResult).getSide());
+            case ENTITY -> ((EntityHitResult) hitResult).getEntity().getBlockPos();
+            case MISS -> null;
+        };
+        if(potionHitPosition == null){
             return;
         }
-        if(statusEffects.contains(StatusEffects.INSTANT_HEALTH) && PreferencesConfig.HEAL_ON_HEALING_POTION_SPLASH.getEntry().getValue()) {
-            ExplosionManager.getInstance().getExplosionEvents().forEach(explosionEvent -> {
+        if (statusEffects.contains(StatusEffects.INSTANT_HEALTH) && PreferencesConfig.HEAL_ON_HEALING_POTION_SPLASH.getEntry().getValue()){
+            for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
                 List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
-                if(affectedBlockPositions.contains(potionHitPosition)){
-                    explosionEvent.setHealTimer(-1);
+                boolean potionHitExplosion = affectedBlockPositions.contains(potionHitPosition);
+                if(potionHitExplosion){
+                    explosionEvent.setHealTimer(1);
                     explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(1));
                 }
-            });
+            }
         } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().getValue()){
-            ExplosionManager.getInstance().getExplosionEvents().forEach(explosionEvent -> {
-                List<BlockPos> affectedBlockPositions = explosionEvent.getCurrentAffectedBlock().stream().map(AffectedBlock::getPos).toList();
-                if(affectedBlockPositions.contains(potionHitPosition) && explosionEvent instanceof DefaultExplosionEvent){
-                    explosionEvent.setHealTimer(-1);
+            for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
+                List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
+                boolean potionHitExplosion = affectedBlockPositions.contains(potionHitPosition);
+                if(potionHitExplosion && explosionEvent instanceof DefaultExplosionEvent){
+                    explosionEvent.setHealTimer(1);
                 }
-            });
-
+            }
         }
     }
 }

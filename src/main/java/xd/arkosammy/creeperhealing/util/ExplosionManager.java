@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.explosions;
+package xd.arkosammy.creeperhealing.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -27,7 +28,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import xd.arkosammy.creeperhealing.CreeperHealing;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.configuration.*;
+import xd.arkosammy.creeperhealing.explosions.*;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
 
 import java.io.BufferedReader;
@@ -44,9 +47,7 @@ public class ExplosionManager {
     private static final Codec<ExplosionManager> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.list(SerializedExplosionEvent.CODEC).fieldOf("scheduled_explosions").forGetter(explosionManager -> explosionManager.explosionEvents.stream().map(AbstractExplosionEvent::toSerialized).toList())
     ).apply(instance, ExplosionManager::new));
-
     private static ExplosionManager instance;
-
     private final List<AbstractExplosionEvent> explosionEvents = new CopyOnWriteArrayList<>();
 
     public static ExplosionManager getInstance(){
@@ -57,7 +58,6 @@ public class ExplosionManager {
     }
 
     private ExplosionManager(){
-
     }
 
     private ExplosionManager(List<SerializedExplosionEvent> serializedExplosionEvents){
@@ -72,34 +72,26 @@ public class ExplosionManager {
     }
 
     public void processExplosion(Explosion explosion){
-        if(explosion.getAffectedBlocks().isEmpty()){
-            return;
-        }
-        if(!shouldHealExplosionFromSource(explosion.getCausingEntity(), explosion.getEntity(), ((ExplosionAccessor) explosion).creeper_healing$getDamageSource())){
+        if(!shouldHealExplosion(explosion)){
             return;
         }
         World world = ((ExplosionAccessor) explosion).creeper_healing$getWorld();
         List<AffectedBlock> affectedBlocks = new ArrayList<>();
-        for(BlockPos pos : explosion.getAffectedBlocks()){
-            if (world.getBlockState(pos).isAir() || world.getBlockState(pos).getBlock().equals(Blocks.TNT) || world.getBlockState(pos).isIn(BlockTags.FIRE)) {
-                continue; // Skip the current iteration if the block state is air, TNT, or fire
+        for(BlockPos affectedPos : explosion.getAffectedBlocks()){
+            BlockState affectedState = world.getBlockState(affectedPos);
+            if (affectedState.isAir() || affectedState.getBlock().equals(Blocks.TNT) || affectedState.isIn(BlockTags.FIRE)) {
+                continue; // Skip the current iteration if the block affectedState is air, TNT, or fire
             }
-            String blockIdentifier = Registries.BLOCK.getId(world.getBlockState(pos).getBlock()).toString();
+            String blockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
             if (!PreferencesConfig.ENABLE_WHITELIST.getEntry().getValue() || WhitelistConfig.getWhitelist().contains(blockIdentifier)) {
-                affectedBlocks.add(AffectedBlock.newAffectedBlock(pos, world));
+                affectedBlocks.add(AffectedBlock.newAffectedBlock(affectedPos, affectedState, world));
             }
         }
         if(affectedBlocks.isEmpty()){
             return;
         }
-        ExplosionHealingMode explosionHealingMode = ExplosionHealingMode.getFromName(ModeConfig.MODE.getEntry().getValue());
-        List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(affectedBlocks, world.getServer());
-        AbstractExplosionEvent explosionEvent = switch (explosionHealingMode) {
-            case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(sortedAffectedBlocks);
-            case DIFFICULTY_BASED_HEALING_MODE -> new DifficultyBasedExplosionEvent(sortedAffectedBlocks);
-            case BLAST_RESISTANCE_BASED_HEALING_MODE -> new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks);
-            default -> new DefaultExplosionEvent(sortedAffectedBlocks);
-        };
+        List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(affectedBlocks, world);
+        AbstractExplosionEvent explosionEvent = AbstractExplosionEvent.newExplosionEvent(sortedAffectedBlocks);
         Set<AbstractExplosionEvent> collidingExplosions = this.getCollidingExplosions(affectedBlocks.stream().map(AffectedBlock::getPos).toList());
         if(collidingExplosions.isEmpty()){
             explosionEvent.setupExplosion(world);
@@ -109,14 +101,11 @@ public class ExplosionManager {
             collidingExplosions.add(explosionEvent);
             this.explosionEvents.add(combineCollidingExplosions(collidingExplosions, explosionEvent, world));
         }
-
     }
 
     private AbstractExplosionEvent combineCollidingExplosions(Set<AbstractExplosionEvent> collidingExplosions, AbstractExplosionEvent newestExplosion, World world){
-        List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream()
-                .flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream())
-                .collect(Collectors.toList());
-        List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world.getServer());
+        List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream().flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream()).collect(Collectors.toList());
+        List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world);
         AbstractExplosionEvent explosionEvent;
         if(newestExplosion instanceof DaytimeExplosionEvent){
             explosionEvent = new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
@@ -127,8 +116,7 @@ public class ExplosionManager {
         } else {
             explosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
         }
-        long newestExplosionBlockTimers = DelaysConfig.getBlockPlacementDelayAsTicks();
-        explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(newestExplosionBlockTimers));
+        explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(DelaysConfig.getBlockPlacementDelayAsTicks()));
         explosionEvent.setupExplosion(world);
         return explosionEvent;
     }
@@ -139,8 +127,9 @@ public class ExplosionManager {
         int newExplosionAverageRadius = ExplosionUtils.getMaxExplosionRadius(affectedPositions);
         for(AbstractExplosionEvent explosionEvent : this.explosionEvents){
             if(explosionEvent.getHealTimer() > 0){
-                BlockPos centerOfCurrentExplosion = new BlockPos(ExplosionUtils.getCenterXCoordinate(explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList()), ExplosionUtils.getCenterYCoordinate(explosionEvent.getCurrentAffectedBlock().stream().map(AffectedBlock::getPos).toList()), ExplosionUtils.getCenterZCoordinate(explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList()));
-                int currentExplosionAverageRadius = ExplosionUtils.getMaxExplosionRadius(explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList());
+                List<BlockPos> affectedBlocksAsPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
+                BlockPos centerOfCurrentExplosion = new BlockPos(ExplosionUtils.getCenterXCoordinate(affectedBlocksAsPositions), ExplosionUtils.getCenterYCoordinate(affectedBlocksAsPositions), ExplosionUtils.getCenterZCoordinate(affectedBlocksAsPositions));
+                int currentExplosionAverageRadius = ExplosionUtils.getMaxExplosionRadius(affectedBlocksAsPositions);
                 if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
                     collidingExplosions.add(explosionEvent);
                 }
@@ -149,7 +138,13 @@ public class ExplosionManager {
         return collidingExplosions;
     }
 
-    private boolean shouldHealExplosionFromSource(LivingEntity causingLivingEntity, Entity causingEntity, DamageSource damageSource){
+    private boolean shouldHealExplosion(Explosion explosion){
+        LivingEntity causingLivingEntity = explosion.getCausingEntity();
+        Entity causingEntity = explosion.getEntity();
+        DamageSource damageSource = ((ExplosionAccessor)explosion).creeper_healing$getDamageSource();
+        if(explosion.getAffectedBlocks().isEmpty()){
+            return false;
+        }
         return (causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.HEAL_CREEPER_EXPLOSIONS.getEntry().getValue())
                 || (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.HEAL_GHAST_EXPLOSIONS.getEntry().getValue())
                 || (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.HEAL_WITHER_EXPLOSIONS.getEntry().getValue())
@@ -164,11 +159,11 @@ public class ExplosionManager {
             return;
         }
         this.explosionEvents.forEach(AbstractExplosionEvent::tick);
-        this.explosionEvents.forEach(explosionEvent -> {
+        for(AbstractExplosionEvent explosionEvent : this.explosionEvents){
             if(explosionEvent.getHealTimer() < 0){
                 this.onExplosionEventFinishedTimer(explosionEvent, server);
             }
-        });
+        }
     }
 
     private void onExplosionEventFinishedTimer(AbstractExplosionEvent currentExplosion, MinecraftServer server){

@@ -1,12 +1,13 @@
 package xd.arkosammy.creeperhealing.explosions;
 
 import net.minecraft.world.World;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 
 import java.util.List;
 
 public class DefaultExplosionEvent extends AbstractExplosionEvent {
 
-    DefaultExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
+    public DefaultExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
         super(affectedBlocks, healTimer, blockCounter);
     }
 
@@ -20,11 +21,11 @@ public class DefaultExplosionEvent extends AbstractExplosionEvent {
     }
 
     @Override
-    void setupExplosion(World world) {
+    public void setupExplosion(World world) {
     }
 
     @Override
-    boolean shouldKeepHealing(World world) {
+    public boolean shouldKeepHealing(World world) {
         return true;
     }
 

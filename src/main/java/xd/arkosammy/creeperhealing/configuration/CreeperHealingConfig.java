@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.CreeperHealing;
-import xd.arkosammy.creeperhealing.explosions.ExplosionManager;
+import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

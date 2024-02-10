@@ -16,11 +16,11 @@ import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import xd.arkosammy.creeperhealing.configuration.ExplosionItemDropConfig;
-import xd.arkosammy.creeperhealing.explosions.ExplosionUtils;
+import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
 
 @Mixin(Block.class)
-public abstract class ExplosionItemDropMixin {
+public abstract class BlockMixin {
 
     @ModifyReturnValue(method = "shouldDropItemsOnExplosion", at=@At("RETURN"))
     private boolean shouldExplosionDropItems(boolean dropItems, @Local Explosion explosion){

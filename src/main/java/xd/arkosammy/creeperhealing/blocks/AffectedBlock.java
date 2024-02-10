@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.explosions;
+package xd.arkosammy.creeperhealing.blocks;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
@@ -15,6 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
 import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
 import xd.arkosammy.creeperhealing.configuration.ReplaceMapConfig;
+import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
+import xd.arkosammy.creeperhealing.util.ExplosionUtils;
+import xd.arkosammy.creeperhealing.util.SerializedAffectedBlock;
 
 import java.util.Objects;
 
@@ -27,7 +30,7 @@ public class AffectedBlock {
     private long affectedBlockTimer;
     private boolean placed;
 
-    AffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
+    public AffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
         this.pos = pos;
         this.state = state;
         this.worldRegistryKey = registryKey;
@@ -35,8 +38,7 @@ public class AffectedBlock {
         this.affectedBlockTimer = affectedBlockTimer;
     }
 
-    public static AffectedBlock newAffectedBlock(BlockPos pos, World world){
-        BlockState state = world.getBlockState(pos);
+    public static AffectedBlock newAffectedBlock(BlockPos pos, BlockState state, World world){
         return state.contains(Properties.DOUBLE_BLOCK_HALF) || state.contains(Properties.BED_PART) ? new DoubleAffectedBlock(pos, state, world.getRegistryKey(), DelaysConfig.getBlockPlacementDelayAsTicks(), false) : new AffectedBlock(pos, state, world.getRegistryKey(), DelaysConfig.getBlockPlacementDelayAsTicks(), false);
     }
 
@@ -84,11 +86,11 @@ public class AffectedBlock {
         return TYPE;
     }
 
-    SerializedAffectedBlock toSerialized(){
+    public SerializedAffectedBlock toSerialized(){
         return new SerializedAffectedBlock(this.getAffectedBlockType(), this.pos, this.state, this.worldRegistryKey, this.affectedBlockTimer, this.placed);
     }
 
-    void tryHealing(MinecraftServer server, AbstractExplosionEvent currentExplosionEvent){
+    public void tryHealing(MinecraftServer server, AbstractExplosionEvent currentExplosionEvent){
 
         BlockState state = this.getState();
         BlockPos pos = this.getPos();

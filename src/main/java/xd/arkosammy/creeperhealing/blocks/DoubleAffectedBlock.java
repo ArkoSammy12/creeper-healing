@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.explosions;
+package xd.arkosammy.creeperhealing.blocks;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.BedPart;
@@ -15,12 +15,14 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
 import xd.arkosammy.creeperhealing.configuration.ReplaceMapConfig;
+import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
+import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 
 public class DoubleAffectedBlock extends AffectedBlock {
 
-    static final String TYPE = "double_affected_block";
+    public static final String TYPE = "double_affected_block";
 
-    DoubleAffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
+    public DoubleAffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
         super(pos, state, registryKey, affectedBlockTimer, placed);
     }
 
@@ -30,7 +32,7 @@ public class DoubleAffectedBlock extends AffectedBlock {
     }
 
     @Override
-    void tryHealing(MinecraftServer server, AbstractExplosionEvent currentExplosionEvent){
+    public void tryHealing(MinecraftServer server, AbstractExplosionEvent currentExplosionEvent){
 
         BlockState state = this.getState();
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();

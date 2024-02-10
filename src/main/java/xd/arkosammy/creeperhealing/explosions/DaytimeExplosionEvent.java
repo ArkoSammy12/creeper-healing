@@ -2,12 +2,13 @@ package xd.arkosammy.creeperhealing.explosions;
 
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 
 import java.util.List;
 
 public class DaytimeExplosionEvent extends AbstractExplosionEvent {
 
-    DaytimeExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
+    public DaytimeExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
         super(affectedBlocks, healTimer, blockCounter);
     }
 

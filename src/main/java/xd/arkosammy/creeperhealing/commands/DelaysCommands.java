@@ -10,7 +10,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
-import xd.arkosammy.creeperhealing.explosions.ExplosionManager;
+import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 public final class DelaysCommands {
 

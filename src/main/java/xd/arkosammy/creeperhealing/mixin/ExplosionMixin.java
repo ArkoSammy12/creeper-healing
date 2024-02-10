@@ -9,13 +9,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.creeperhealing.explosions.ExplosionManager;
-import xd.arkosammy.creeperhealing.explosions.ExplosionUtils;
+import xd.arkosammy.creeperhealing.util.ExplosionManager;
+import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
 
 
 @Mixin(Explosion.class)
-public abstract class ExplosionListenerMixin implements ExplosionAccessor {
+public abstract class ExplosionMixin implements ExplosionAccessor {
 
     @Shadow @Final private World world;
 

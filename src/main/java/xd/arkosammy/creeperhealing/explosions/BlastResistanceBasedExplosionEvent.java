@@ -3,13 +3,14 @@ package xd.arkosammy.creeperhealing.explosions;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
 
 import java.util.List;
 
 public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
 
-    BlastResistanceBasedExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
+    public BlastResistanceBasedExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
         super(affectedBlocks, healTimer, blockCounter);
     }
 
@@ -35,7 +36,7 @@ public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
     }
 
     @Override
-    boolean shouldKeepHealing(World world) {
+    public boolean shouldKeepHealing(World world) {
         return true;
     }
 

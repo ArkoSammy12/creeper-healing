@@ -4,7 +4,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
+import xd.arkosammy.creeperhealing.configuration.ModeConfig;
+import xd.arkosammy.creeperhealing.util.SerializedExplosionEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,55 +20,65 @@ public abstract class AbstractExplosionEvent {
     private long healTimer;
     private int blockCounter;
 
-    AbstractExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter){
+    protected AbstractExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter){
         this.affectedBlocks = affectedBlocks;
         this.healTimer = healTimer;
         this.blockCounter = blockCounter;
     }
 
-    AbstractExplosionEvent(List<AffectedBlock> affectedBlocks){
+    protected AbstractExplosionEvent(List<AffectedBlock> affectedBlocks){
         this.affectedBlocks = affectedBlocks;
         this.healTimer = DelaysConfig.getExplosionHealDelayAsTicks();
         this.blockCounter = 0;
     }
 
-    final public void setHealTimer(long healTimer){
+    public static AbstractExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocks){
+        ExplosionHealingMode explosionHealingMode = ExplosionHealingMode.getFromName(ModeConfig.MODE.getEntry().getValue());
+        return switch (explosionHealingMode) {
+            case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks);
+            case DIFFICULTY_BASED_HEALING_MODE -> new DifficultyBasedExplosionEvent(affectedBlocks);
+            case BLAST_RESISTANCE_BASED_HEALING_MODE -> new BlastResistanceBasedExplosionEvent(affectedBlocks);
+            default -> new DefaultExplosionEvent(affectedBlocks);
+        };
+    }
+
+    public final void setHealTimer(long healTimer){
         this.healTimer = healTimer;
     }
 
-    final void incrementCounter(){
+    public final void incrementCounter(){
         this.blockCounter++;
     }
 
-    final public List<AffectedBlock> getAffectedBlocks(){
+    public final List<AffectedBlock> getAffectedBlocks(){
         return this.affectedBlocks;
     }
 
-    final long getHealTimer(){
+    public final long getHealTimer(){
         return this.healTimer;
     }
 
-    final int getBlockCounter(){
+    public final int getBlockCounter(){
         return this.blockCounter;
      }
 
-     abstract ExplosionHealingMode getHealingMode();
+    abstract ExplosionHealingMode getHealingMode();
 
-     final public void tick(){
+    public final void tick(){
         this.healTimer--;
      }
 
-    abstract void setupExplosion(World world);
+    public abstract void setupExplosion(World world);
 
-     final SerializedExplosionEvent toSerialized(){
+    public final SerializedExplosionEvent toSerialized(){
         return new SerializedExplosionEvent(this.getHealingMode().getName(), this.affectedBlocks.stream().map(AffectedBlock::toSerialized).toList(), this.healTimer, this.blockCounter);
-     }
+    }
 
-     final public Optional<AffectedBlock> getCurrentAffectedBlock(){
+     public final Optional<AffectedBlock> getCurrentAffectedBlock(){
         return this.blockCounter < this.affectedBlocks.size() ? Optional.of(this.affectedBlocks.get(this.blockCounter)) : Optional.empty();
      }
 
-     final void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
+     public final void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
         int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
         if(indexOfDelayedBlock != -1){
             Optional<Integer> indexOfNextPlaceableOptional = this.findNextPlaceableBlock(server);
@@ -88,9 +101,9 @@ public abstract class AbstractExplosionEvent {
          return Optional.empty();
      }
 
-     abstract boolean shouldKeepHealing(World world);
+     public abstract boolean shouldKeepHealing(World world);
 
-    final void markAffectedBlockAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
+    public final void markAffectedBlockAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
         for(AffectedBlock affectedBlock : this.getAffectedBlocks()) {
             if(affectedBlock.getState().equals(secondHalfState) && affectedBlock.getPos().equals(secondHalfPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
                 affectedBlock.setPlaced();

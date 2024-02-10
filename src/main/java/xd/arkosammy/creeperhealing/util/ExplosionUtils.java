@@ -1,16 +1,16 @@
-package xd.arkosammy.creeperhealing.explosions;
+package xd.arkosammy.creeperhealing.util;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
 
 import java.util.*;
@@ -21,7 +21,7 @@ public final class ExplosionUtils {
     private ExplosionUtils(){}
     public static final ThreadLocal<Boolean> SHOULD_NOT_DROP_ITEMS = new ThreadLocal<>();
 
-     static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
+     public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;
         for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
             if(areAboveBlocksFree(world, pos, entity, amountToPush)) {
@@ -39,28 +39,24 @@ public final class ExplosionUtils {
         return true;
     }
 
-     static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
+     static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, World world){
 
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
-
-        int centerX = getCenterXCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
-        int centerZ = getCenterZCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
-
+        List<BlockPos> affectedBlocksAsPositions = sortedAffectedBlocks.stream().map(AffectedBlock::getPos).collect(Collectors.toList());
+        int centerX = getCenterXCoordinate(affectedBlocksAsPositions);
+        int centerZ = getCenterZCoordinate(affectedBlocksAsPositions);
         Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
         sortedAffectedBlocks.sort(distanceToCenterComparator);
-
         Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());
         sortedAffectedBlocks.sort(yLevelComparator);
-
         Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
-            boolean isAffectedBlock1Transparent = affectedBlock1.getState().isTransparent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
-            boolean isAffectedBlock2Transparent = affectedBlock2.getState().isTransparent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
+            boolean isAffectedBlock1Transparent = affectedBlock1.getState().isTransparent(world, affectedBlock1.getPos());
+            boolean isAffectedBlock2Transparent = affectedBlock2.getState().isTransparent(world, affectedBlock2.getPos());
             return Boolean.compare(isAffectedBlock1Transparent, isAffectedBlock2Transparent);
         };
         sortedAffectedBlocks.sort(transparencyComparator);
         return sortedAffectedBlocks;
     }
-
 
     static int getCenterXCoordinate(List<BlockPos> affectedCoordinates){
         int maxX = affectedCoordinates.stream()
@@ -133,11 +129,11 @@ public final class ExplosionUtils {
         return Arrays.stream(radii).max().orElse(0);
     }
 
-    static boolean shouldPlaySoundOnBlockHeal(World world, BlockState state) {
+    public static boolean shouldPlaySoundOnBlockHeal(World world, BlockState state) {
         return !world.isClient && !state.isAir() && PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().getValue();
     }
 
-    static boolean isStateAirOrFire(BlockState state) {
+    public static boolean isStateAirOrFire(BlockState state) {
         return state.isAir() || state.isIn(BlockTags.FIRE);
     }
 

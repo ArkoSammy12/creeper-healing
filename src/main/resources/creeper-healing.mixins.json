@@ -3,10 +3,11 @@
   "package": "xd.arkosammy.creeperhealing.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ExplosionItemDropMixin",
-    "ExplosionListenerMixin",
-    "HealingPotionMixin",
-    "UpdateDayLightTimersMixin",
+    "BlockMixin",
+    "ExplosionMixin",
+    "PotionEntityMixin",
+    "ServerWorldMixin",
+    "TimeCommandMixin",
     "WorldMixin"
   ],
   "injectors": {
