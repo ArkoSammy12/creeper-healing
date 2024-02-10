@@ -7,14 +7,6 @@ import java.util.Arrays;
 
 public enum PreferencesConfig {
 
-    HEAL_ON_FLOWING_WATER(new ConfigEntry<>("heal_on_flowing_water", true, """
-                (Default = true) Whether or not blocks should be healed where there is currently flowing water.""")),
-    HEAL_ON_SOURCE_WATER(new ConfigEntry<>("heal_on_source_water", false, """
-                (Default = false) Whether or not blocks should healed where there is currently a source water block.""")),
-    HEAL_ON_FLOWING_LAVA(new ConfigEntry<>("heal_on_flowing_lava", true, """
-                (Default = true) Whether or not blocks should be healed where there is currently flowing lava.""")),
-    HEAL_ON_SOURCE_LAVA(new ConfigEntry<>("heal_on_source_lava", false, """
-                (Default = false) Whether or not blocks should be healed where there is currently a source lava block.""")),
     BLOCK_PLACEMENT_SOUND_EFFECT(new ConfigEntry<>("block_placement_sound_effect", true, """
                 (Default = true) Whether or not a block heal should play a sound effect.""")),
     HEAL_ON_HEALING_POTION_SPLASH(new ConfigEntry<>("heal_on_healing_potion_splash", true, """

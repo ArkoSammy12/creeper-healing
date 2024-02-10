@@ -100,7 +100,7 @@ public class AffectedBlock {
             state = Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
         }
 
-        if(this.shouldHealBlock(world)) {
+        if(this.shouldHealBlock(world, this.pos)) {
             if(state.isSolidBlock(world, pos)) {
                 ExplosionUtils.pushEntitiesUpwards(world, pos, false);
             }
@@ -112,8 +112,8 @@ public class AffectedBlock {
 
     }
 
-    boolean shouldHealBlock(World world) {
-        return ExplosionUtils.canHealAtPosition(world, this.pos);
+    boolean shouldHealBlock(World world, BlockPos pos) {
+        return world.getBlockState(pos).isReplaceable();
     }
 
     @Override

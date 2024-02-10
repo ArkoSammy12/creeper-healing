@@ -56,7 +56,7 @@ public class DoubleAffectedBlock extends AffectedBlock {
         BlockState secondHalfState = firstHalfState.getBlock().getStateWithProperties(firstHalfState).with(Properties.DOUBLE_BLOCK_HALF, secondHalf);
         BlockPos secondHalfPos = secondHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? firstHalfPos.up() :  firstHalfPos.down();
 
-        if(this.shouldHealDoubleBlock(world, secondHalfPos)) {
+        if(this.shouldHealBlock(world, secondHalfPos)) {
             BlockState stateToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfState : secondHalfState;
             BlockPos posToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfPos : firstHalfPos.down();
 
@@ -100,7 +100,7 @@ public class DoubleAffectedBlock extends AffectedBlock {
             }
         }
 
-        if (this.shouldHealDoubleBlock(world, secondHalfPos)) {
+        if (this.shouldHealBlock(world, secondHalfPos)) {
 
             if(firstHalfState.isSolidBlock(world, firstHalfPos)) {
                 ExplosionUtils.pushEntitiesUpwards(world, firstHalfPos, false);
@@ -117,8 +117,10 @@ public class DoubleAffectedBlock extends AffectedBlock {
         currentExplosionEvent.markAffectedBlockAsPlaced(secondHalfState, secondHalfPos, world);
     }
 
-    private boolean shouldHealDoubleBlock(World world, BlockPos secondBlockPos){
-        return ExplosionUtils.canHealAtPosition(world, this.getPos()) && ExplosionUtils.canHealAtPosition(world, secondBlockPos);
+
+    @Override
+    boolean shouldHealBlock(World world, BlockPos secondBlockPos){
+        return world.getBlockState(this.getPos()).isReplaceable() && world.getBlockState(secondBlockPos).isReplaceable();
     }
 
 }

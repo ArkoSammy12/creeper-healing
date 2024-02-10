@@ -1,12 +1,8 @@
 package xd.arkosammy.creeperhealing.util;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -133,22 +129,6 @@ public final class ExplosionUtils {
 
     public static boolean shouldPlayBlockPlacementSound(World world, BlockState state) {
         return !world.isClient && !state.isAir() && PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().getValue();
-    }
-
-    public static boolean canHealAtPosition(World world, BlockPos pos) {
-         BlockState state = world.getBlockState(pos);
-         FluidState fluidState = world.getFluidState(pos);
-         if(state.isAir() || state.isIn(BlockTags.FIRE) || state.isOf(Blocks.SNOW)){
-             return true;
-         } else if (fluidState.isOf(Fluids.FLOWING_WATER) && PreferencesConfig.HEAL_ON_FLOWING_WATER.getEntry().getValue()){
-             return true;
-         } else if (fluidState.isOf(Fluids.FLOWING_LAVA) && PreferencesConfig.HEAL_ON_FLOWING_LAVA.getEntry().getValue()){
-             return true;
-         } else if (fluidState.isOf(Fluids.WATER) && PreferencesConfig.HEAL_ON_SOURCE_WATER.getEntry().getValue()){
-             return true;
-         } else {
-             return fluidState.isOf(Fluids.LAVA) && PreferencesConfig.HEAL_ON_SOURCE_LAVA.getEntry().getValue();
-         }
     }
 
 }

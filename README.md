@@ -7,9 +7,11 @@ This server and client side, customizable mod allows the world to automatically 
 
 Special modes that customize the way explosions are healed even further:
 
-  - **Daytime Healing Mode**: Makes explosions wait until sunrise to begin healing. When they do, they will need a source of light to be able to heal.
+ - **Daytime Healing Mode**: Makes explosions wait until sunrise to begin healing. When they do, they will need a source of light to be able to heal.
  - **Difficulty-based Healing Mode**: Speeds up or slows down the healing of explosions depending on the difficulty of the world or server.
  - **Blast-resistance based Healing Mode**: Blocks with a higher blast resistance will take longer to heal. Their delays will also receive a randomized offset, causing blocks to heal in bursts.
+ 
+Blocks will be healed during the explosion healing process. A block may be healed at a position if a player would also be able to place a block at that position.
 
 ### Different explosion sources
 
@@ -63,8 +65,7 @@ By default, the mod includes the following entry in the replace map:
 ### Extra settings
 
 You can also toggle different preference settings to further customize the behavior of the healing of explosions:
- 
- - Whether blocks should be healed where there is currently flowing water or lava.
+
  - Whether explosions should drop items.
  - Enable or disable the block placement sound effect when a block is healed.
  - Heal explosions faster via splash potions of Healing or Regeneration.
@@ -125,14 +126,6 @@ The following is the default configuration file generated upon first mod initial
 	block_placement_delay = 1.0
 #Toggleable settings to customize the healing of explosions.
 [preferences]
-	#(Default = true) Whether or not blocks should be healed where there is currently flowing water.
-	heal_on_flowing_water = true
-	#(Default = false) Whether or not blocks should healed where there is currently a source water block.
-	heal_on_source_water = false
-	#(Default = true) Whether or not blocks should be healed where there is currently flowing lava.
-	heal_on_flowing_lava = true
-	#(Default = false) Whether or not blocks should be healed where there is currently a source lava block.
-	heal_on_source_lava = false
 	#(Default = true) Whether or not a block heal should play a sound effect.
 	block_placement_sound_effect = true
 	#(Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them.
