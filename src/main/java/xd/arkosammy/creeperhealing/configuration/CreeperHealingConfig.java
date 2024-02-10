@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.CreeperHealing;
-import xd.arkosammy.creeperhealing.explosions.AffectedBlock;
+import xd.arkosammy.creeperhealing.explosions.ExplosionManager;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -93,11 +93,9 @@ public final class CreeperHealingConfig {
         if(CONFIG_BUILDER != null){
             try(CommentedFileConfig fileConfig = CONFIG_BUILDER.build()){
                 if(Files.exists(CONFIG_PATH)){
-                    CreeperHealing.setHealerHandlerLock(false);
                     fileConfig.load();
                     loadConfigSettingsToMemory(fileConfig);
-                    CreeperHealing.setHealerHandlerLock(true);
-                    AffectedBlock.updateAffectedBlocksTimers();
+                    ExplosionManager.getInstance().updateAffectedBlocksTimers();
 
                     //Warn the user if these delays were set to 0 or fewer seconds
                     if(Math.round(Math.max(DelaysConfig.EXPLOSION_HEAL_DELAY.getEntry().getValue(), 0) * 20L) == 0) ctx.getSource().sendMessage(Text.literal("Explosion heal delay set to a very low value in the config file. A value of 1 second will be used instead. Please set a valid value in the config file").formatted(Formatting.YELLOW));

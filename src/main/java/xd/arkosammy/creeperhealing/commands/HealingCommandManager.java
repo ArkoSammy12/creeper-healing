@@ -28,15 +28,12 @@ public final class HealingCommandManager {
                 .literal("reload_config")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .executes(context -> {
-
                     try {
                         HealingCommandManager.reload(context);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-
                     return Command.SINGLE_SUCCESS;
-
                 })
                 .build();
 

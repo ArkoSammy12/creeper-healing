@@ -1,9 +1,9 @@
 package xd.arkosammy.creeperhealing.explosions;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -12,7 +12,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
-import xd.arkosammy.creeperhealing.handlers.ExplosionListHandler;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,7 +21,7 @@ public final class ExplosionUtils {
     private ExplosionUtils(){}
     public static final ThreadLocal<Boolean> SHOULD_NOT_DROP_ITEMS = new ThreadLocal<>();
 
-    public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
+     static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;
         for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
             if(areAboveBlocksFree(world, pos, entity, amountToPush)) {
@@ -39,28 +39,7 @@ public final class ExplosionUtils {
         return true;
     }
 
-    /*
-    Obtain colliding explosions by filtering out explosions that have already started healing.
-    An explosion collides with another if the distance between their centers is less than or equal to the sum of their radii
-     */
-    public static Set<ExplosionEvent> getCollidingWaitingExplosions(List<BlockPos> affectedBlockPosList){
-        Set<ExplosionEvent> collidingExplosions = new LinkedHashSet<>();
-        BlockPos centerOfNewExplosion = new BlockPos(getCenterXCoordinate(affectedBlockPosList), getCenterYCoordinate(affectedBlockPosList), getCenterZCoordinate(affectedBlockPosList));
-        int newExplosionAverageRadius = getMaxExplosionRadius(affectedBlockPosList);
-
-        for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
-             if(explosionEvent.getExplosionTimer() > 0){
-                 BlockPos centerOfCurrentExplosion = new BlockPos(getCenterXCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList()), getCenterYCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList()), getCenterZCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList()));
-                 int currentExplosionAverageRadius = getMaxExplosionRadius(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList());
-                 if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
-                     collidingExplosions.add(explosionEvent);
-                 }
-             }
-         }
-         return collidingExplosions;
-    }
-
-    public static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
+     static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
 
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
 
@@ -83,7 +62,7 @@ public final class ExplosionUtils {
     }
 
 
-    private static int getCenterXCoordinate(List<BlockPos> affectedCoordinates){
+    static int getCenterXCoordinate(List<BlockPos> affectedCoordinates){
         int maxX = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getX)
                 .max()
@@ -95,7 +74,7 @@ public final class ExplosionUtils {
         return (maxX + minX) / 2;
     }
 
-    private static int getCenterYCoordinate(List<BlockPos> affectedCoordinates){
+    static int getCenterYCoordinate(List<BlockPos> affectedCoordinates){
         int maxY = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getY)
                 .max()
@@ -107,7 +86,7 @@ public final class ExplosionUtils {
         return (maxY + minY)/2;
     }
 
-    private static int getCenterZCoordinate(List<BlockPos> affectedCoordinates){
+    static int getCenterZCoordinate(List<BlockPos> affectedCoordinates){
         int maxZ = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getZ)
                 .max()
@@ -119,7 +98,7 @@ public final class ExplosionUtils {
         return (maxZ + minZ) / 2;
     }
 
-    private static int getMaxExplosionRadius(List<BlockPos> affectedCoordinates){
+    static int getMaxExplosionRadius(List<BlockPos> affectedCoordinates){
         int[] radii = new int[3];
         int maxX = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getX)
@@ -154,12 +133,12 @@ public final class ExplosionUtils {
         return Arrays.stream(radii).max().orElse(0);
     }
 
-    public static boolean shouldPlaySoundOnBlockHeal(World world, BlockState state) {
+    static boolean shouldPlaySoundOnBlockHeal(World world, BlockState state) {
         return !world.isClient && !state.isAir() && PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().getValue();
     }
 
-    public static boolean isStateAirOrFire(BlockState state) {
-        return state.isAir() || state.getBlock().equals(Blocks.FIRE) || state.getBlock().equals(Blocks.SOUL_FIRE);
+    static boolean isStateAirOrFire(BlockState state) {
+        return state.isAir() || state.isIn(BlockTags.FIRE);
     }
 
 }

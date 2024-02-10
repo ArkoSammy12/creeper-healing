@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
 import xd.arkosammy.creeperhealing.explosions.AffectedBlock;
-import xd.arkosammy.creeperhealing.explosions.ExplosionHealingMode;
-import xd.arkosammy.creeperhealing.handlers.ExplosionListHandler;
+import xd.arkosammy.creeperhealing.explosions.DefaultExplosionEvent;
+import xd.arkosammy.creeperhealing.explosions.ExplosionManager;
 
 import java.util.List;
 
@@ -38,18 +38,18 @@ public abstract class HealingPotionMixin {
             return;
         }
         if(statusEffects.contains(StatusEffects.INSTANT_HEALTH) && PreferencesConfig.HEAL_ON_HEALING_POTION_SPLASH.getEntry().getValue()) {
-            ExplosionListHandler.getExplosionEventList().forEach(explosionEvent -> {
-                List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList();
+            ExplosionManager.getInstance().getExplosionEvents().forEach(explosionEvent -> {
+                List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
                 if(affectedBlockPositions.contains(potionHitPosition)){
-                    explosionEvent.setExplosionTimer(-1);
-                    explosionEvent.getAffectedBlocksList().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(1));
+                    explosionEvent.setHealTimer(-1);
+                    explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(1));
                 }
             });
         } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().getValue()){
-            ExplosionListHandler.getExplosionEventList().forEach(explosionEvent -> {
-                List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList();
-                if(affectedBlockPositions.contains(potionHitPosition) && explosionEvent.getExplosionMode() == ExplosionHealingMode.DEFAULT_MODE){
-                    explosionEvent.setExplosionTimer(-1);
+            ExplosionManager.getInstance().getExplosionEvents().forEach(explosionEvent -> {
+                List<BlockPos> affectedBlockPositions = explosionEvent.getCurrentAffectedBlock().stream().map(AffectedBlock::getPos).toList();
+                if(affectedBlockPositions.contains(potionHitPosition) && explosionEvent instanceof DefaultExplosionEvent){
+                    explosionEvent.setHealTimer(-1);
                 }
             });
 

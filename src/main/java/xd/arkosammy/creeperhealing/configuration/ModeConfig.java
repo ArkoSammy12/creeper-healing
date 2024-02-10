@@ -9,7 +9,7 @@ public enum ModeConfig {
     MODE(new ConfigEntry<>("mode", ExplosionHealingMode.DEFAULT_MODE.getName(), """
                 (Default = "default_mode") Select between any of the following healing modes by copying the string (the text enclosed by the double quotes along with the double quotes)
                 and pasting it into the value of the "mode" setting below:
-                ["default_mode", "daytime_healing_mode", "difficulty_based_healing_mode", "blast_resistance_based_healing_mode"]\s"""));
+                ["%s", "%s", "%s", "%s"]\s""".formatted(ExplosionHealingMode.DEFAULT_MODE.getName(), ExplosionHealingMode.DAYTIME_HEALING_MODE.getName(), ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName(), ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName())));
 
     private final ConfigEntry<String> entry;
 
@@ -20,6 +20,7 @@ public enum ModeConfig {
     public ConfigEntry<String> getEntry(){
         return this.entry;
     }
+
     private static final String TABLE_NAME = "explosion_healing_mode";
     private static final String TABLE_COMMENT = """
             Choose between different special modes for explosion healing.""";
