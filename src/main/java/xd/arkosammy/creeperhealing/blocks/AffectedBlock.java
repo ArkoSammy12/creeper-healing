@@ -1,8 +1,6 @@
 package xd.arkosammy.creeperhealing.blocks;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -13,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
-import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
 import xd.arkosammy.creeperhealing.configuration.ReplaceMapConfig;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
@@ -103,29 +100,20 @@ public class AffectedBlock {
             state = Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
         }
 
-        if(this.shouldHealBlock(server)) {
+        if(this.shouldHealBlock(world)) {
             if(state.isSolidBlock(world, pos)) {
                 ExplosionUtils.pushEntitiesUpwards(world, pos, false);
             }
             world.setBlockState(pos, state);
-            if(ExplosionUtils.shouldPlaySoundOnBlockHeal(world, state)) {
+            if(ExplosionUtils.isStateReplaceable(world, state)) {
                 world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
             }
         }
 
     }
 
-    boolean shouldHealBlock(MinecraftServer server) {
-        BlockState blockState = this.getWorld(server).getBlockState(this.pos);
-        FluidState fluidState = blockState.getFluidState();
-
-        if (ExplosionUtils.isStateAirOrFire(blockState)) {
-            return true;
-        } else if ((fluidState.getFluid().equals(Fluids.FLOWING_WATER) && PreferencesConfig.HEAL_ON_FLOWING_WATER.getEntry().getValue()) ||
-                (fluidState.getFluid().equals(Fluids.WATER) && PreferencesConfig.HEAL_ON_SOURCE_WATER.getEntry().getValue())) {
-            return true;
-        } else return (fluidState.getFluid().equals(Fluids.FLOWING_LAVA) && PreferencesConfig.HEAL_ON_FLOWING_LAVA.getEntry().getValue()) ||
-                (fluidState.getFluid().equals(Fluids.LAVA) && PreferencesConfig.HEAL_ON_SOURCE_LAVA.getEntry().getValue());
+    boolean shouldHealBlock(World world) {
+        return ExplosionUtils.canHealAtPosition(world, this.pos);
     }
 
     @Override

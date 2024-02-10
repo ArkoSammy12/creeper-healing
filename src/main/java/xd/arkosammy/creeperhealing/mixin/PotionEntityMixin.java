@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
-import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.explosions.DefaultExplosionEvent;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
@@ -38,8 +37,7 @@ public abstract class PotionEntityMixin {
         }
         if (statusEffects.contains(StatusEffects.INSTANT_HEALTH) && PreferencesConfig.HEAL_ON_HEALING_POTION_SPLASH.getEntry().getValue()){
             for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
-                List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
-                boolean potionHitExplosion = affectedBlockPositions.contains(potionHitPosition);
+                boolean potionHitExplosion = explosionEvent.getAffectedBlocks().stream().anyMatch(affectedBlock -> affectedBlock.getPos().equals(potionHitPosition));
                 if(potionHitExplosion){
                     explosionEvent.setHealTimer(1);
                     explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setAffectedBlockTimer(1));
@@ -47,8 +45,7 @@ public abstract class PotionEntityMixin {
             }
         } else if (statusEffects.contains(StatusEffects.REGENERATION) && PreferencesConfig.HEAL_ON_REGENERATION_POTION_SPLASH.getEntry().getValue()){
             for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
-                List<BlockPos> affectedBlockPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
-                boolean potionHitExplosion = affectedBlockPositions.contains(potionHitPosition);
+                boolean potionHitExplosion = explosionEvent.getAffectedBlocks().stream().anyMatch(affectedBlock -> affectedBlock.getPos().equals(potionHitPosition));
                 if(potionHitExplosion && explosionEvent instanceof DefaultExplosionEvent){
                     explosionEvent.setHealTimer(1);
                 }
