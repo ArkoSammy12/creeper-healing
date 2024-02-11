@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xd.arkosammy.creeperhealing.configuration.CreeperHealingConfig;
+import xd.arkosammy.creeperhealing.config.CreeperHealingConfig;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 import xd.arkosammy.creeperhealing.commands.HealingCommandManager;
 

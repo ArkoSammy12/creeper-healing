@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.configuration;
+package xd.arkosammy.creeperhealing.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;

@@ -5,8 +5,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
-import xd.arkosammy.creeperhealing.configuration.ModeConfig;
+import xd.arkosammy.creeperhealing.config.DelaysConfig;
+import xd.arkosammy.creeperhealing.config.ModeConfig;
 import xd.arkosammy.creeperhealing.util.SerializedExplosionEvent;
 
 import java.util.Collections;
