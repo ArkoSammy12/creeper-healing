@@ -16,6 +16,7 @@ public class CreeperHealing implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
 
 	// TODO: Remake entire config system somehow. Make it more generic?
+	// TODO: Find a way to reset the config file such that unused config settings are automatically removed from the file
 	@Override
 	public void onInitialize() {
 		CreeperHealingConfig.initializeConfig();

@@ -13,10 +13,12 @@ import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 public final class CreeperHealingConfig {
 
@@ -72,10 +74,7 @@ public final class CreeperHealingConfig {
                     ReplaceMapConfig.loadReplaceMapToMemory(fileConfig);
                     WhitelistConfig.loadWhitelistToMemory(fileConfig);
                     saveConfigSettingsToFile(fileConfig);
-                    try(PrintWriter printWriter = new PrintWriter(String.valueOf(CONFIG_PATH))){
-                        printWriter.write("");
-                    } catch (FileNotFoundException e) {
-                        throw new RuntimeException(e);
+                    try(BufferedWriter bf = Files.newBufferedWriter(CONFIG_PATH, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);){
                     }
                     fileConfig.save();
                 } else {
@@ -85,6 +84,8 @@ public final class CreeperHealingConfig {
                     saveDefaultConfigSettingsToFile(fileConfig);
                     fileConfig.save();
                 }
+            } catch (IOException e){
+                CreeperHealing.LOGGER.error("Error updating config file: " + e);
             }
         }
     }
