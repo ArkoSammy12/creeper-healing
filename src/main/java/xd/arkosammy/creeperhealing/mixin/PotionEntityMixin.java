@@ -23,6 +23,7 @@ import java.util.List;
 @Mixin(PotionEntity.class)
 public abstract class PotionEntityMixin {
 
+    // Make explosions start healing when you throw a potion of healing or regeneration on them
     @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/PotionEntity;applySplashPotion(Ljava/util/List;Lnet/minecraft/entity/Entity;)V"))
     private void affectExplosionOnSplashPotionHit(HitResult hitResult, CallbackInfo ci, @Local Potion potion) {
         List<StatusEffect> statusEffects = potion.getEffects().stream().map(StatusEffectInstance::getEffectType).toList();

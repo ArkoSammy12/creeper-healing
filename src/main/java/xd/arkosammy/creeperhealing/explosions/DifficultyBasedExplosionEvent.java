@@ -23,6 +23,7 @@ public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
         return ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE;
     }
 
+    // Speed up the timers of this explosion when the difficulty is set to easy or peaceful, and slow it down if it's set to hard
     @Override
     public void setupExplosion(World world){
         int difficultyMultiplier = switch (world.getDifficulty()) {

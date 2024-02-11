@@ -11,6 +11,7 @@ import xd.arkosammy.creeperhealing.util.ExplosionManager;
 @Mixin(TimeCommand.class)
 public abstract class TimeCommandMixin {
 
+    // Recalculate DaytimeExplosionEvents' timers when ticks are added or set
     @ModifyReturnValue(method = "executeAdd", at = @At("RETURN"))
     private static int onTimeAdd(int original){
         for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){

@@ -80,27 +80,32 @@ public abstract class AbstractExplosionEvent {
         return this.blockCounter < this.affectedBlocks.size() ? Optional.of(this.affectedBlocks.get(this.blockCounter)) : Optional.empty();
      }
 
+     // If the current affected block cannot be placed at this moment, find the next block that is placeable in the list and swap them in the list.
+     // This effectively gives the delayed block more chances to be placed until no more placeable blocks are found
+     // Examples include wall torches, vines, lanterns, candles, etc.
      public final void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
         int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
         if(indexOfDelayedBlock != -1){
-            Optional<Integer> indexOfNextPlaceableOptional = this.findNextPlaceableBlock(server);
-            indexOfNextPlaceableOptional.ifPresentOrElse(indexOfNextPlaceable -> Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable), () -> {
+            int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
+            if(indexOfNextPlaceable >= 0){
+                Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
+            } else {
                 this.incrementCounter();
                 affectedBlockToDelay.setPlaced();
-            });
+            }
         } else {
             this.incrementCounter();
             affectedBlockToDelay.setPlaced();
         }
      }
 
-     private Optional<Integer> findNextPlaceableBlock(MinecraftServer server){
+     private int findNextPlaceableBlockIndex(MinecraftServer server){
         for(int i = this.blockCounter; i < this.affectedBlocks.size(); i++){
             if(this.affectedBlocks.get(i).canBePlaced(server)){
-                return Optional.of(i);
+                return i;
             }
         }
-         return Optional.empty();
+         return -1;
      }
 
      public abstract boolean shouldKeepHealing(World world);

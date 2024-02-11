@@ -38,6 +38,7 @@ public final class ExplosionUtils {
         return true;
     }
 
+     // The goal is to heal blocks inwards from the edge of the explosion, bottom to top, non-transparent blocks first
      static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, World world){
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
         List<BlockPos> affectedBlocksAsPositions = sortedAffectedBlocks.stream().map(AffectedBlock::getPos).collect(Collectors.toList());

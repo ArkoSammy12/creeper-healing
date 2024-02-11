@@ -102,6 +102,7 @@ public class ExplosionManager {
         }
     }
 
+    // Combine the list of affected blocks and use the attributes of the newest explosion as the attributes of the combined explosion
     private AbstractExplosionEvent combineCollidingExplosions(Set<AbstractExplosionEvent> collidingExplosions, AbstractExplosionEvent newestExplosion, World world){
         List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream().flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream()).collect(Collectors.toList());
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world);
@@ -120,6 +121,7 @@ public class ExplosionManager {
         return combinedExplosionEvent;
     }
 
+    // An explosion collides with another if the square of the distance between their centers is less than or equal to the sum of their radii
     private Set<AbstractExplosionEvent> getCollidingExplosions(List<BlockPos> affectedPositions){
         Set<AbstractExplosionEvent> collidingExplosions = new LinkedHashSet<>();
         BlockPos centerOfNewExplosion = new BlockPos(ExplosionUtils.getCenterXCoordinate(affectedPositions), ExplosionUtils.getCenterYCoordinate(affectedPositions), ExplosionUtils.getCenterZCoordinate(affectedPositions));

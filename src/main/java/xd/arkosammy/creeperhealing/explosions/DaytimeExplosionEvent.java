@@ -21,6 +21,8 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
         return ExplosionHealingMode.DAYTIME_HEALING_MODE;
     }
 
+    // Set the timer of this explosion equal to the time left between now and the next sunrise (getTimeOfDay % 24000 == 0)
+    // Spread the placements of this explosion's affected blocks evenly throughout the day
     @Override
     public void setupExplosion(World world){
         this.setHealTimer(24000 - (world.getTimeOfDay() % 24000));
@@ -28,6 +30,7 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
         this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(daylightBasedBlockPlacementDelay));
     }
 
+    // Check for sufficient light level at the explosion's location
     @Override
     public boolean shouldKeepHealing(World world) {
         //We return true if the current block counter is greater than 0,

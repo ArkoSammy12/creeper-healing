@@ -23,13 +23,14 @@ public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
         return ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE;
     }
 
+    // Increase the timers of each affected block of this explosion based on their blast resistance
     @Override
     public void setupExplosion(World world){
         Random random = world.getRandom();
         this.getAffectedBlocks().forEach(affectedBlock -> {
             double randomOffset = random.nextBetween(-2, 2);
-            double affectedBlockBlastResistance = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
-            int offset = (int) (MathHelper.lerp(affectedBlockBlastResistance / 9, -2, 2) + randomOffset);
+            double blastResistanceMultiplier = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
+            int offset = (int) (MathHelper.lerp(blastResistanceMultiplier / 9, -2, 2) + randomOffset);
             long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelayAsTicks() + (offset * 20L));
             affectedBlock.setTimer(finalOffset);
         });
