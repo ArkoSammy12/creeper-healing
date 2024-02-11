@@ -4,7 +4,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
+import xd.arkosammy.creeperhealing.config.DelaysConfig;
 
 import java.util.List;
 

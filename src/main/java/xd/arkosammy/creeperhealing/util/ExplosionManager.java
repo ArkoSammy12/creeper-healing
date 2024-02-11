@@ -29,7 +29,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.configuration.*;
+import xd.arkosammy.creeperhealing.config.*;
 import xd.arkosammy.creeperhealing.explosions.*;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
 

@@ -10,7 +10,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
+import xd.arkosammy.creeperhealing.config.PreferencesConfig;
 
 import java.util.*;
 import java.util.stream.Collectors;

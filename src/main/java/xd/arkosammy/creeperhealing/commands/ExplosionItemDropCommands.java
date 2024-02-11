@@ -8,7 +8,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import xd.arkosammy.creeperhealing.configuration.ExplosionItemDropConfig;
+import xd.arkosammy.creeperhealing.config.ExplosionItemDropConfig;
 
 public final class ExplosionItemDropCommands {
 
