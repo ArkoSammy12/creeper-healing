@@ -13,7 +13,7 @@ public record SerializedExplosionEvent(String healingMode, List<SerializedAffect
     static final Codec<SerializedExplosionEvent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("healing_mode").forGetter(SerializedExplosionEvent::healingMode),
             Codec.list(SerializedAffectedBlock.CODEC).fieldOf("affected_blocks").forGetter(SerializedExplosionEvent::serializedAffectedBlocks),
-            Codec.LONG.fieldOf(" heal_timer").forGetter(SerializedExplosionEvent::healTimer),
+            Codec.LONG.fieldOf("heal_timer").forGetter(SerializedExplosionEvent::healTimer),
             Codec.INT.fieldOf("block_counter").forGetter(SerializedExplosionEvent::blockCounter)
     ).apply(instance, SerializedExplosionEvent::new));
 
