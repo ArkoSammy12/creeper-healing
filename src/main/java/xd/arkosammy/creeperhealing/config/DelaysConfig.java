@@ -9,9 +9,9 @@ import java.util.Arrays;
 public enum DelaysConfig {
 
     EXPLOSION_HEAL_DELAY(new ConfigEntry<>("explosion_heal_delay", 3.0, """
-                (Default = 3) Change the delay in seconds between each explosion and its corresponding healing process.""")),
+                (Default = 3) How much time in seconds should an explosion wait for to begin healing.""")),
     BLOCK_PLACEMENT_DELAY(new ConfigEntry<>("block_placement_delay", 1.0, """
-                (Default = 1) Change the delay in seconds between each block placement during the explosion healing process."""));
+                (Default = 1) The time in seconds that a block takes to heal."""));
 
     private final ConfigEntry<Double> entry;
 

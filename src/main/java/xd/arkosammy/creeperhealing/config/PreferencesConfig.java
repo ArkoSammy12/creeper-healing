@@ -9,13 +9,13 @@ import java.util.Arrays;
 public enum PreferencesConfig {
 
     BLOCK_PLACEMENT_SOUND_EFFECT(new ConfigEntry<>("block_placement_sound_effect", true, """
-                (Default = true) Whether or not a block heal should play a sound effect.""")),
+                (Default = true) Whether a block placement sound effect should be played when a block is healed.""")),
     HEAL_ON_HEALING_POTION_SPLASH(new ConfigEntry<>("heal_on_healing_potion_splash", true, """
-                (Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them.""")),
+                (Default = true) Makes explosion heal immediately when a potion of Healing is thrown on them.""")),
     HEAL_ON_REGENERATION_POTION_SPLASH(new ConfigEntry<>("heal_on_regeneration_potion_splash", true, """
-                (Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.""")),
+                (Default = true) Makes explosions begin their healing process when a potion of Regeneration is thrown on them.""")),
     ENABLE_WHITELIST(new ConfigEntry<>("enable_whitelist", false, """
-                (Default = false) Enable or disable the usage of the whitelist"""));
+                (Default = false) Toggle the usage of the whitelist."""));
 
     private final ConfigEntry<Boolean> entry;
 
@@ -29,7 +29,7 @@ public enum PreferencesConfig {
 
     private static final String TABLE_NAME = "preferences";
     private static final String TABLE_COMMENT = """
-            Toggleable settings to customize the healing of explosions.""";
+            Toggleable settings for extra features.""";
 
     static void setDefaultValues(CommentedFileConfig fileConfig){
 

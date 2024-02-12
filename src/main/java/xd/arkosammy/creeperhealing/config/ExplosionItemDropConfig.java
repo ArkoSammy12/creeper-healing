@@ -34,7 +34,7 @@ public enum ExplosionItemDropConfig{
     }
     private static final String TABLE_NAME = "explosion_item_drops";
     private static final String TABLE_COMMENT = """
-            These settings allow you to configure whether explosions from specific sources are allowed to drop items or not.""";
+            Toggle whether certain explosion should drop items.""";
 
     static void setDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(ExplosionItemDropConfig.values()).map(ExplosionItemDropConfig::getEntry).toList()){

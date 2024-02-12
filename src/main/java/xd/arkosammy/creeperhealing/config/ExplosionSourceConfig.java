@@ -21,7 +21,7 @@ public enum ExplosionSourceConfig {
     HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS(new ConfigEntry<>("heal_bed_and_respawn_anchor_explosions", false, """
                 (Default = false) Heal explosions caused by beds and respawn anchors.""")),
     HEAL_END_CRYSTAL_EXPLOSIONS(new ConfigEntry<>("heal_end_crystal_explosions", false, """
-                (Default = false) Heal explosions caused by end crystals."""));
+                (Default = false) Heal explosions caused by End Crystals."""));
 
     private final ConfigEntry<Boolean> entry;
 

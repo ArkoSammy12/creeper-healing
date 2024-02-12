@@ -12,14 +12,13 @@ public final class ReplaceMapConfig {
     private static final HashMap<String, String> replaceMap = new HashMap<>();
     private static final String TABLE_NAME = "replace_map";
     private static final String TABLE_COMMENT = """
-            Add your own replace settings to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
-            Specify the block's namespace along with the block's name identifier, separated by a colon.
+            Add your own replace entries to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
+            Specify the block's namespace along with the block's name identifier, separated by a colon and enclosed in double quotes.
             Example entry:
             "minecraft:gold_block" = "minecraft:stone"
             Warning, the same key cannot appear more than once in the replace map! For example, the following will cause an error:
             "minecraft:diamond_block" = "minecraft:stone"
             "minecraft:diamond_block" = "minecraft:air"\s""";
-
 
     public static HashMap<String, String> getReplaceMap(){
         return replaceMap;

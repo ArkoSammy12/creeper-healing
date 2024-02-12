@@ -24,7 +24,7 @@ public enum ModeConfig {
 
     private static final String TABLE_NAME = "explosion_healing_mode";
     private static final String TABLE_COMMENT = """
-            Choose between different special modes for explosion healing.""";
+            Choose between different special modes for explosion healing. Note that certain healing modes will not follow the explosion delay and block delay settings.""";
 
     static void setDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<String> configEntry : Arrays.stream(ModeConfig.values()).map(ModeConfig::getEntry).toList()){
