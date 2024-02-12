@@ -3,8 +3,6 @@ package xd.arkosammy.creeperhealing.config;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.GenericBuilder;
-import com.electronwill.nightconfig.core.io.ParsingMode;
-import com.electronwill.nightconfig.core.io.WritingMode;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.loader.api.FabricLoader;
@@ -32,7 +30,6 @@ public final class ConfigManager {
             builder = CommentedFileConfig.builder(CONFIG_PATH, TomlFormat.instance())
                     .preserveInsertionOrder()
                     .concurrent()
-                    .writingMode(WritingMode.REPLACE)
                     .sync();
         } catch (Throwable throwable){
             CreeperHealing.LOGGER.info("Unable to initialize config: {}", throwable.getMessage());
