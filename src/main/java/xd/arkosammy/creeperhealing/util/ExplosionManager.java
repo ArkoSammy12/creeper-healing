@@ -102,43 +102,6 @@ public class ExplosionManager {
         }
     }
 
-    // Combine the list of affected blocks and use the attributes of the newest explosion as the attributes of the combined explosion
-    private AbstractExplosionEvent combineCollidingExplosions(Set<AbstractExplosionEvent> collidingExplosions, AbstractExplosionEvent newestExplosion, World world){
-        List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream().flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream()).collect(Collectors.toList());
-        List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world);
-        AbstractExplosionEvent combinedExplosionEvent;
-        if(newestExplosion instanceof DaytimeExplosionEvent){
-            combinedExplosionEvent = new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        } else if (newestExplosion instanceof DifficultyBasedExplosionEvent){
-            combinedExplosionEvent = new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        } else if (newestExplosion instanceof BlastResistanceBasedExplosionEvent){
-            combinedExplosionEvent = new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        } else {
-            combinedExplosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        }
-        combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(DelaysConfig.getBlockPlacementDelayAsTicks()));
-        combinedExplosionEvent.setupExplosion(world);
-        return combinedExplosionEvent;
-    }
-
-    // An explosion collides with another if the square of the distance between their centers is less than or equal to the sum of their radii
-    private Set<AbstractExplosionEvent> getCollidingExplosions(List<BlockPos> affectedPositions){
-        Set<AbstractExplosionEvent> collidingExplosions = new LinkedHashSet<>();
-        BlockPos centerOfNewExplosion = new BlockPos(ExplosionUtils.getCenterXCoordinate(affectedPositions), ExplosionUtils.getCenterYCoordinate(affectedPositions), ExplosionUtils.getCenterZCoordinate(affectedPositions));
-        int newExplosionAverageRadius = ExplosionUtils.getMaxExplosionRadius(affectedPositions);
-        for(AbstractExplosionEvent explosionEvent : this.explosionEvents){
-            if(explosionEvent.getHealTimer() > 0){
-                List<BlockPos> affectedBlocksAsPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
-                BlockPos centerOfCurrentExplosion = new BlockPos(ExplosionUtils.getCenterXCoordinate(affectedBlocksAsPositions), ExplosionUtils.getCenterYCoordinate(affectedBlocksAsPositions), ExplosionUtils.getCenterZCoordinate(affectedBlocksAsPositions));
-                int currentExplosionAverageRadius = ExplosionUtils.getMaxExplosionRadius(affectedBlocksAsPositions);
-                if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
-                    collidingExplosions.add(explosionEvent);
-                }
-            }
-        }
-        return collidingExplosions;
-    }
-
     private boolean shouldHealExplosion(Explosion explosion){
         LivingEntity causingLivingEntity = explosion.getCausingEntity();
         Entity causingEntity = explosion.getEntity();
@@ -163,6 +126,44 @@ public class ExplosionManager {
             shouldHealExplosion = true;
         }
         return shouldHealExplosion;
+    }
+
+
+    // An explosion collides with another if the square of the distance between their centers is less than or equal to the sum of their radii
+    private Set<AbstractExplosionEvent> getCollidingExplosions(List<BlockPos> affectedPositions){
+        Set<AbstractExplosionEvent> collidingExplosions = new LinkedHashSet<>();
+        BlockPos centerOfNewExplosion = new BlockPos(ExplosionUtils.getCenterXCoordinate(affectedPositions), ExplosionUtils.getCenterYCoordinate(affectedPositions), ExplosionUtils.getCenterZCoordinate(affectedPositions));
+        int newExplosionAverageRadius = ExplosionUtils.getMaxExplosionRadius(affectedPositions);
+        for(AbstractExplosionEvent explosionEvent : this.explosionEvents){
+            if(explosionEvent.getHealTimer() > 0){
+                List<BlockPos> affectedBlocksAsPositions = explosionEvent.getAffectedBlocks().stream().map(AffectedBlock::getPos).toList();
+                BlockPos centerOfCurrentExplosion = new BlockPos(ExplosionUtils.getCenterXCoordinate(affectedBlocksAsPositions), ExplosionUtils.getCenterYCoordinate(affectedBlocksAsPositions), ExplosionUtils.getCenterZCoordinate(affectedBlocksAsPositions));
+                int currentExplosionAverageRadius = ExplosionUtils.getMaxExplosionRadius(affectedBlocksAsPositions);
+                if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
+                    collidingExplosions.add(explosionEvent);
+                }
+            }
+        }
+        return collidingExplosions;
+    }
+
+    // Combine the list of affected blocks and use the attributes of the newest explosion as the attributes of the combined explosion
+    private AbstractExplosionEvent combineCollidingExplosions(Set<AbstractExplosionEvent> collidingExplosions, AbstractExplosionEvent newestExplosion, World world){
+        List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream().flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream()).collect(Collectors.toList());
+        List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world);
+        AbstractExplosionEvent combinedExplosionEvent;
+        if(newestExplosion instanceof DaytimeExplosionEvent){
+            combinedExplosionEvent = new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        } else if (newestExplosion instanceof DifficultyBasedExplosionEvent){
+            combinedExplosionEvent = new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        } else if (newestExplosion instanceof BlastResistanceBasedExplosionEvent){
+            combinedExplosionEvent = new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        } else {
+            combinedExplosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        }
+        combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(DelaysConfig.getBlockPlacementDelayAsTicks()));
+        combinedExplosionEvent.setupExplosion(world);
+        return combinedExplosionEvent;
     }
 
     public void tick(MinecraftServer server){

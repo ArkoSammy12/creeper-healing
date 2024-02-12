@@ -84,19 +84,19 @@ public abstract class AbstractExplosionEvent {
      // This effectively gives the delayed block more chances to be placed until no more placeable blocks are found
      // Examples include wall torches, vines, lanterns, candles, etc.
      public final void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
-        int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
-        if(indexOfDelayedBlock != -1){
-            int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
-            if(indexOfNextPlaceable >= 0){
-                Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
-            } else {
-                this.incrementCounter();
-                affectedBlockToDelay.setPlaced();
-            }
-        } else {
-            this.incrementCounter();
-            affectedBlockToDelay.setPlaced();
-        }
+         int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
+         if(indexOfDelayedBlock < 0){
+             this.incrementCounter();
+             affectedBlockToDelay.setPlaced();
+             return;
+         }
+         int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
+         if(indexOfNextPlaceable >= 0){
+             Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
+         } else {
+             this.incrementCounter();
+             affectedBlockToDelay.setPlaced();
+         }
      }
 
      private int findNextPlaceableBlockIndex(MinecraftServer server){
@@ -110,7 +110,7 @@ public abstract class AbstractExplosionEvent {
 
      public abstract boolean shouldKeepHealing(World world);
 
-    public final void markAffectedBlockAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
+    public final void markAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
         for(AffectedBlock affectedBlock : this.getAffectedBlocks()) {
             if(affectedBlock.getState().equals(secondHalfState) && affectedBlock.getPos().equals(secondHalfPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
                 affectedBlock.setPlaced();

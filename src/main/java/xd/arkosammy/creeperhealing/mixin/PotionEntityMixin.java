@@ -29,7 +29,7 @@ public abstract class PotionEntityMixin {
         List<StatusEffect> statusEffects = potion.getEffects().stream().map(StatusEffectInstance::getEffectType).toList();
         BlockPos potionHitPosition = switch (hitResult.getType()){
             case BLOCK -> ((BlockHitResult)hitResult).getBlockPos().offset(((BlockHitResult)hitResult).getSide());
-            case ENTITY -> ((EntityHitResult) hitResult).getEntity().getBlockPos();
+            case ENTITY -> ((EntityHitResult)hitResult).getEntity().getBlockPos();
             case MISS -> null;
         };
         if(potionHitPosition == null){

@@ -63,7 +63,6 @@ public class DoubleAffectedBlock extends AffectedBlock {
             if(stateToPushFrom.isSolidBlock(world, posToPushFrom)) {
                 ExplosionUtils.pushEntitiesUpwards(world, posToPushFrom, true);
             }
-
             world.setBlockState(firstHalfPos, firstHalfState);
             world.setBlockState(secondHalfPos, secondHalfState);
 
@@ -71,37 +70,36 @@ public class DoubleAffectedBlock extends AffectedBlock {
                 world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
             }
         }
-        currentExplosionEvent.markAffectedBlockAsPlaced(secondHalfState, secondHalfPos, world);
+        currentExplosionEvent.markAsPlaced(secondHalfState, secondHalfPos, world);
     }
 
     private void handleBedPart(MinecraftServer server, AbstractExplosionEvent currentExplosionEvent) {
-
         BlockState firstHalfState = this.getState();
         BlockPos firstHalfPos = this.getPos();
         World world = this.getWorld(server);
-
         BedPart secondBedPart = firstHalfState.get(Properties.BED_PART).equals(BedPart.HEAD) ? BedPart.FOOT : BedPart.HEAD;
         BlockState secondHalfState = firstHalfState.getBlock().getStateWithProperties(firstHalfState).with(Properties.BED_PART, secondBedPart);
         BlockPos secondHalfPos;
 
+        // Offset the location of the second bed part depending on the orientation of the first
+        Direction firstBedPartOrientation = firstHalfState.get(Properties.HORIZONTAL_FACING);
         if(secondBedPart.equals(BedPart.HEAD)) {
-            switch (firstHalfState.get(Properties.HORIZONTAL_FACING)) {
-                case NORTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, -1);
-                case SOUTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, 1);
-                case EAST -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, 1);
-                default -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, -1);
+            switch (firstBedPartOrientation) {
+                case NORTH -> secondHalfPos = firstHalfPos.north();
+                case SOUTH -> secondHalfPos = firstHalfPos.south();
+                case EAST -> secondHalfPos = firstHalfPos.east();
+                default -> secondHalfPos = firstHalfPos.west();
             }
         } else {
-            switch (firstHalfState.get(Properties.HORIZONTAL_FACING)) {
-                case NORTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, 1);
-                case SOUTH -> secondHalfPos = firstHalfPos.offset(Direction.Axis.Z, -1);
-                case EAST -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, -1);
-                default -> secondHalfPos = firstHalfPos.offset(Direction.Axis.X, 1);
+            switch (firstBedPartOrientation) {
+                case NORTH -> secondHalfPos = firstHalfPos.south();
+                case SOUTH -> secondHalfPos = firstHalfPos.north();
+                case EAST -> secondHalfPos = firstHalfPos.west();
+                default -> secondHalfPos = firstHalfPos.east();
             }
         }
 
         if (this.shouldHealBlock(world, secondHalfPos)) {
-
             if(firstHalfState.isSolidBlock(world, firstHalfPos)) {
                 ExplosionUtils.pushEntitiesUpwards(world, firstHalfPos, false);
             }
@@ -114,7 +112,7 @@ public class DoubleAffectedBlock extends AffectedBlock {
                 world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
             }
         }
-        currentExplosionEvent.markAffectedBlockAsPlaced(secondHalfState, secondHalfPos, world);
+        currentExplosionEvent.markAsPlaced(secondHalfState, secondHalfPos, world);
     }
 
 
