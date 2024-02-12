@@ -1,27 +1,26 @@
-package xd.arkosammy.creeperhealing.explosions;
+package xd.arkosammy.creeperhealing.util;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import xd.arkosammy.creeperhealing.configuration.PreferencesConfig;
-import xd.arkosammy.creeperhealing.handlers.ExplosionListHandler;
+import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
+import xd.arkosammy.creeperhealing.config.PreferencesConfig;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public final class ExplosionUtils {
 
     private ExplosionUtils(){}
-    public static final ThreadLocal<Boolean> SHOULD_NOT_DROP_ITEMS = new ThreadLocal<>();
+    public static final ThreadLocal<Boolean> SHOULD_DROP_ITEMS_THREAD_LOCAL = ThreadLocal.withInitial(() -> true);
 
-    public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
+     public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;
         for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
             if(areAboveBlocksFree(world, pos, entity, amountToPush)) {
@@ -39,51 +38,26 @@ public final class ExplosionUtils {
         return true;
     }
 
-    /*
-    Obtain colliding explosions by filtering out explosions that have already started healing.
-    An explosion collides with another if the distance between their centers is less than or equal to the sum of their radii
-     */
-    public static Set<ExplosionEvent> getCollidingWaitingExplosions(List<BlockPos> affectedBlockPosList){
-        Set<ExplosionEvent> collidingExplosions = new LinkedHashSet<>();
-        BlockPos centerOfNewExplosion = new BlockPos(getCenterXCoordinate(affectedBlockPosList), getCenterYCoordinate(affectedBlockPosList), getCenterZCoordinate(affectedBlockPosList));
-        int newExplosionAverageRadius = getMaxExplosionRadius(affectedBlockPosList);
-
-        for(ExplosionEvent explosionEvent : ExplosionListHandler.getExplosionEventList()){
-             if(explosionEvent.getExplosionTimer() > 0){
-                 BlockPos centerOfCurrentExplosion = new BlockPos(getCenterXCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList()), getCenterYCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList()), getCenterZCoordinate(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList()));
-                 int currentExplosionAverageRadius = getMaxExplosionRadius(explosionEvent.getAffectedBlocksList().stream().map(AffectedBlock::getPos).toList());
-                 if(Math.floor(Math.sqrt(centerOfNewExplosion.getSquaredDistance(centerOfCurrentExplosion))) <= newExplosionAverageRadius + currentExplosionAverageRadius){
-                     collidingExplosions.add(explosionEvent);
-                 }
-             }
-         }
-         return collidingExplosions;
-    }
-
-    public static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, MinecraftServer server){
-
+     // The goal is to heal blocks inwards from the edge of the explosion, bottom to top, non-transparent blocks first
+     static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, World world){
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
-
-        int centerX = getCenterXCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
-        int centerZ = getCenterZCoordinate(affectedBlocksList.stream().map(AffectedBlock::getPos).collect(Collectors.toList()));
-
+        List<BlockPos> affectedBlocksAsPositions = sortedAffectedBlocks.stream().map(AffectedBlock::getPos).collect(Collectors.toList());
+        int centerX = getCenterXCoordinate(affectedBlocksAsPositions);
+        int centerZ = getCenterZCoordinate(affectedBlocksAsPositions);
         Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
         sortedAffectedBlocks.sort(distanceToCenterComparator);
-
         Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());
         sortedAffectedBlocks.sort(yLevelComparator);
-
         Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
-            boolean isAffectedBlock1Transparent = affectedBlock1.getState().isTransparent(affectedBlock1.getWorld(server), affectedBlock1.getPos());
-            boolean isAffectedBlock2Transparent = affectedBlock2.getState().isTransparent(affectedBlock2.getWorld(server), affectedBlock2.getPos());
+            boolean isAffectedBlock1Transparent = affectedBlock1.getState().isTransparent(world, affectedBlock1.getPos());
+            boolean isAffectedBlock2Transparent = affectedBlock2.getState().isTransparent(world, affectedBlock2.getPos());
             return Boolean.compare(isAffectedBlock1Transparent, isAffectedBlock2Transparent);
         };
         sortedAffectedBlocks.sort(transparencyComparator);
         return sortedAffectedBlocks;
     }
 
-
-    private static int getCenterXCoordinate(List<BlockPos> affectedCoordinates){
+    static int getCenterXCoordinate(List<BlockPos> affectedCoordinates){
         int maxX = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getX)
                 .max()
@@ -95,7 +69,7 @@ public final class ExplosionUtils {
         return (maxX + minX) / 2;
     }
 
-    private static int getCenterYCoordinate(List<BlockPos> affectedCoordinates){
+    static int getCenterYCoordinate(List<BlockPos> affectedCoordinates){
         int maxY = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getY)
                 .max()
@@ -107,7 +81,7 @@ public final class ExplosionUtils {
         return (maxY + minY)/2;
     }
 
-    private static int getCenterZCoordinate(List<BlockPos> affectedCoordinates){
+    static int getCenterZCoordinate(List<BlockPos> affectedCoordinates){
         int maxZ = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getZ)
                 .max()
@@ -119,7 +93,7 @@ public final class ExplosionUtils {
         return (maxZ + minZ) / 2;
     }
 
-    private static int getMaxExplosionRadius(List<BlockPos> affectedCoordinates){
+    static int getMaxExplosionRadius(List<BlockPos> affectedCoordinates){
         int[] radii = new int[3];
         int maxX = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getX)
@@ -154,12 +128,8 @@ public final class ExplosionUtils {
         return Arrays.stream(radii).max().orElse(0);
     }
 
-    public static boolean shouldPlaySoundOnBlockHeal(World world, BlockState state) {
+    public static boolean shouldPlayBlockPlacementSound(World world, BlockState state) {
         return !world.isClient && !state.isAir() && PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().getValue();
-    }
-
-    public static boolean isStateAirOrFire(BlockState state) {
-        return state.isAir() || state.getBlock().equals(Blocks.FIRE) || state.getBlock().equals(Blocks.SOUL_FIRE);
     }
 
 }

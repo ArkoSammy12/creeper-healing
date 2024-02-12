@@ -7,65 +7,34 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xd.arkosammy.creeperhealing.configuration.CreeperHealingConfig;
-import xd.arkosammy.creeperhealing.explosions.ExplosionListCodec;
-import xd.arkosammy.creeperhealing.explosions.AffectedBlock;
-import xd.arkosammy.creeperhealing.handlers.ExplosionListHandler;
-import xd.arkosammy.creeperhealing.commands.HealingCommandManager;
-
-import java.io.IOException;
+import xd.arkosammy.creeperhealing.config.ConfigManager;
+import xd.arkosammy.creeperhealing.util.ExplosionManager;
+import xd.arkosammy.creeperhealing.commands.CommandManager;
 
 public class CreeperHealing implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
-	private static boolean healerHandlerLock;
 
+	// TODO: Remake entire config system somehow. Make it more generic?
 	@Override
 	public void onInitialize() {
-
-		CreeperHealingConfig.initializeConfig();
-
-		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-			try {
-				onServerStarting(server);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		});
-
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-			try {
-				onServerStopping(server);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		});
-
-		ServerTickEvents.END_SERVER_TICK.register(ExplosionListHandler::handleExplosionList);
-		CommandRegistrationCallback.EVENT.register(HealingCommandManager::registerCommands);
+		ConfigManager.init();
+		ServerLifecycleEvents.SERVER_STARTING.register(CreeperHealing::onServerStarting);
+		ServerLifecycleEvents.SERVER_STOPPING.register(CreeperHealing::onServerStopping);
+		ServerTickEvents.END_SERVER_TICK.register(server -> ExplosionManager.getInstance().tick(server));
+		CommandRegistrationCallback.EVENT.register(CommandManager::registerCommands);
 		LOGGER.info("I will try my best to heal your explosions :)");
 	}
 
-	private static void onServerStarting(MinecraftServer server) throws IOException {
-		ExplosionListCodec.rescheduleExplosionEvents(server);
-		setHealerHandlerLock(true);
-		AffectedBlock.updateAffectedBlocksTimers();
+	private static void onServerStarting(MinecraftServer server) {
+		ExplosionManager.getInstance().readExplosionEvents(server);
+		ExplosionManager.getInstance().updateAffectedBlocksTimers();
 	}
 
-	private static void onServerStopping(MinecraftServer server) throws IOException {
-		setHealerHandlerLock(false);
-		ExplosionListCodec explosionListCodec = new ExplosionListCodec(ExplosionListHandler.getExplosionEventList());
-		explosionListCodec.serializeExplosionEvents(server);
-		ExplosionListHandler.getExplosionEventList().clear();
-		CreeperHealingConfig.updateConfigFile();
-	}
-
-	public static boolean isExplosionHandlingUnlocked(){
-		return healerHandlerLock;
-	}
-
-	public static void setHealerHandlerLock(boolean locked){
-		healerHandlerLock = locked;
+	private static void onServerStopping(MinecraftServer server) {
+		ExplosionManager.getInstance().storeExplosions(server);
+		ExplosionManager.getInstance().getExplosionEvents().clear();
+		ConfigManager.updateConfigFile();
 	}
 
 }

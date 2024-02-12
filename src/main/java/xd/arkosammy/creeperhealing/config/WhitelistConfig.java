@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.configuration;
+package xd.arkosammy.creeperhealing.config;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.creeperhealing.CreeperHealing;
@@ -16,7 +16,7 @@ public final class WhitelistConfig {
 
     private static final String TABLE_COMMENT = """
             Use an optional whitelist to customize which blocks are allowed to heal. To add an entry, specify the block's namespace
-            along with its identifier, separated by a colon, and add it in-between the square brackets below. Separate each entry with a comma.
+            along with its identifier, separated by a colon and enclosed in double quotes, and add it in-between the square brackets below. Separate each entry with a comma.
             Example entries:
             whitelist_entries = ["minecraft:grass",  "minecraft:stone", "minecraft:sand"]""";
 
@@ -25,13 +25,13 @@ public final class WhitelistConfig {
         return whitelist;
     }
 
-    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void setDefaultValues(CommentedFileConfig fileConfig){
         getWhitelist().clear();
         getWhitelist().add("minecraft:placeholder");
-        saveWhitelistToFile(fileConfig);
+        setValues(fileConfig);
     }
 
-    static void saveWhitelistToFile(CommentedFileConfig fileConfig){
+    static void setValues(CommentedFileConfig fileConfig){
          if(!getWhitelist().isEmpty()){
              fileConfig.set(TABLE_NAME + "." + "whitelist_entries", getWhitelist());
          } else {
@@ -40,7 +40,7 @@ public final class WhitelistConfig {
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-     static void loadWhitelistToMemory(CommentedFileConfig fileConfig){
+     static void getValues(CommentedFileConfig fileConfig){
         List<Object> list = fileConfig.getOrElse(TABLE_NAME + "." + "whitelist_entries", List.of("minecraft:placeholder"));
         List<String> tempWhitelist = new ArrayList<>();
         if(list != null){

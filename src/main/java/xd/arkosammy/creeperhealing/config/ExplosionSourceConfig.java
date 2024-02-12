@@ -1,6 +1,6 @@
-package xd.arkosammy.creeperhealing.configuration;
+package xd.arkosammy.creeperhealing.config;
 
-
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 
@@ -21,7 +21,7 @@ public enum ExplosionSourceConfig {
     HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS(new ConfigEntry<>("heal_bed_and_respawn_anchor_explosions", false, """
                 (Default = false) Heal explosions caused by beds and respawn anchors.""")),
     HEAL_END_CRYSTAL_EXPLOSIONS(new ConfigEntry<>("heal_end_crystal_explosions", false, """
-                (Default = false) Heal explosions caused by end crystals."""));
+                (Default = false) Heal explosions caused by End Crystals."""));
 
     private final ConfigEntry<Boolean> entry;
 
@@ -37,23 +37,24 @@ public enum ExplosionSourceConfig {
     private static final String TABLE_COMMENT = """
             Configure which explosions are allowed to heal.""";
 
-    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void setDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(ExplosionSourceConfig.values()).map(ExplosionSourceConfig::getEntry).toList()){
             configEntry.resetValue();
         }
-        saveSettingsToFile(fileConfig);
+        setValues(fileConfig);
     }
 
-    static void saveSettingsToFile(CommentedFileConfig fileConfig){
+    static void setValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> entry : Arrays.stream(ExplosionSourceConfig.values()).map(ExplosionSourceConfig::getEntry).toList()){
             fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
             if(entryComment != null) fileConfig.setComment(TABLE_NAME + "." + entry.getName(), entryComment);
         }
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
+        fileConfig.<CommentedConfig>get(TABLE_NAME).entrySet().removeIf(entry -> !isEntryKeyInEnum(entry.getKey()));
     }
 
-    static void loadSettingsToMemory(CommentedFileConfig fileConfig){
+    static void getValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(ExplosionSourceConfig.values()).map(ExplosionSourceConfig::getEntry).toList()){
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
             if(value instanceof Boolean boolValue){
@@ -62,6 +63,10 @@ public enum ExplosionSourceConfig {
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
             }
         }
+    }
+
+    private static boolean isEntryKeyInEnum(String key){
+        return Arrays.stream(ExplosionSourceConfig.values()).anyMatch(configEntry -> configEntry.getEntry().getName().equals(key));
     }
 
 }

@@ -1,5 +1,6 @@
-package xd.arkosammy.creeperhealing.configuration;
+package xd.arkosammy.creeperhealing.config;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 
@@ -7,23 +8,14 @@ import java.util.Arrays;
 
 public enum PreferencesConfig {
 
-    HEAL_ON_FLOWING_WATER(new ConfigEntry<>("heal_on_flowing_water", true, """
-                (Default = true) Whether or not blocks should be healed where there is currently flowing water.""")),
-    HEAL_ON_SOURCE_WATER(new ConfigEntry<>("heal_on_source_water", false, """
-                (Default = false) Whether or not blocks should healed where there is currently a source water block.""")),
-    HEAL_ON_FLOWING_LAVA(new ConfigEntry<>("heal_on_flowing_lava", true, """
-                (Default = true) Whether or not blocks should be healed where there is currently flowing lava.""")),
-    HEAL_ON_SOURCE_LAVA(new ConfigEntry<>("heal_on_source_lava", false, """
-                (Default = false) Whether or not blocks should be healed where there is currently a source lava block.""")),
     BLOCK_PLACEMENT_SOUND_EFFECT(new ConfigEntry<>("block_placement_sound_effect", true, """
-                (Default = true) Whether or not a block heal should play a sound effect.""")),
+                (Default = true) Whether a block placement sound effect should be played when a block is healed.""")),
     HEAL_ON_HEALING_POTION_SPLASH(new ConfigEntry<>("heal_on_healing_potion_splash", true, """
-                (Default = true) Makes explosion heal immediately upon throwing a splash potion of Healing on them.""")),
+                (Default = true) Makes explosion heal immediately when a potion of Healing is thrown on them.""")),
     HEAL_ON_REGENERATION_POTION_SPLASH(new ConfigEntry<>("heal_on_regeneration_potion_splash", true, """
-                (Default = true) Makes explosion start their healing process upon throwing a splash potion of Regeneration of them.
-                This option only modifies the heal delay of the explosion and only affects explosions created with the default healing mode.""")),
+                (Default = true) Makes explosions begin their healing process when a potion of Regeneration is thrown on them.""")),
     ENABLE_WHITELIST(new ConfigEntry<>("enable_whitelist", false, """
-                (Default = false) Enable or disable the usage of the whitelist"""));
+                (Default = false) Toggle the usage of the whitelist."""));
 
     private final ConfigEntry<Boolean> entry;
 
@@ -37,28 +29,29 @@ public enum PreferencesConfig {
 
     private static final String TABLE_NAME = "preferences";
     private static final String TABLE_COMMENT = """
-            Toggleable settings to customize the healing of explosions.""";
+            Toggleable settings for extra features.""";
 
-    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void setDefaultValues(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(PreferencesConfig.values()).map(PreferencesConfig::getEntry).toList()){
             configEntry.resetValue();
         }
 
-        saveSettingsToFile(fileConfig);
+        setValues(fileConfig);
 
     }
 
-    static void saveSettingsToFile(CommentedFileConfig fileConfig){
+    static void setValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> entry : Arrays.stream(PreferencesConfig.values()).map(PreferencesConfig::getEntry).toList()){
             fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
             if(entryComment != null) fileConfig.setComment(TABLE_NAME + "." + entry.getName(), entryComment);
         }
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
+        fileConfig.<CommentedConfig>get(TABLE_NAME).entrySet().removeIf(entry -> !isEntryKeyInEnum(entry.getKey()));
     }
 
-    static void loadSettingsToMemory(CommentedFileConfig fileConfig){
+    static void getValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(PreferencesConfig.values()).map(PreferencesConfig::getEntry).toList()){
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
             if(value instanceof Boolean boolValue){
@@ -67,6 +60,10 @@ public enum PreferencesConfig {
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
             }
         }
+    }
+
+    private static boolean isEntryKeyInEnum(String key){
+        return Arrays.stream(PreferencesConfig.values()).anyMatch(configEntry -> configEntry.getEntry().getName().equals(key));
     }
 
 }
