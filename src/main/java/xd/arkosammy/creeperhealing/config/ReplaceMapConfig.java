@@ -25,13 +25,13 @@ public final class ReplaceMapConfig {
         return replaceMap;
     }
 
-    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void setDefaultValues(CommentedFileConfig fileConfig){
         replaceMap.clear();
         replaceMap.put("minecraft:diamond_block", "minecraft:stone");
-        saveReplaceMapToFile(fileConfig);
+        setValues(fileConfig);
     }
 
-    static void saveReplaceMapToFile(CommentedFileConfig fileConfig){
+    static void setValues(CommentedFileConfig fileConfig){
         if(!replaceMap.isEmpty()) {
             for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
                 fileConfig.set(TABLE_NAME + "." + entry.getKey(), entry.getValue());
@@ -42,7 +42,7 @@ public final class ReplaceMapConfig {
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-    static void loadReplaceMapToMemory(CommentedFileConfig fileConfig){
+    static void getValues(CommentedFileConfig fileConfig){
 
         CommentedConfig replaceMapConfig = fileConfig.get(TABLE_NAME);
         HashMap<String, String> tempReplaceMap = new HashMap<>();

@@ -25,13 +25,13 @@ public final class WhitelistConfig {
         return whitelist;
     }
 
-    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void setDefaultValues(CommentedFileConfig fileConfig){
         getWhitelist().clear();
         getWhitelist().add("minecraft:placeholder");
-        saveWhitelistToFile(fileConfig);
+        setValues(fileConfig);
     }
 
-    static void saveWhitelistToFile(CommentedFileConfig fileConfig){
+    static void setValues(CommentedFileConfig fileConfig){
          if(!getWhitelist().isEmpty()){
              fileConfig.set(TABLE_NAME + "." + "whitelist_entries", getWhitelist());
          } else {
@@ -40,7 +40,7 @@ public final class WhitelistConfig {
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
     }
 
-     static void loadWhitelistToMemory(CommentedFileConfig fileConfig){
+     static void getValues(CommentedFileConfig fileConfig){
         List<Object> list = fileConfig.getOrElse(TABLE_NAME + "." + "whitelist_entries", List.of("minecraft:placeholder"));
         List<String> tempWhitelist = new ArrayList<>();
         if(list != null){

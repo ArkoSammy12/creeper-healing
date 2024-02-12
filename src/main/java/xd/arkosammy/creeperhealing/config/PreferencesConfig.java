@@ -1,5 +1,6 @@
 package xd.arkosammy.creeperhealing.config;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 
@@ -30,26 +31,27 @@ public enum PreferencesConfig {
     private static final String TABLE_COMMENT = """
             Toggleable settings to customize the healing of explosions.""";
 
-    static void saveToFileWithDefaultValues(CommentedFileConfig fileConfig){
+    static void setDefaultValues(CommentedFileConfig fileConfig){
 
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(PreferencesConfig.values()).map(PreferencesConfig::getEntry).toList()){
             configEntry.resetValue();
         }
 
-        saveSettingsToFile(fileConfig);
+        setValues(fileConfig);
 
     }
 
-    static void saveSettingsToFile(CommentedFileConfig fileConfig){
+    static void setValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> entry : Arrays.stream(PreferencesConfig.values()).map(PreferencesConfig::getEntry).toList()){
             fileConfig.set(TABLE_NAME + "." + entry.getName(), entry.getValue());
             String entryComment = entry.getComment();
             if(entryComment != null) fileConfig.setComment(TABLE_NAME + "." + entry.getName(), entryComment);
         }
         fileConfig.setComment(TABLE_NAME, TABLE_COMMENT);
+        fileConfig.<CommentedConfig>get(TABLE_NAME).entrySet().removeIf(entry -> !isEntryKeyInEnum(entry.getKey()));
     }
 
-    static void loadSettingsToMemory(CommentedFileConfig fileConfig){
+    static void getValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(PreferencesConfig.values()).map(PreferencesConfig::getEntry).toList()){
             Object value = fileConfig.getOrElse(TABLE_NAME + "." + configEntry.getName(), configEntry.getDefaultValue());
             if(value instanceof Boolean boolValue){
@@ -58,6 +60,10 @@ public enum PreferencesConfig {
                 CreeperHealing.LOGGER.error("Invalid value in config file for setting: " + configEntry.getName());
             }
         }
+    }
+
+    private static boolean isEntryKeyInEnum(String key){
+        return Arrays.stream(PreferencesConfig.values()).anyMatch(configEntry -> configEntry.getEntry().getName().equals(key));
     }
 
 }

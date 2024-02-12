@@ -9,13 +9,13 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xd.arkosammy.creeperhealing.config.CreeperHealingConfig;
+import xd.arkosammy.creeperhealing.config.CreeperHealingConfigManager;
 
 import java.io.IOException;
 
-public final class HealingCommandManager {
+public final class CreeperHealingCommandManager {
 
-    private HealingCommandManager(){}
+    private CreeperHealingCommandManager(){}
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         //Root node
         LiteralCommandNode<ServerCommandSource> creeperHealingNode = CommandManager
@@ -23,13 +23,13 @@ public final class HealingCommandManager {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Reload CreeperHealingConfig node
+        //Reload CreeperHealingConfigManager node
         LiteralCommandNode<ServerCommandSource> reloadNode = CommandManager
                 .literal("reload_config")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .executes(context -> {
                     try {
-                        HealingCommandManager.reload(context);
+                        CreeperHealingCommandManager.reload(context);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -49,7 +49,7 @@ public final class HealingCommandManager {
 
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
         //If this returns true, then the config file exists, and we can update our values from it
-        if(CreeperHealingConfig.reloadConfigSettingsInMemory(ctx)) ctx.getSource().sendMessage(Text.literal("CreeperHealingConfig successfully reloaded"));
+        if(CreeperHealingConfigManager.reloadValuesFromConfig(ctx)) ctx.getSource().sendMessage(Text.literal("CreeperHealingConfigManager successfully reloaded"));
         else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
     }
 

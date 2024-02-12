@@ -19,16 +19,13 @@ public record SerializedExplosionEvent(String healingMode, List<SerializedAffect
 
     AbstractExplosionEvent toDeserialized(){
         List<AffectedBlock> affectedBlocks = this.serializedAffectedBlocks.stream().map(SerializedAffectedBlock::toDeserialized).collect(Collectors.toList());
-        if(this.healingMode.equals(ExplosionHealingMode.DAYTIME_HEALING_MODE.getName())){
-            return new DaytimeExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
-        } else if (this.healingMode.equals(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName())){
-            return new DifficultyBasedExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
-        } else if (this.healingMode.equals(ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName())){
-            return new BlastResistanceBasedExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
-        } else {
-            return new DefaultExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
-        }
-
+        ExplosionHealingMode explosionHealingMode = ExplosionHealingMode.getFromName(this.healingMode);
+        return switch (explosionHealingMode){
+            case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
+            case DIFFICULTY_BASED_HEALING_MODE -> new DifficultyBasedExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
+            case BLAST_RESISTANCE_BASED_HEALING_MODE -> new BlastResistanceBasedExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
+            default -> new DefaultExplosionEvent(affectedBlocks, this.healTimer, this.blockCounter);
+        };
     }
 
 }

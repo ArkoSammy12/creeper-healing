@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public final class ExplosionUtils {
 
     private ExplosionUtils(){}
-    public static final ThreadLocal<Boolean> SHOULD_DROP_ITEMS_THREAD_LOCAL = new ThreadLocal<>();
+    public static final ThreadLocal<Boolean> SHOULD_DROP_ITEMS_THREAD_LOCAL = ThreadLocal.withInitial(() -> true);
 
      public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;
