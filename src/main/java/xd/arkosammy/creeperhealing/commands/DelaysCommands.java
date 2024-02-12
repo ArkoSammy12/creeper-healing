@@ -9,14 +9,14 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xd.arkosammy.creeperhealing.configuration.DelaysConfig;
-import xd.arkosammy.creeperhealing.explosions.AffectedBlock;
+import xd.arkosammy.creeperhealing.config.DelaysConfig;
+import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 public final class DelaysCommands {
 
     private DelaysCommands(){}
 
-     static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+    static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         LiteralCommandNode<ServerCommandSource> delaysNode = CommandManager
                 .literal("delays")
@@ -77,7 +77,7 @@ public final class DelaysCommands {
     private static int setBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx) {
         if (Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
             DelaysConfig.BLOCK_PLACEMENT_DELAY.getEntry().setValue(DoubleArgumentType.getDouble(ctx, "seconds"));
-            AffectedBlock.updateAffectedBlocksTimers();
+            ExplosionManager.getInstance().updateAffectedBlocksTimers();
             ctx.getSource().sendMessage(Text.literal("Block placement delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
         } else {
             ctx.getSource().sendMessage(Text.literal("Cannot set block placement delay to a very low value").formatted(Formatting.RED));

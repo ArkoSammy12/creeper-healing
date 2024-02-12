@@ -70,9 +70,6 @@ dependencies {
 	include(modImplementation "com.electronwill.night-config:core:3.6.7")
 	include(modImplementation "com.electronwill.night-config:toml:3.6.7")
 
-	//Mixin extras
-	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.2.0-rc.4")))
-
 }
 
 processResources {

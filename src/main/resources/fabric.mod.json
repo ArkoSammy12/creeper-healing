@@ -23,12 +23,9 @@
 		"creeper-healing.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.14.22",
+		"fabricloader": ">=0.15.6",
 		"minecraft": ["1.19.2"],
 		"fabric-api": "*",
 		"java": ">=17"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }

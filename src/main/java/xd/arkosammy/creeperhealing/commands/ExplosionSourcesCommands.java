@@ -8,13 +8,13 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import xd.arkosammy.creeperhealing.configuration.ExplosionSourceConfig;
+import xd.arkosammy.creeperhealing.config.ExplosionSourceConfig;
 
 public final class ExplosionSourcesCommands {
 
     private ExplosionSourcesCommands(){}
 
-    public static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
+    static void register(LiteralCommandNode<ServerCommandSource> creeperHealingNode){
 
         //Explosion source node
         LiteralCommandNode<ServerCommandSource> explosionSourceMode = CommandManager

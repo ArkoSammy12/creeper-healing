@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.configuration;
+package xd.arkosammy.creeperhealing.config;
 
 public class ConfigEntry<T> {
 
