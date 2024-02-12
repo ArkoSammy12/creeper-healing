@@ -15,7 +15,7 @@ public abstract class TimeCommandMixin {
     @ModifyReturnValue(method = "executeAdd", at = @At("RETURN"))
     private static int onTimeAdd(int original){
         for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
-            if(explosionEvent instanceof DaytimeExplosionEvent){
+            if(explosionEvent instanceof DaytimeExplosionEvent && explosionEvent.getHealTimer() > 0){
                 explosionEvent.setHealTimer(24000 - original);
             }
         }
@@ -25,7 +25,7 @@ public abstract class TimeCommandMixin {
     @ModifyReturnValue(method = "executeSet", at = @At("RETURN"))
     private static int onTimeSet(int original){
         for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
-            if(explosionEvent instanceof DaytimeExplosionEvent){
+            if(explosionEvent instanceof DaytimeExplosionEvent && explosionEvent.getHealTimer() > 0){
                 explosionEvent.setHealTimer(24000 - original);
             }
         }
