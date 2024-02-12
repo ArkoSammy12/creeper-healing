@@ -8,9 +8,8 @@ import java.util.Arrays;
 
 public enum ModeConfig {
     MODE(new ConfigEntry<>("mode", ExplosionHealingMode.DEFAULT_MODE.getName(), """
-                (Default = "default_mode") Select between any of the following healing modes by copying the string (the text enclosed by the double quotes along with the double quotes)
-                and pasting it into the value of the "mode" setting below:
-                ["%s", "%s", "%s", "%s"]\s""".formatted(ExplosionHealingMode.DEFAULT_MODE.getName(), ExplosionHealingMode.DAYTIME_HEALING_MODE.getName(), ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName(), ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName())));
+                (Default = "default_mode") Choose any of the following healing modes by copying one of the strings and pasting it into the value of the "mode" setting below:
+                - "%s", "%s", "%s", "%s"\s""".formatted(ExplosionHealingMode.DEFAULT_MODE.getName(), ExplosionHealingMode.DAYTIME_HEALING_MODE.getName(), ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName(), ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName())));
 
     private final ConfigEntry<String> entry;
 
