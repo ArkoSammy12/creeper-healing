@@ -185,7 +185,7 @@ public class ExplosionManager {
             return;
         }
         AffectedBlock affectedBlock = optionalAffectedBlock.get();
-        if(affectedBlock.isAlreadyPlaced()){
+        if(affectedBlock.isPlaced()){
             currentExplosion.incrementCounter();
             return;
         }

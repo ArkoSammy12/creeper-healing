@@ -67,7 +67,7 @@ public class AffectedBlock {
         return this.timer;
     }
 
-    public boolean isAlreadyPlaced(){
+    public boolean isPlaced(){
         return this.placed;
     }
 
