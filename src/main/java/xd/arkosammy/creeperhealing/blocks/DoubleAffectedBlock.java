@@ -20,7 +20,7 @@ public class DoubleAffectedBlock extends AffectedBlock {
     public static final String TYPE = "double_affected_block";
 
     public DoubleAffectedBlock(BlockPos pos, BlockState state, RegistryKey<World> registryKey, long affectedBlockTimer, boolean placed){
-        super(pos, state, registryKey, affectedBlockTimer, placed);
+        super(pos, state, registryKey, null, affectedBlockTimer, placed);
     }
 
     @Override

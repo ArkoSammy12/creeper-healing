@@ -34,7 +34,7 @@ public enum ExplosionItemDropConfig{
     }
     private static final String TABLE_NAME = "explosion_item_drops";
     private static final String TABLE_COMMENT = """
-            Toggle whether certain explosion should drop items.""";
+            Toggle whether certain explosion should drop items. Does not include items stored in container blocks.""";
 
     static void setDefaultValues(CommentedFileConfig fileConfig){
         for(ConfigEntry<Boolean> configEntry : Arrays.stream(ExplosionItemDropConfig.values()).map(ExplosionItemDropConfig::getEntry).toList()){

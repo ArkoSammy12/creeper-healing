@@ -8,6 +8,8 @@ import java.util.Arrays;
 
 public enum PreferencesConfig {
 
+    HEAL_BLOCK_INVENTORIES(new ConfigEntry<>("heal_block_inventories", false, """
+            (Default = false) Whether a container block such as a chest should have its inventory restored when healed. This option also prevents the container's items from being dropped.""")),
     BLOCK_PLACEMENT_SOUND_EFFECT(new ConfigEntry<>("block_placement_sound_effect", true, """
                 (Default = true) Whether a block placement sound effect should be played when a block is healed.""")),
     HEAL_ON_HEALING_POTION_SPLASH(new ConfigEntry<>("heal_on_healing_potion_splash", true, """

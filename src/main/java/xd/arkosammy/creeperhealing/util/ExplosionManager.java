@@ -211,10 +211,10 @@ public class ExplosionManager {
 
     public void storeExplosions(MinecraftServer server){
         Path scheduledExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
-        DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.INSTANCE, this);
+        DataResult<JsonElement> encodedScheduledExplosions = CODEC.encodeStart(JsonOps.COMPRESSED, this);
         if(encodedScheduledExplosions.result().isPresent()){
             JsonElement scheduledExplosionsJson = encodedScheduledExplosions.resultOrPartial(CreeperHealing.LOGGER::error).orElseThrow();
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().create();
             String jsonString = gson.toJson(scheduledExplosionsJson);
             try(BufferedWriter bf = Files.newBufferedWriter(scheduledExplosionsFilePath)){
                 bf.write(jsonString);
@@ -233,7 +233,7 @@ public class ExplosionManager {
             if (Files.exists(scheduledExplosionsFilePath)) {
                 try(BufferedReader br = Files.newBufferedReader(scheduledExplosionsFilePath)){
                     JsonElement scheduledExplosionsJson = JsonParser.parseReader(br);
-                    DataResult<ExplosionManager> decodedExplosionManger = CODEC.parse(JsonOps.INSTANCE, scheduledExplosionsJson);
+                    DataResult<ExplosionManager> decodedExplosionManger = CODEC.parse(JsonOps.COMPRESSED, scheduledExplosionsJson);
                     decodedExplosionManger.resultOrPartial(error -> CreeperHealing.LOGGER.error("Error reading scheduled explosions: {}", error)).ifPresent(explosionManager -> instance = explosionManager);
                 }
             } else {

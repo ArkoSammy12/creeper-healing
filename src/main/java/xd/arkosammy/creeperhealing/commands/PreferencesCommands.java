@@ -23,10 +23,17 @@ public final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Heal block inventories node
+        LiteralCommandNode<ServerCommandSource> healBlockInventoriesNode = CommandManager
+                .literal("heal_block_inventories")
+                .executes(PreferencesCommands::getHealBlockInventoriesCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Play sound on block placement node
         LiteralCommandNode<ServerCommandSource> shouldPlaySoundOnBlockPlacementNode = CommandManager
                 .literal("block_placement_sound_effect")
-                .executes(PreferencesCommands::getShouldPlaySoundOnBlockPlacement)
+                .executes(PreferencesCommands::getShouldPlaySoundOnBlockPlacementCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -49,13 +56,19 @@ public final class PreferencesCommands {
         LiteralCommandNode<ServerCommandSource> enableWhitelistNode = CommandManager
                 .literal("enable_whitelist")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(PreferencesCommands::getEnableWhitelist)
+                .executes(PreferencesCommands::getEnableWhitelistCommand)
+                .build();
+
+        ArgumentCommandNode<ServerCommandSource, Boolean> healBlockInventoriesArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(PreferencesCommands::setHealBlockInvenotriesCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
         //Play sound on block placement argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> playSoundOnBlockPlacementArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(PreferencesCommands::setPlaySoundOnBlockPlacement)
+                .executes(PreferencesCommands::setPlaySoundOnBlockPlacementCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -76,7 +89,7 @@ public final class PreferencesCommands {
         //Enable whitelist argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> enableWhitelistArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
-                .executes(PreferencesCommands::setEnableWhitelist)
+                .executes(PreferencesCommands::setEnableWhitelistCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -84,12 +97,14 @@ public final class PreferencesCommands {
         creeperHealingNode.addChild(settingsNode);
 
         //Preferences commands nodes
+        settingsNode.addChild(healBlockInventoriesNode);
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
         settingsNode.addChild(healOnRegenerationPotionSplash);
         settingsNode.addChild(enableWhitelistNode);
 
         //Argument nodes
+        healBlockInventoriesNode.addChild(healBlockInventoriesArgumentNode);
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
         healOnRegenerationPotionSplash.addChild(healOnRegenerationPotionSplashArgumentNode);
@@ -97,7 +112,13 @@ public final class PreferencesCommands {
 
     }
 
-    private static int setPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
+    private static int setHealBlockInvenotriesCommand(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.HEAL_BLOCK_INVENTORIES.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Heal block inventories has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setPlaySoundOnBlockPlacementCommand(CommandContext<ServerCommandSource> ctx) {
         PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
@@ -115,13 +136,18 @@ public final class PreferencesCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int setEnableWhitelist(CommandContext<ServerCommandSource> ctx){
+    private static int setEnableWhitelistCommand(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.ENABLE_WHITELIST.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
         ctx.getSource().sendMessage(Text.literal("The whitelist has been " + (BoolArgumentType.getBool(ctx, "value") ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int getShouldPlaySoundOnBlockPlacement(CommandContext<ServerCommandSource> ctx) {
+    private static int getHealBlockInventoriesCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Heal block inventories currently set to: " + PreferencesConfig.HEAL_BLOCK_INVENTORIES.getEntry().getValue()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getShouldPlaySoundOnBlockPlacementCommand(CommandContext<ServerCommandSource> ctx) {
         ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
@@ -136,7 +162,7 @@ public final class PreferencesCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int getEnableWhitelist(CommandContext<ServerCommandSource> ctx){
+    private static int getEnableWhitelistCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (PreferencesConfig.ENABLE_WHITELIST.getEntry().getValue() ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }

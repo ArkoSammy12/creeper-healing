@@ -43,7 +43,7 @@ public abstract class BlockMixin {
         } else if (causingEntity instanceof EndCrystalEntity && ExplosionItemDropConfig.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getEntry().getValue()){
             shouldDropItems = true;
         }
-        ExplosionUtils.SHOULD_DROP_ITEMS_THREAD_LOCAL.set(shouldDropItems);
+        ExplosionUtils.DROP_EXPLOSION_ITEMS.set(shouldDropItems);
         return shouldDropItems && original;
     }
 

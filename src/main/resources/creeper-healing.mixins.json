@@ -5,6 +5,7 @@
   "mixins": [
     "BlockMixin",
     "ExplosionMixin",
+    "ItemScattererMixin",
     "PotionEntityMixin",
     "ServerWorldMixin",
     "TimeCommandMixin",

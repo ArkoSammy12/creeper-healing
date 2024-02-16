@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xd.arkosammy.creeperhealing.config.PreferencesConfig;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
@@ -39,11 +40,14 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // Make sure the thread local is reset when entering and after exiting "affectWorld"
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        ExplosionUtils.SHOULD_DROP_ITEMS_THREAD_LOCAL.set(true);
+        ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
+        boolean dropContainerItems = !PreferencesConfig.HEAL_BLOCK_INVENTORIES.getEntry().getValue();
+        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(dropContainerItems);
     }
 
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
     private void clearDropItemsThreadLocal(boolean particles, CallbackInfo ci){
-        ExplosionUtils.SHOULD_DROP_ITEMS_THREAD_LOCAL.set(true);
+        ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
+        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
     }
 }
