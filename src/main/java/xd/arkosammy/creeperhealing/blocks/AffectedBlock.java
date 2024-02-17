@@ -51,8 +51,8 @@ public class AffectedBlock {
             return new DoubleAffectedBlock(pos, state, world.getRegistryKey(), DelaysConfig.getBlockPlacementDelayAsTicks(), false);
         } else {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if(blockEntity instanceof Inventory && PreferencesConfig.HEAL_BLOCK_INVENTORIES.getEntry().getValue()){
-                return new AffectedBlock(pos, state, world.getRegistryKey(), blockEntity.createNbtWithId() ,DelaysConfig.getBlockPlacementDelayAsTicks(), false);
+            if(blockEntity != null && PreferencesConfig.RESTORE_BLOCK_NBT.getEntry().getValue()){
+                return new AffectedBlock(pos, state, world.getRegistryKey(), blockEntity.createNbtWithId(), DelaysConfig.getBlockPlacementDelayAsTicks(), false);
             } else {
                 return new AffectedBlock(pos, state, world.getRegistryKey(), null, DelaysConfig.getBlockPlacementDelayAsTicks(), false);
             }

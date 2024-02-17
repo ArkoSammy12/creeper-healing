@@ -41,7 +41,7 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
         ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
-        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(!PreferencesConfig.HEAL_BLOCK_INVENTORIES.getEntry().getValue());
+        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(!PreferencesConfig.RESTORE_BLOCK_NBT.getEntry().getValue());
     }
 
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
