@@ -10,6 +10,8 @@ public enum PreferencesConfig {
 
     RESTORE_BLOCK_NBT(new ConfigEntry<>("restore_block_nbt", false, """
             (Default = false) Whether to restore block nbt data upon healing. This option prevents container blocks like chests from dropping their inventories. Does not apply when the healed block is different from the destroyed block due to a replace map entry.""")),
+    MAKE_FALLING_BLOCKS_FALL(new ConfigEntry<>("make_falling_blocks_fall", true, """
+            (Default = true) Allows for a falling block, like sand or gravel, to fall when healed. Disabling this option makes the falling block have to receive a neighbor update before falling.""")),
     BLOCK_PLACEMENT_SOUND_EFFECT(new ConfigEntry<>("block_placement_sound_effect", true, """
                 (Default = true) Whether a block placement sound effect should be played when a block is healed.""")),
     HEAL_ON_HEALING_POTION_SPLASH(new ConfigEntry<>("heal_on_healing_potion_splash", true, """

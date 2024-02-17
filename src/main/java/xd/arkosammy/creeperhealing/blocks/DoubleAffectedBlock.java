@@ -56,19 +56,18 @@ public class DoubleAffectedBlock extends AffectedBlock {
         BlockState secondHalfState = firstHalfState.getBlock().getStateWithProperties(firstHalfState).with(Properties.DOUBLE_BLOCK_HALF, secondHalf);
         BlockPos secondHalfPos = secondHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? firstHalfPos.up() :  firstHalfPos.down();
 
-        if(this.shouldHealBlock(world, secondHalfPos)) {
-            BlockState stateToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfState : secondHalfState;
-            BlockPos posToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfPos : firstHalfPos.down();
-
-            if(stateToPushFrom.isSolidBlock(world, posToPushFrom)) {
-                ExplosionUtils.pushEntitiesUpwards(world, posToPushFrom, true);
-            }
-            world.setBlockState(firstHalfPos, firstHalfState);
-            world.setBlockState(secondHalfPos, secondHalfState);
-
-            if(ExplosionUtils.shouldPlayBlockPlacementSound(world, firstHalfState)) {
-                world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
-            }
+        if(!this.shouldHealBlock(world, secondHalfPos)){
+            return;
+        }
+        BlockState stateToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfState : secondHalfState;
+        BlockPos posToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfPos : firstHalfPos.down();
+        if(stateToPushFrom.isSolidBlock(world, posToPushFrom)) {
+            ExplosionUtils.pushEntitiesUpwards(world, posToPushFrom, true);
+        }
+        world.setBlockState(firstHalfPos, firstHalfState);
+        world.setBlockState(secondHalfPos, secondHalfState);
+        if(ExplosionUtils.shouldPlayBlockPlacementSound(world, firstHalfState)) {
+            world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
         }
         currentExplosionEvent.markAsPlaced(secondHalfState, secondHalfPos, world);
     }
@@ -99,18 +98,19 @@ public class DoubleAffectedBlock extends AffectedBlock {
             }
         }
 
-        if (this.shouldHealBlock(world, secondHalfPos)) {
-            if(firstHalfState.isSolidBlock(world, firstHalfPos)) {
-                ExplosionUtils.pushEntitiesUpwards(world, firstHalfPos, false);
-            }
-            if(secondHalfState.isSolidBlock(world, secondHalfPos)) {
-                ExplosionUtils.pushEntitiesUpwards(world, secondHalfPos, false);
-            }
-            world.setBlockState(firstHalfPos, firstHalfState);
-            world.setBlockState(secondHalfPos, secondHalfState);
-            if (ExplosionUtils.shouldPlayBlockPlacementSound(world, firstHalfState)) {
-                world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
-            }
+        if(!this.shouldHealBlock(world, secondHalfPos)) {
+            return;
+        }
+        if(firstHalfState.isSolidBlock(world, firstHalfPos)) {
+            ExplosionUtils.pushEntitiesUpwards(world, firstHalfPos, false);
+        }
+        if(secondHalfState.isSolidBlock(world, secondHalfPos)) {
+            ExplosionUtils.pushEntitiesUpwards(world, secondHalfPos, false);
+        }
+        world.setBlockState(firstHalfPos, firstHalfState);
+        world.setBlockState(secondHalfPos, secondHalfState);
+        if (ExplosionUtils.shouldPlayBlockPlacementSound(world, firstHalfState)) {
+            world.playSound(null, firstHalfPos, firstHalfState.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, firstHalfState.getSoundGroup().getVolume(), firstHalfState.getSoundGroup().getPitch());
         }
         currentExplosionEvent.markAsPlaced(secondHalfState, secondHalfPos, world);
     }

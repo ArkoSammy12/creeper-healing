@@ -3,7 +3,6 @@ package xd.arkosammy.creeperhealing.blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
@@ -121,22 +120,23 @@ public class AffectedBlock {
             state = Registries.BLOCK.get(new Identifier(ReplaceMapConfig.getReplaceMap().get(blockIdentifier))).getStateWithProperties(state);
             stateReplaced = true;
         }
-
-        if(this.shouldHealBlock(world, this.pos)) {
-            if(state.isSolidBlock(world, pos)) {
-                ExplosionUtils.pushEntitiesUpwards(world, pos, false);
-            }
-            if(state.getBlock() instanceof FallingBlock){
-                ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(false);
-            }
-            world.setBlockState(pos, state);
-            if(this.nbt != null && !stateReplaced) {
-                world.addBlockEntity(BlockEntity.createFromNbt(pos, state, this.nbt));
-            }
-            if(ExplosionUtils.shouldPlayBlockPlacementSound(world, state)) {
-                world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
-            }
+        if(!this.shouldHealBlock(world, this.pos)){
+            return;
         }
+        if(state.isSolidBlock(world, pos)) {
+            ExplosionUtils.pushEntitiesUpwards(world, pos, false);
+        }
+        if(state.getBlock() instanceof FallingBlock){
+            ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(PreferencesConfig.MAKE_FALLING_BLOCKS_FALL.getEntry().getValue());
+        }
+        world.setBlockState(pos, state);
+        if(this.nbt != null && !stateReplaced) {
+            world.addBlockEntity(BlockEntity.createFromNbt(pos, state, this.nbt));
+        }
+        if(ExplosionUtils.shouldPlayBlockPlacementSound(world, state)) {
+            world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
+        }
+
     }
 
     boolean shouldHealBlock(World world, BlockPos pos) {

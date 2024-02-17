@@ -30,6 +30,13 @@ public final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        //Make falling blocks fall node
+        LiteralCommandNode<ServerCommandSource> makeFallingBlocksFallNode = CommandManager
+                .literal("make_falling_blocks_fall")
+                .executes(PreferencesCommands::getMakeFallingBlocksFallCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         //Play sound on block placement node
         LiteralCommandNode<ServerCommandSource> shouldPlaySoundOnBlockPlacementNode = CommandManager
                 .literal("block_placement_sound_effect")
@@ -59,9 +66,17 @@ public final class PreferencesCommands {
                 .executes(PreferencesCommands::getEnableWhitelistCommand)
                 .build();
 
+        // Restore block nbt argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> restoreBlockNbtArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
                 .executes(PreferencesCommands::setRestoreBlockNbtCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        // Make falling blocks fall argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> makeFallingBlocksFallArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(PreferencesCommands::setMakeFallingBlocksFallCommands)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -98,6 +113,7 @@ public final class PreferencesCommands {
 
         //Preferences commands nodes
         settingsNode.addChild(restoreBlockNbtNode);
+        settingsNode.addChild(makeFallingBlocksFallNode);
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
         settingsNode.addChild(healOnRegenerationPotionSplash);
@@ -105,6 +121,7 @@ public final class PreferencesCommands {
 
         //Argument nodes
         restoreBlockNbtNode.addChild(restoreBlockNbtArgumentNode);
+        makeFallingBlocksFallNode.addChild(makeFallingBlocksFallArgumentNode);
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
         healOnRegenerationPotionSplash.addChild(healOnRegenerationPotionSplashArgumentNode);
@@ -114,7 +131,13 @@ public final class PreferencesCommands {
 
     private static int setRestoreBlockNbtCommand(CommandContext<ServerCommandSource> ctx){
         PreferencesConfig.RESTORE_BLOCK_NBT.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
-        ctx.getSource().sendMessage(Text.literal("Heal block inventories has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        ctx.getSource().sendMessage(Text.literal("Restore block nbt data has been set to: " + BoolArgumentType.getBool(ctx, "value")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setMakeFallingBlocksFallCommands(CommandContext<ServerCommandSource> ctx){
+        PreferencesConfig.MAKE_FALLING_BLOCKS_FALL.getEntry().setValue(BoolArgumentType.getBool(ctx, "value"));
+        ctx.getSource().sendMessage(Text.literal("Make falling blocks fall has been set to: " + BoolArgumentType.getBool(ctx, "value")));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -143,7 +166,12 @@ public final class PreferencesCommands {
     }
 
     private static int getRestoreBlockNbtCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal block inventories currently set to: " + PreferencesConfig.RESTORE_BLOCK_NBT.getEntry().getValue()));
+        ctx.getSource().sendMessage(Text.literal("Restore block nbt data currently set to: " + PreferencesConfig.RESTORE_BLOCK_NBT.getEntry().getValue()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getMakeFallingBlocksFallCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Make falling blocks fall currently set to: " + PreferencesConfig.MAKE_FALLING_BLOCKS_FALL.getEntry().getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
