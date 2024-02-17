@@ -20,6 +20,7 @@ public final class ExplosionUtils {
     private ExplosionUtils(){}
     public static final ThreadLocal<Boolean> DROP_EXPLOSION_ITEMS = ThreadLocal.withInitial(() -> true);
     public static final ThreadLocal<Boolean> DROP_BLOCK_INVENTORY_ITEMS = ThreadLocal.withInitial(() -> true);
+    public static final ThreadLocal<Boolean> FALLING_BLOCK_SCHEDULE_TICK = ThreadLocal.withInitial(() -> true);
 
      public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
         int amountToPush = isTallBlock ? 2 : 1;
