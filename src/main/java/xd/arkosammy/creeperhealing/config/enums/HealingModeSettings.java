@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.config.settings.enums;
+package xd.arkosammy.creeperhealing.config.enums;
 
 import xd.arkosammy.creeperhealing.explosions.ExplosionHealingMode;
 import xd.arkosammy.creeperhealing.config.settings.ConfigSetting;
@@ -15,7 +15,7 @@ public enum HealingModeSettings {
 
     private final ConfigSetting<?> configSetting;
 
-    public static List<ConfigSetting<?>> getConfigSettings() {
+    static List<ConfigSetting<?>> getConfigSettings() {
         return Arrays.stream(HealingModeSettings.values()).map(value -> value.configSetting).collect(Collectors.toList());
     }
 

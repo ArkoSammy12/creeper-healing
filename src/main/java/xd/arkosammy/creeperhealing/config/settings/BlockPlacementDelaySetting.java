@@ -2,7 +2,7 @@ package xd.arkosammy.creeperhealing.config.settings;
 
 import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.enums.DelaysSettings;
+import xd.arkosammy.creeperhealing.config.enums.DelaysSettings;
 
 public class BlockPlacementDelaySetting extends DoubleSetting {
 

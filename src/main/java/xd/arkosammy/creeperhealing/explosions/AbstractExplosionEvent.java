@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.HealDelaySetting;
-import xd.arkosammy.creeperhealing.config.settings.enums.HealingModeSettings;
+import xd.arkosammy.creeperhealing.config.enums.HealingModeSettings;
 import xd.arkosammy.creeperhealing.util.SerializedExplosionEvent;
 
 import java.util.Collections;

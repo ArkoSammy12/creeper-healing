@@ -33,9 +33,9 @@ import xd.arkosammy.creeperhealing.explosions.*;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
-import xd.arkosammy.creeperhealing.config.settings.enums.ExplosionSourceSettings;
-import xd.arkosammy.creeperhealing.config.settings.enums.PreferencesSettings;
-import xd.arkosammy.creeperhealing.config.settings.enums.WhitelistSettings;
+import xd.arkosammy.creeperhealing.config.enums.ExplosionSourceSettings;
+import xd.arkosammy.creeperhealing.config.enums.PreferencesSettings;
+import xd.arkosammy.creeperhealing.config.enums.WhitelistSettings;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

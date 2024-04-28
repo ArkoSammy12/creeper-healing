@@ -9,7 +9,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.config.settings.*;
 import xd.arkosammy.creeperhealing.config.tables.ConfigTable;
-import xd.arkosammy.creeperhealing.config.tables.ConfigTables;
+import xd.arkosammy.creeperhealing.config.enums.ConfigTables;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 import java.nio.file.Files;
@@ -79,7 +79,6 @@ public class ConfigManager {
     }
 
     public boolean reloadFromFile() {
-
         return this.ifConfigPresent(fileConfig -> {
             if(!Files.exists(CONFIG_PATH)) {
                 return false;

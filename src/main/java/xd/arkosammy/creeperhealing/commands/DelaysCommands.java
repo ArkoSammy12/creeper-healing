@@ -13,7 +13,7 @@ import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
 import xd.arkosammy.creeperhealing.config.settings.DoubleSetting;
 import xd.arkosammy.creeperhealing.config.settings.HealDelaySetting;
-import xd.arkosammy.creeperhealing.config.settings.enums.DelaysSettings;
+import xd.arkosammy.creeperhealing.config.enums.DelaysSettings;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 public final class DelaysCommands {

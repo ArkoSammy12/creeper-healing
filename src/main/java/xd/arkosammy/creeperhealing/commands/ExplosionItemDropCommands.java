@@ -9,7 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.enums.ExplosionItemDropSettings;
+import xd.arkosammy.creeperhealing.config.enums.ExplosionItemDropSettings;
 
 public final class ExplosionItemDropCommands {
 

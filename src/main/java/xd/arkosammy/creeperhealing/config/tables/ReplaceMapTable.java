@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.ConfigSetting;
+import xd.arkosammy.creeperhealing.config.enums.ConfigTables;
 import xd.arkosammy.creeperhealing.config.settings.StringSetting;
 
 import java.util.ArrayList;

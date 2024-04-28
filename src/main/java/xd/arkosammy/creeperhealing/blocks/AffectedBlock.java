@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
-import xd.arkosammy.creeperhealing.config.settings.enums.PreferencesSettings;
+import xd.arkosammy.creeperhealing.config.enums.PreferencesSettings;
 import xd.arkosammy.creeperhealing.config.tables.ReplaceMapTable;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.util.SerializedAffectedBlock;

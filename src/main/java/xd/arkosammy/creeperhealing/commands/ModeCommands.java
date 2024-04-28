@@ -8,7 +8,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.creeperhealing.explosions.ExplosionHealingMode;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.enums.HealingModeSettings;
+import xd.arkosammy.creeperhealing.config.enums.HealingModeSettings;
 
 public final class ModeCommands {
 

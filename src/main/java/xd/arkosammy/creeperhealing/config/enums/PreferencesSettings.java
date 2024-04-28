@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.config.settings.enums;
+package xd.arkosammy.creeperhealing.config.enums;
 
 import xd.arkosammy.creeperhealing.config.settings.BooleanSetting;
 import xd.arkosammy.creeperhealing.config.settings.ConfigSetting;
@@ -24,7 +24,7 @@ public enum PreferencesSettings {
 
     private final ConfigSetting<?> configSetting;
 
-    public static List<ConfigSetting<?>> getConfigSettings() {
+    static List<ConfigSetting<?>> getConfigSettings() {
         return Arrays.stream(PreferencesSettings.values()).map(value -> value.configSetting).collect(Collectors.toList());
     }
 

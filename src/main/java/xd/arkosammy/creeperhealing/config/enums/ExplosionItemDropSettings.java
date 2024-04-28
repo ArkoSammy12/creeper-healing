@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.config.settings.enums;
+package xd.arkosammy.creeperhealing.config.enums;
 
 import xd.arkosammy.creeperhealing.config.settings.BooleanSetting;
 import xd.arkosammy.creeperhealing.config.settings.ConfigSetting;
@@ -26,7 +26,7 @@ public enum ExplosionItemDropSettings {
 
     private final ConfigSetting<?> configSetting;
 
-    public static List<ConfigSetting<?>> getConfigSettings() {
+    static List<ConfigSetting<?>> getConfigSettings() {
         return Arrays.stream(ExplosionItemDropSettings.values()).map(value -> value.configSetting).collect(Collectors.toList());
     }
 

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.enums.PreferencesSettings;
+import xd.arkosammy.creeperhealing.config.enums.PreferencesSettings;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 import java.util.List;

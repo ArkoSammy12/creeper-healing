@@ -1,6 +1,8 @@
-package xd.arkosammy.creeperhealing.config.tables;
+package xd.arkosammy.creeperhealing.config.enums;
 
-import xd.arkosammy.creeperhealing.config.settings.enums.*;
+import xd.arkosammy.creeperhealing.config.tables.ConfigTable;
+import xd.arkosammy.creeperhealing.config.tables.ReplaceMapTable;
+import xd.arkosammy.creeperhealing.config.tables.SimpleConfigTable;
 
 import java.util.Arrays;
 import java.util.List;

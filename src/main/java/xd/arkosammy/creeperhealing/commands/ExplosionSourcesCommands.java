@@ -9,7 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.enums.ExplosionSourceSettings;
+import xd.arkosammy.creeperhealing.config.enums.ExplosionSourceSettings;
 
 public final class ExplosionSourcesCommands {
 

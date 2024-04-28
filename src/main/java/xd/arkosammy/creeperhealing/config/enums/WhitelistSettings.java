@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.config.settings.enums;
+package xd.arkosammy.creeperhealing.config.enums;
 
 import xd.arkosammy.creeperhealing.config.settings.ConfigSetting;
 import xd.arkosammy.creeperhealing.config.settings.StringListSetting;
@@ -13,7 +13,7 @@ public enum WhitelistSettings {
 
     private final ConfigSetting<?> configSetting;
 
-    public static List<ConfigSetting<?>> getConfigSettings() {
+    static List<ConfigSetting<?>> getConfigSettings() {
         return Arrays.stream(WhitelistSettings.values()).map(value -> value.configSetting).collect(Collectors.toList());
     }
 
