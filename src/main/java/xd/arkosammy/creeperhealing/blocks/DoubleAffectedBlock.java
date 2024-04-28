@@ -11,9 +11,11 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import xd.arkosammy.creeperhealing.config.ReplaceMapConfig;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
+import xd.arkosammy.creeperhealing.config.tables.ReplaceMapTable;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
+
+import java.util.Optional;
 
 public class DoubleAffectedBlock extends AffectedBlock {
 
@@ -33,7 +35,8 @@ public class DoubleAffectedBlock extends AffectedBlock {
 
         BlockState state = this.getState();
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
-        if(ReplaceMapConfig.getReplaceMap().containsKey(blockIdentifier)){
+        Optional<String> replaceMapValueOptional = ReplaceMapTable.getFromKey(blockIdentifier);
+        if(replaceMapValueOptional.isPresent()){
             super.tryHealing(server, currentExplosionEvent);
             return;
         }

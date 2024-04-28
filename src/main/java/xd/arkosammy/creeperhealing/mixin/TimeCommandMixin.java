@@ -1,6 +1,7 @@
 package xd.arkosammy.creeperhealing.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import net.minecraft.SharedConstants;
 import net.minecraft.server.command.TimeCommand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,7 +17,7 @@ public abstract class TimeCommandMixin {
     private static int onTimeAdd(int original){
         for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
             if(explosionEvent instanceof DaytimeExplosionEvent && explosionEvent.getHealTimer() > 0){
-                explosionEvent.setHealTimer(24000 - original);
+                explosionEvent.setHealTimer(SharedConstants.TICKS_PER_IN_GAME_DAY - original);
             }
         }
         return original;
@@ -26,7 +27,7 @@ public abstract class TimeCommandMixin {
     private static int onTimeSet(int original){
         for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
             if(explosionEvent instanceof DaytimeExplosionEvent && explosionEvent.getHealTimer() > 0){
-                explosionEvent.setHealTimer(24000 - original);
+                explosionEvent.setHealTimer(SharedConstants.TICKS_PER_IN_GAME_DAY - original);
             }
         }
         return original;

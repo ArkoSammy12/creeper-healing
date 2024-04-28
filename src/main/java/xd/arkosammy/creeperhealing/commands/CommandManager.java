@@ -48,7 +48,7 @@ public final class CommandManager {
 
     private static void reload(CommandContext<ServerCommandSource> ctx) throws IOException {
         //If this returns true, then the config file exists, and we can update our values from it
-        if(ConfigManager.reloadValuesFromConfig(ctx)) ctx.getSource().sendMessage(Text.literal("ConfigManager successfully reloaded"));
+        if(ConfigManager.getInstance().reloadFromFile()) ctx.getSource().sendMessage(Text.literal("Config successfully reloaded"));
         else ctx.getSource().sendMessage(Text.literal("Found no existing config file to reload values from").formatted(Formatting.RED));
     }
 

@@ -1,5 +1,6 @@
 package xd.arkosammy.creeperhealing.explosions;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
@@ -25,7 +26,7 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
     // Spread the placements of this explosion's affected blocks evenly throughout the day
     @Override
     public void setupExplosion(World world){
-        this.setHealTimer(24000 - (world.getTimeOfDay() % 24000));
+        this.setHealTimer(SharedConstants.TICKS_PER_IN_GAME_DAY - (world.getTimeOfDay() % 24000));
         int daylightBasedBlockPlacementDelay = 13000 / Math.max(this.getAffectedBlocks().size(), 1);
         this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(daylightBasedBlockPlacementDelay));
     }

@@ -9,7 +9,11 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xd.arkosammy.creeperhealing.config.DelaysConfig;
+import xd.arkosammy.creeperhealing.config.ConfigManager;
+import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
+import xd.arkosammy.creeperhealing.config.settings.DoubleSetting;
+import xd.arkosammy.creeperhealing.config.settings.HealDelaySetting;
+import xd.arkosammy.creeperhealing.config.settings.enums.DelaysSettings;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 public final class DelaysCommands {
@@ -65,8 +69,9 @@ public final class DelaysCommands {
     }
 
     private static int setExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx) {
-        if(Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
-            DelaysConfig.EXPLOSION_HEAL_DELAY.getEntry().setValue(DoubleArgumentType.getDouble(ctx, "seconds"));
+        double value = DoubleArgumentType.getDouble(ctx, "seconds");
+        if(Math.round(Math.max(value, 0) * 20L) != 0) {
+            ConfigManager.getInstance().getAsDoubleSetting(DelaysSettings.EXPLOSION_HEAL_DELAY.getName()).setValue(value);
             ctx.getSource().sendMessage(Text.literal("Explosion heal delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
         } else {
             ctx.getSource().sendMessage(Text.literal("Cannot set explosion heal delay to a very low value").formatted(Formatting.RED));
@@ -75,8 +80,9 @@ public final class DelaysCommands {
     }
 
     private static int setBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx) {
-        if (Math.round(Math.max(DoubleArgumentType.getDouble(ctx, "seconds"), 0) * 20L) != 0) {
-            DelaysConfig.BLOCK_PLACEMENT_DELAY.getEntry().setValue(DoubleArgumentType.getDouble(ctx, "seconds"));
+        double value = DoubleArgumentType.getDouble(ctx, "seconds");
+        if (Math.round(Math.max(value, 0) * 20L) != 0) {
+            ConfigManager.getInstance().getAsDoubleSetting(DelaysSettings.BLOCK_PLACEMENT_DELAY.getName()).setValue(value);
             ExplosionManager.getInstance().updateAffectedBlocksTimers();
             ctx.getSource().sendMessage(Text.literal("Block placement delay has been set to: " + DoubleArgumentType.getDouble(ctx, "seconds") + " second(s)"));
         } else {
@@ -86,12 +92,24 @@ public final class DelaysCommands {
     }
 
     private static int getExplosionHealDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + ((double)DelaysConfig.getExplosionHealDelayAsTicks() / 20) + " second(s)"));
+
+        DoubleSetting setting = ConfigManager.getInstance().getAsDoubleSetting(DelaysSettings.EXPLOSION_HEAL_DELAY.getName());
+        if(setting instanceof HealDelaySetting doubleSetting){
+            ctx.getSource().sendMessage(Text.literal("Explosion heal delay currently set to: " + doubleSetting.getValue() + " second(s)"));
+        } else {
+            ctx.getSource().sendMessage(Text.literal("Error getting explosion heal delay setting").formatted(Formatting.RED));
+        }
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getBlockPlacementDelayCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + ((double) DelaysConfig.getBlockPlacementDelayAsTicks() / 20) + " second(s)"));
+
+        DoubleSetting setting = ConfigManager.getInstance().getAsDoubleSetting(DelaysSettings.BLOCK_PLACEMENT_DELAY.getName());
+        if(setting instanceof BlockPlacementDelaySetting doubleSetting){
+            ctx.getSource().sendMessage(Text.literal("Block placement delay currently set to: " + doubleSetting.getValue() + " second(s)"));
+        } else {
+            ctx.getSource().sendMessage(Text.literal("Error getting block placement delay setting").formatted(Formatting.RED));
+        }
         return Command.SINGLE_SUCCESS;
     }
 

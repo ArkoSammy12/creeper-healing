@@ -18,7 +18,8 @@ public class CreeperHealing implements ModInitializer {
 	// TODO: Remake entire config system somehow. Make it more generic?
 	@Override
 	public void onInitialize() {
-		ConfigManager.init();
+		//ConfigManager.init();
+		ConfigManager.getInstance().init();
 		ServerLifecycleEvents.SERVER_STARTING.register(CreeperHealing::onServerStarting);
 		ServerLifecycleEvents.SERVER_STOPPING.register(CreeperHealing::onServerStopping);
 		ServerTickEvents.END_SERVER_TICK.register(server -> ExplosionManager.getInstance().tick(server));
@@ -34,7 +35,8 @@ public class CreeperHealing implements ModInitializer {
 	private static void onServerStopping(MinecraftServer server) {
 		ExplosionManager.getInstance().storeExplosions(server);
 		ExplosionManager.getInstance().getExplosionEvents().clear();
-		ConfigManager.updateConfigFile();
+		//ConfigManager.updateConfigFile();
+		ConfigManager.getInstance().saveToFile();
 	}
 
 }

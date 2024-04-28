@@ -9,7 +9,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.creeperhealing.config.PreferencesConfig;
+import xd.arkosammy.creeperhealing.config.ConfigManager;
+import xd.arkosammy.creeperhealing.config.settings.enums.PreferencesSettings;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
@@ -41,7 +42,7 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
         ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
-        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(!PreferencesConfig.RESTORE_BLOCK_NBT.getEntry().getValue());
+        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(!ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.RESTORE_BLOCK_NBT.getName()).getValue());
     }
 
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))

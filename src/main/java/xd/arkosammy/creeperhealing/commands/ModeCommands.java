@@ -6,8 +6,9 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import xd.arkosammy.creeperhealing.config.ModeConfig;
 import xd.arkosammy.creeperhealing.explosions.ExplosionHealingMode;
+import xd.arkosammy.creeperhealing.config.ConfigManager;
+import xd.arkosammy.creeperhealing.config.settings.enums.HealingModeSettings;
 
 public final class ModeCommands {
 
@@ -62,31 +63,31 @@ public final class ModeCommands {
     }
 
     private static int setDefaultHealingModeCommand(CommandContext<ServerCommandSource> ctx){
-        ModeConfig.MODE.getEntry().setValue(ExplosionHealingMode.DEFAULT_MODE.getName());
+        ConfigManager.getInstance().getAsStringSetting(HealingModeSettings.MODE.getName()).setValue(ExplosionHealingMode.DEFAULT_MODE.getName());
         ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.DEFAULT_MODE.getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDaytimeHealingModeCommand(CommandContext<ServerCommandSource> ctx){
-        ModeConfig.MODE.getEntry().setValue(ExplosionHealingMode.DAYTIME_HEALING_MODE.getName());
+        ConfigManager.getInstance().getAsStringSetting(HealingModeSettings.MODE.getName()).setValue(ExplosionHealingMode.DAYTIME_HEALING_MODE.getName());
         ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.DAYTIME_HEALING_MODE.getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDifficultyBasedModeCommand(CommandContext<ServerCommandSource> ctx){
-        ModeConfig.MODE.getEntry().setValue(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName());
+        ConfigManager.getInstance().getAsStringSetting(HealingModeSettings.MODE.getName()).setValue(ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getName());
         ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.DIFFICULTY_BASED_HEALING_MODE.getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setBlastResistanceBasedHealingModeCommand(CommandContext<ServerCommandSource> ctx){
-        ModeConfig.MODE.getEntry().setValue(ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName());
+        ConfigManager.getInstance().getAsStringSetting(HealingModeSettings.MODE.getName()).setValue(ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getName());
         ctx.getSource().sendMessage(Text.literal("Explosion healing mode has been set to: " + ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE.getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealingModeCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Explosion healing mode currently has been set to: " + ExplosionHealingMode.getFromName(ModeConfig.MODE.getEntry().getValue()).getDisplayName()));
+        ctx.getSource().sendMessage(Text.literal("Explosion healing mode currently has been set to: " + ExplosionHealingMode.getFromName(ConfigManager.getInstance().getAsStringSetting(HealingModeSettings.MODE.getName()).getValue()).getDisplayName()));
         return Command.SINGLE_SUCCESS;
     }
 

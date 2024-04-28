@@ -29,9 +29,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.config.*;
 import xd.arkosammy.creeperhealing.explosions.*;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
+import xd.arkosammy.creeperhealing.config.ConfigManager;
+import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
+import xd.arkosammy.creeperhealing.config.settings.enums.ExplosionSourceSettings;
+import xd.arkosammy.creeperhealing.config.settings.enums.PreferencesSettings;
+import xd.arkosammy.creeperhealing.config.settings.enums.WhitelistSettings;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -79,11 +83,11 @@ public class ExplosionManager {
         List<AffectedBlock> affectedBlocks = new ArrayList<>();
         for(BlockPos affectedPos : explosion.getAffectedBlocks()){
             BlockState affectedState = world.getBlockState(affectedPos);
-            if (affectedState.isAir() || affectedState.getBlock().equals(Blocks.TNT) || affectedState.isIn(BlockTags.FIRE)) {
+            if (affectedState.isAir() || affectedState.getBlock().equals(Blocks.TNT) || affectedState.isIn(BlockTags.FIRE) || ExcludedBlocks.isExcluded(affectedState)) {
                 continue; // Skip the current iteration if the block affectedState is air, TNT, or fire
             }
             String blockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
-            if (!PreferencesConfig.ENABLE_WHITELIST.getEntry().getValue() || WhitelistConfig.getWhitelist().contains(blockIdentifier)) {
+            if (!ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.ENABLE_WHITELIST.getName()).getValue() || ConfigManager.getInstance().getAsStringListSetting(WhitelistSettings.WHITELIST.getName()).getValue().contains(blockIdentifier)) {
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(affectedPos, affectedState, world));
             }
         }
@@ -110,19 +114,19 @@ public class ExplosionManager {
             return false;
         }
         boolean shouldHealExplosion = false;
-        if(causingLivingEntity instanceof CreeperEntity && ExplosionSourceConfig.HEAL_CREEPER_EXPLOSIONS.getEntry().getValue()){
+        if(causingLivingEntity instanceof CreeperEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_CREEPER_EXPLOSIONS.getName()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof GhastEntity && ExplosionSourceConfig.HEAL_GHAST_EXPLOSIONS.getEntry().getValue()){
+        } else if (causingLivingEntity instanceof GhastEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_GHAST_EXPLOSIONS.getName()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof WitherEntity && ExplosionSourceConfig.HEAL_WITHER_EXPLOSIONS.getEntry().getValue()){
+        } else if (causingLivingEntity instanceof WitherEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_WITHER_EXPLOSIONS.getName()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntEntity && ExplosionSourceConfig.HEAL_TNT_EXPLOSIONS.getEntry().getValue()){
+        } else if (causingEntity instanceof TntEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_EXPLOSIONS.getName()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntMinecartEntity && ExplosionSourceConfig.HEAL_TNT_MINECART_EXPLOSIONS.getEntry().getValue()){
+        } else if (causingEntity instanceof TntMinecartEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_MINECART_EXPLOSIONS.getName()).getValue()){
             shouldHealExplosion = true;
-        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ExplosionSourceConfig.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getEntry().getValue()){
+        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getName()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof EndCrystalEntity && ExplosionSourceConfig.HEAL_END_CRYSTAL_EXPLOSIONS.getEntry().getValue()){
+        } else if (causingEntity instanceof EndCrystalEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getName()).getValue()){
             shouldHealExplosion = true;
         }
         return shouldHealExplosion;
@@ -161,7 +165,7 @@ public class ExplosionManager {
         } else {
             combinedExplosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
         }
-        combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(DelaysConfig.getBlockPlacementDelayAsTicks()));
+        combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(BlockPlacementDelaySetting.getAsTicks()));
         combinedExplosionEvent.setupExplosion(world);
         return combinedExplosionEvent;
     }
@@ -220,7 +224,7 @@ public class ExplosionManager {
                 bf.write(jsonString);
                 CreeperHealing.LOGGER.info("Stored {} explosion event(s) to {}", this.explosionEvents.size(), scheduledExplosionsFilePath);
             } catch (IOException e){
-                CreeperHealing.LOGGER.error("Error storing explosion event(s): " + e);
+                CreeperHealing.LOGGER.error("Error storing explosion event(s): {}", e.toString());
             }
         } else {
             CreeperHealing.LOGGER.error("Error storing creeper explosion(s): No value present");
@@ -241,7 +245,7 @@ public class ExplosionManager {
                 Files.createFile(scheduledExplosionsFilePath);
             }
         } catch (IOException e){
-            CreeperHealing.LOGGER.error("Error reading scheduled explosions: " + e);
+            CreeperHealing.LOGGER.error("Error reading scheduled explosions: {}", e.toString());
         }
 
     }
@@ -250,7 +254,7 @@ public class ExplosionManager {
         for(AbstractExplosionEvent explosionEvent : this.explosionEvents){
             if(explosionEvent instanceof DefaultExplosionEvent) {
                 for (int i = explosionEvent.getBlockCounter() + 1; i < explosionEvent.getAffectedBlocks().size(); i++) {
-                    explosionEvent.getAffectedBlocks().get(i).setTimer(DelaysConfig.getBlockPlacementDelayAsTicks());
+                    explosionEvent.getAffectedBlocks().get(i).setTimer(BlockPlacementDelaySetting.getAsTicks());
                 }
             }
         }

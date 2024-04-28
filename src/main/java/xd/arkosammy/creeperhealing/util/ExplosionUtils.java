@@ -10,7 +10,8 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.config.PreferencesConfig;
+import xd.arkosammy.creeperhealing.config.ConfigManager;
+import xd.arkosammy.creeperhealing.config.settings.enums.PreferencesSettings;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -131,7 +132,7 @@ public final class ExplosionUtils {
     }
 
     public static boolean shouldPlayBlockPlacementSound(World world, BlockState state) {
-        return !world.isClient && !state.isAir() && PreferencesConfig.BLOCK_PLACEMENT_SOUND_EFFECT.getEntry().getValue();
+        return !world.isClient && !state.isAir() && ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getName()).getValue();
     }
 
 }

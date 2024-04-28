@@ -4,7 +4,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.config.DelaysConfig;
+import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
             double randomOffset = random.nextBetween(-2, 2);
             double blastResistanceMultiplier = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
             int offset = (int) (MathHelper.lerp(blastResistanceMultiplier / 9, -2, 2) + randomOffset);
-            long finalOffset = Math.max(1, DelaysConfig.getBlockPlacementDelayAsTicks() + (offset * 20L));
+            long finalOffset = Math.max(1, BlockPlacementDelaySetting.getAsTicks() + (offset * 20L));
             affectedBlock.setTimer(finalOffset);
         }
     }
