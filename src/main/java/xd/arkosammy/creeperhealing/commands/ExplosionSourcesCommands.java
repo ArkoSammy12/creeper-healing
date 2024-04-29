@@ -9,7 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.enums.ExplosionSourceSettings;
+import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
 
 public final class ExplosionSourcesCommands {
 
@@ -146,85 +146,85 @@ public final class ExplosionSourcesCommands {
 
     private static int setHealCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_CREEPER_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_GHAST_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_GHAST_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal Ghast explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_WITHER_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_WITHER_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal Wither explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal TNT explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_MINECART_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal TNT Minecart explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal bed and respawn anchor explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal end crystal explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_CREEPER_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal Creeper explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Ghast explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_GHAST_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal Ghast explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_GHAST_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal Wither explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_WITHER_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal Wither explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_WITHER_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal TNT explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_MINECART_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal TNT explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealTNTMinecartExplosionCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal TNT minecart explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_MINECART_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal TNT minecart explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal bed and respawn anchor explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal bed and respawn anchor explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal end crystal explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal end crystal explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 

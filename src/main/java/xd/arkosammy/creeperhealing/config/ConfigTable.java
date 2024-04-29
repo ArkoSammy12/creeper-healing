@@ -1,4 +1,4 @@
-package xd.arkosammy.creeperhealing.config.tables;
+package xd.arkosammy.creeperhealing.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
@@ -15,6 +15,17 @@ public interface ConfigTable {
 
     List<ConfigSetting<?>> getConfigSettings();
 
+    void setAsRegistered();
+
+    boolean isRegistered();
+
+    default void addConfigSetting(ConfigSetting<?> setting) {
+        if(this.isRegistered()){
+            return;
+        }
+        this.getConfigSettings().add(setting);
+    }
+
     default void setDefaultValues(CommentedFileConfig fileConfig) {
         for(ConfigSetting<?> setting : getConfigSettings()) {
             setting.resetValue();
@@ -29,7 +40,11 @@ public interface ConfigTable {
             setting.getComment().ifPresent(comment -> fileConfig.setComment(settingAddress, comment));
         }
         this.getComment().ifPresent(comment -> fileConfig.setComment(this.getName(), comment));
-        fileConfig.<CommentedConfig>get(this.getName()).entrySet().removeIf(entry -> !this.containsSettingName(entry.getKey()));
+
+        CommentedConfig tableConfig = fileConfig.get(this.getName());
+        if(tableConfig != null){
+            tableConfig.entrySet().removeIf(entry -> !this.containsSettingName(entry.getKey()));
+        }
     }
 
     default void loadValues(CommentedFileConfig fileConfig) {

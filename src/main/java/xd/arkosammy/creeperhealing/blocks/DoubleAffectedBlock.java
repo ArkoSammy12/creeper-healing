@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
-import xd.arkosammy.creeperhealing.config.tables.ReplaceMapTable;
+import xd.arkosammy.creeperhealing.config.ReplaceMapTable;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 
 import java.util.Optional;

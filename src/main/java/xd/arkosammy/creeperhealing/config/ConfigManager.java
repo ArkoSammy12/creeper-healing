@@ -4,16 +4,16 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.GenericBuilder;
 import com.electronwill.nightconfig.toml.TomlFormat;
-import com.google.common.collect.ImmutableList;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.config.settings.*;
-import xd.arkosammy.creeperhealing.config.tables.ConfigTable;
-import xd.arkosammy.creeperhealing.config.enums.ConfigTables;
+import xd.arkosammy.creeperhealing.config.util.SettingIdentifier;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +24,9 @@ public class ConfigManager {
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.toml");
     private static ConfigManager INSTANCE;
     private final GenericBuilder<CommentedConfig, CommentedFileConfig> CONFIG_BUILDER;
-    private final List<ConfigTable> configTables;
+    private final List<ConfigTable> configTables = new ArrayList<>();
+    @Nullable
+    private List<ConfigSetting.Builder<?, ?>> temporarySettingBuilders = new ArrayList<>();
 
     private ConfigManager() {
         System.setProperty("nightconfig.preserveInsertionOrder", "true");
@@ -39,9 +41,6 @@ public class ConfigManager {
             CreeperHealing.LOGGER.error("Unable to initialize config: {}. Config will be unavailable.", throwable.getMessage());
         }
         CONFIG_BUILDER = builder;
-        List<ConfigTable> configTableList = ConfigTables.getConfigTables();
-        this.checkForSettingNameUniqueness(configTableList);
-        this.configTables = ImmutableList.copyOf(configTableList);
     }
 
     public static ConfigManager getInstance() {
@@ -49,6 +48,33 @@ public class ConfigManager {
             INSTANCE = new ConfigManager();
         }
         return INSTANCE;
+    }
+
+    public void addConfigSetting(ConfigSetting.Builder<?, ?> builder) {
+        if(this.temporarySettingBuilders == null) {
+            return;
+        }
+        this.temporarySettingBuilders.add(builder);
+    }
+
+    private void registerConfigTables(List<ConfigTable> configTables) {
+        if(this.temporarySettingBuilders == null) {
+            return;
+        }
+        this.configTables.addAll(configTables);
+        for(ConfigSetting.Builder<?, ?> settingBuilder : this.temporarySettingBuilders) {
+            String tableName = settingBuilder.getTableName();
+            for(ConfigTable configTable : this.configTables) {
+                if(configTable.getName().equals(tableName)) {
+                    ConfigSetting<?> setting = settingBuilder.build();
+                    configTable.addConfigSetting(setting);
+                    break;
+                }
+            }
+        }
+        this.temporarySettingBuilders.clear();
+        this.temporarySettingBuilders = null;
+        this.configTables.forEach(ConfigTable::setAsRegistered);
     }
 
     private boolean ifConfigPresent(Function<CommentedFileConfig, Boolean> fileConfigFunction) {
@@ -63,7 +89,9 @@ public class ConfigManager {
         return false;
     }
 
-    public void init() {
+    public void init(List<ConfigTable> configTables) {
+        this.registerConfigTables(configTables);
+        this.checkForSettingNameUniqueness();
         this.ifConfigPresent(fileConfig -> {
             if(!Files.exists(CONFIG_PATH)) {
                 CreeperHealing.LOGGER.warn("Found no preexisting configuration file. Creating a new configuration file with default values in {}", CONFIG_PATH);
@@ -115,45 +143,47 @@ public class ConfigManager {
         throw new IllegalArgumentException("Config table not found: " + tableName);
     }
 
-    public ConfigSetting<?> getSetting(String settingName) {
+    public ConfigSetting<?> getSetting(SettingIdentifier settingId) {
         for(ConfigTable configTable : this.configTables) {
-            for(ConfigSetting<?> setting : configTable.getConfigSettings()) {
-                if(setting.getName().equals(settingName)) {
-                    return setting;
+            if(configTable.getName().equals(settingId.tableName())) {
+                for(ConfigSetting<?> setting : configTable.getConfigSettings()) {
+                    if(setting.getName().equals(settingId.settingName())) {
+                        return setting;
+                    }
                 }
             }
         }
-        throw new IllegalArgumentException("Setting not found in config tables: " + settingName);
+        throw new IllegalArgumentException("Setting " + settingId.settingName() + " not found in table " + settingId.tableName());
     }
 
-    public DoubleSetting getAsDoubleSetting(String settingName) {
-        ConfigSetting<?> configSetting = this.getSetting(settingName);
+    public DoubleSetting getAsDoubleSetting(SettingIdentifier settingId) {
+        ConfigSetting<?> configSetting = this.getSetting(settingId);
         if(!(configSetting instanceof DoubleSetting doubleSetting)) {
-            throw new IllegalArgumentException("Setting is not a double setting: " + settingName);
+            throw new IllegalArgumentException("Setting " + settingId.settingName() + " is not a double setting");
         }
         return doubleSetting;
     }
 
-    public BooleanSetting getAsBooleanSetting(String settingName) {
-        ConfigSetting<?> configSetting = this.getSetting(settingName);
+    public BooleanSetting getAsBooleanSetting(SettingIdentifier settingId) {
+        ConfigSetting<?> configSetting = this.getSetting(settingId);
         if(!(configSetting instanceof BooleanSetting booleanSetting)) {
-            throw new IllegalArgumentException("Setting is not a boolean setting: " + settingName);
+            throw new IllegalArgumentException("Setting " + settingId.settingName() + " is not a boolean setting");
         }
         return booleanSetting;
     }
 
-    public StringSetting getAsStringSetting(String settingName) {
-        ConfigSetting<?> configSetting = this.getSetting(settingName);
+    public StringSetting getAsStringSetting(SettingIdentifier settingId) {
+        ConfigSetting<?> configSetting = this.getSetting(settingId);
         if(!(configSetting instanceof StringSetting stringSetting)) {
-            throw new IllegalArgumentException("Setting is not a string setting: " + settingName);
+            throw new IllegalArgumentException("Setting " + settingId.settingName() + " is not a string setting");
         }
         return stringSetting;
     }
 
-    public StringListSetting getAsStringListSetting(String settingName) {
-        ConfigSetting<?> configSetting = this.getSetting(settingName);
+    public StringListSetting getAsStringListSetting(SettingIdentifier settingId) {
+        ConfigSetting<?> configSetting = this.getSetting(settingId);
         if(!(configSetting instanceof StringListSetting stringListSetting)) {
-            throw new IllegalArgumentException("Setting is not a string list setting: " + settingName);
+            throw new IllegalArgumentException("Setting " + settingId.settingName() + " is not a string list setting");
         }
         return stringListSetting;
     }
@@ -163,9 +193,9 @@ public class ConfigManager {
         fileConfig.save();
     }
 
-    private void checkForSettingNameUniqueness(List<ConfigTable> configTables) {
+    private void checkForSettingNameUniqueness() {
         Set<String> settingNames = new HashSet<>();
-        for (ConfigTable table : configTables) {
+        for (ConfigTable table : this.configTables) {
             for (ConfigSetting<?> setting : table.getConfigSettings()) {
                 if (!settingNames.add(setting.getName())) {
                     throw new IllegalArgumentException("Duplicate config setting name found: " + setting.getName());

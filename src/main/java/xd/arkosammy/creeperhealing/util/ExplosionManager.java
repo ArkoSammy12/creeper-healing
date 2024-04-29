@@ -29,13 +29,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
+import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
 import xd.arkosammy.creeperhealing.explosions.*;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
-import xd.arkosammy.creeperhealing.config.enums.ExplosionSourceSettings;
-import xd.arkosammy.creeperhealing.config.enums.PreferencesSettings;
-import xd.arkosammy.creeperhealing.config.enums.WhitelistSettings;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -87,7 +85,7 @@ public class ExplosionManager {
                 continue; // Skip the current iteration if the block affectedState is air, TNT, or fire
             }
             String blockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
-            if (!ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.ENABLE_WHITELIST.getName()).getValue() || ConfigManager.getInstance().getAsStringListSetting(WhitelistSettings.WHITELIST.getName()).getValue().contains(blockIdentifier)) {
+            if (!ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.ENABLE_WHITELIST.getId()).getValue() || ConfigManager.getInstance().getAsStringListSetting(ConfigSettings.WHITELIST.getId()).getValue().contains(blockIdentifier)) {
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(affectedPos, affectedState, world));
             }
         }
@@ -114,19 +112,19 @@ public class ExplosionManager {
             return false;
         }
         boolean shouldHealExplosion = false;
-        if(causingLivingEntity instanceof CreeperEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_CREEPER_EXPLOSIONS.getName()).getValue()){
+        if(causingLivingEntity instanceof CreeperEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getId()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof GhastEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_GHAST_EXPLOSIONS.getName()).getValue()){
+        } else if (causingLivingEntity instanceof GhastEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_GHAST_EXPLOSIONS.getId()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof WitherEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_WITHER_EXPLOSIONS.getName()).getValue()){
+        } else if (causingLivingEntity instanceof WitherEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_WITHER_EXPLOSIONS.getId()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_EXPLOSIONS.getName()).getValue()){
+        } else if (causingEntity instanceof TntEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_EXPLOSIONS.getId()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntMinecartEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_TNT_MINECART_EXPLOSIONS.getName()).getValue()){
+        } else if (causingEntity instanceof TntMinecartEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getId()).getValue()){
             shouldHealExplosion = true;
-        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getName()).getValue()){
+        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getId()).getValue()){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof EndCrystalEntity && ConfigManager.getInstance().getAsBooleanSetting(ExplosionSourceSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getName()).getValue()){
+        } else if (causingEntity instanceof EndCrystalEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getId()).getValue()){
             shouldHealExplosion = true;
         }
         return shouldHealExplosion;

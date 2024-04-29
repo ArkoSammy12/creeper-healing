@@ -9,7 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.enums.PreferencesSettings;
+import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
 
 
 public final class PreferencesCommands {
@@ -132,73 +132,73 @@ public final class PreferencesCommands {
 
     private static int setRestoreBlockNbtCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.RESTORE_BLOCK_NBT.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Restore block nbt data has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setMakeFallingBlocksFallCommands(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.MAKE_FALLING_BLOCKS_FALL.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Make falling blocks fall has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setPlaySoundOnBlockPlacementCommand(CommandContext<ServerCommandSource> ctx) {
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Play sound on block placement has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.HEAL_ON_HEALING_POTION_SPLASH.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_ON_HEALING_POTION_SPLASH.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setHealOnRegenerationPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setEnableWhitelistCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.ENABLE_WHITELIST.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.ENABLE_WHITELIST.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("The whitelist has been " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getRestoreBlockNbtCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Restore block nbt data currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.RESTORE_BLOCK_NBT.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Restore block nbt data currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getMakeFallingBlocksFallCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Make falling blocks fall currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.MAKE_FALLING_BLOCKS_FALL.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Make falling blocks fall currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getShouldPlaySoundOnBlockPlacementCommand(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Play sound on block placement currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealOnHealingPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.HEAL_ON_HEALING_POTION_SPLASH.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal on Healing potion splash set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_ON_HEALING_POTION_SPLASH.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getHealOnRegenerationPotionSplashCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Heal on Regeneration potion splash set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getEnableWhitelistCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.ENABLE_WHITELIST.getName()).getValue() ? "enabled" : "disabled")));
+        ctx.getSource().sendMessage(Text.literal("The whitelist is currently " + (ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.ENABLE_WHITELIST.getId()).getValue() ? "enabled" : "disabled")));
         return Command.SINGLE_SUCCESS;
     }
 

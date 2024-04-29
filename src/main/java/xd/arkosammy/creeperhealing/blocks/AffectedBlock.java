@@ -14,11 +14,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
-import xd.arkosammy.creeperhealing.config.enums.PreferencesSettings;
-import xd.arkosammy.creeperhealing.config.tables.ReplaceMapTable;
+import xd.arkosammy.creeperhealing.config.ReplaceMapTable;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.util.SerializedAffectedBlock;
 
@@ -51,7 +51,7 @@ public class AffectedBlock {
             return new DoubleAffectedBlock(pos, state, world.getRegistryKey(), BlockPlacementDelaySetting.getAsTicks(), false);
         } else {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if(blockEntity != null && ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.RESTORE_BLOCK_NBT.getName()).getValue()){
+            if(blockEntity != null && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).getValue()){
                 return new AffectedBlock(pos, state, world.getRegistryKey(), blockEntity.createNbtWithId(), BlockPlacementDelaySetting.getAsTicks(), false);
             } else {
                 return new AffectedBlock(pos, state, world.getRegistryKey(), null, BlockPlacementDelaySetting.getAsTicks(), false);
@@ -130,7 +130,7 @@ public class AffectedBlock {
             ExplosionUtils.pushEntitiesUpwards(world, pos, false);
         }
         if(state.getBlock() instanceof FallingBlock){
-            ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(ConfigManager.getInstance().getAsBooleanSetting(PreferencesSettings.MAKE_FALLING_BLOCKS_FALL.getName()).getValue());
+            ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getId()).getValue());
         }
         world.setBlockState(pos, state);
         if(this.nbt != null && !stateReplaced) {

@@ -2,6 +2,7 @@ package xd.arkosammy.creeperhealing.config.settings;
 
 import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.CreeperHealing;
+import xd.arkosammy.creeperhealing.config.util.SettingIdentifier;
 
 public class DoubleSetting extends ConfigSetting<Double> {
 
@@ -10,7 +11,7 @@ public class DoubleSetting extends ConfigSetting<Double> {
     @Nullable
     private final Double upperBound;
 
-    public DoubleSetting(String name, double value, @Nullable Double lowerBound, @Nullable Double upperBound, String comment) {
+    DoubleSetting(String name, double value, @Nullable Double lowerBound, @Nullable Double upperBound, String comment) {
         super(name, value, comment);
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
@@ -27,6 +28,34 @@ public class DoubleSetting extends ConfigSetting<Double> {
             return;
         }
         super.setValue(value);
+
+    }
+
+    public static class Builder extends ConfigSetting.Builder<DoubleSetting, Double> {
+
+        @Nullable
+        Double lowerBound;
+        @Nullable
+        Double upperBound;
+
+        public Builder(SettingIdentifier id, double defaultValue) {
+            super(id, defaultValue);
+        }
+
+        public Builder withLowerBound(@Nullable Double lowerBound) {
+            this.lowerBound = lowerBound;
+            return this;
+        }
+
+        public Builder withUpperBound(@Nullable Double upperBound) {
+            this.upperBound = upperBound;
+            return this;
+        }
+
+        @Override
+        public DoubleSetting build() {
+            return new DoubleSetting(this.id.settingName(), this.defaultValue, this.lowerBound, this.upperBound, this.comment);
+        }
 
     }
 

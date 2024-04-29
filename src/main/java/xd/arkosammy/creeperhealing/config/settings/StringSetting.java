@@ -1,13 +1,23 @@
 package xd.arkosammy.creeperhealing.config.settings;
 
-public class StringSetting extends ConfigSetting<String> {
+import xd.arkosammy.creeperhealing.config.util.SettingIdentifier;
 
-    public StringSetting(String name, String value) {
-        super(name, value);
-    }
+public class StringSetting extends ConfigSetting<String> {
 
     public StringSetting(String name, String value, String comment) {
         super(name, value, comment);
+    }
+
+    public static class Builder extends ConfigSetting.Builder<StringSetting, String> {
+        public Builder(SettingIdentifier name, String defaultValue) {
+            super(name, defaultValue);
+        }
+
+        @Override
+        public StringSetting build() {
+            return new StringSetting(this.id.settingName(), this.defaultValue, this.comment);
+        }
+
     }
 
 }

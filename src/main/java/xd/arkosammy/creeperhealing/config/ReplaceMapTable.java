@@ -1,12 +1,11 @@
-package xd.arkosammy.creeperhealing.config.tables;
+package xd.arkosammy.creeperhealing.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import xd.arkosammy.creeperhealing.CreeperHealing;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.settings.ConfigSetting;
-import xd.arkosammy.creeperhealing.config.enums.ConfigTables;
 import xd.arkosammy.creeperhealing.config.settings.StringSetting;
+import xd.arkosammy.creeperhealing.config.util.SettingIdentifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +40,17 @@ public class ReplaceMapTable implements ConfigTable {
         return this.configSettings;
     }
 
+    @Override
+    public void setAsRegistered() {
+        // Not needed
+    }
+
+    @Override
+    public boolean isRegistered() {
+        // Since this is a dynamic table, we want to allow it to receive config settings multiple times during run-time
+        return false;
+    }
+
     public static Optional<String> getFromKey(String key) {
         ConfigTable table = ConfigManager.getInstance().getConfigTable(ConfigTables.REPLACE_MAP_TABLE.getName());
         if(!(table instanceof ReplaceMapTable replaceMapTable)) {
@@ -61,7 +71,8 @@ public class ReplaceMapTable implements ConfigTable {
     @Override
     public void setDefaultValues(CommentedFileConfig fileConfig) {
         this.configSettings.clear();
-        this.configSettings.add(new StringSetting("minecraft:diamond_block", "minecraft:stone"));
+        StringSetting defaultSetting = new StringSetting.Builder(new SettingIdentifier(ConfigTables.REPLACE_MAP_TABLE.getName(), "minecraft:diamond_block"), "minecraft:stone").build();
+        this.configSettings.add(defaultSetting);
         this.setValues(fileConfig);
     }
 
@@ -83,7 +94,8 @@ public class ReplaceMapTable implements ConfigTable {
         List<StringSetting> tempReplaceMap = new ArrayList<>();
         for(CommentedConfig.Entry entry : replaceMapConfig.entrySet()) {
             if(entry.getValue() instanceof String && entry.getKey() != null) {
-                tempReplaceMap.add(new StringSetting(entry.getKey(), entry.getValue()));
+                StringSetting stringSetting = new StringSetting.Builder(new SettingIdentifier(ConfigTables.REPLACE_MAP_TABLE.getName(), entry.getKey()), entry.getValue()).build();
+                tempReplaceMap.add(stringSetting);
             } else if (!(entry.getValue() instanceof String)) {
                 CreeperHealing.LOGGER.error("Failed to read Replace Map: Invalid value in replace map for key: {}", entry.getKey());
             } else if (entry.getKey() == null) {

@@ -9,7 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.enums.ExplosionItemDropSettings;
+import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
 
 public final class ExplosionItemDropCommands {
 
@@ -146,85 +146,85 @@ public final class ExplosionItemDropCommands {
 
     private static int setDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Drop items on Creeper explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Drop items on Ghast explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Drop items on Wither explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_TNT_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_TNT_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Drop items on TNT explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Drop items on TNT minecart explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int setDropItemsOnEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
         boolean value = BoolArgumentType.getBool(ctx, "value");
-        ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getName()).setValue(value);
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnCreeperExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on Creeper explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on Creeper explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnGhastExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on Ghast explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on Ghast explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnWitherExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on Wither explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on Wither explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnTNTExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on TNT explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_TNT_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on TNT explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_TNT_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnTNTMinecartExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on TNT minecart explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on TNT minecart explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnBedAndRespawnAnchorExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on bed and respawn anchor explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getDropItemsOnEndCrystalExplosionsCommand(CommandContext<ServerCommandSource> ctx){
-        ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ExplosionItemDropSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getName()).getValue()));
+        ctx.getSource().sendMessage(Text.literal("Drop items on end crystal explosions currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 

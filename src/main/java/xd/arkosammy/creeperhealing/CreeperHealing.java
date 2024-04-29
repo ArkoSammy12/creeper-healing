@@ -8,6 +8,8 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xd.arkosammy.creeperhealing.config.ConfigManager;
+import xd.arkosammy.creeperhealing.config.ConfigTables;
+import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 import xd.arkosammy.creeperhealing.commands.CommandManager;
 
@@ -17,7 +19,8 @@ public class CreeperHealing implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		ConfigManager.getInstance().init();
+		ConfigSettings.registerConfigSettings();
+		ConfigManager.getInstance().init(ConfigTables.getConfigTables());
 		ServerLifecycleEvents.SERVER_STARTING.register(CreeperHealing::onServerStarting);
 		ServerLifecycleEvents.SERVER_STOPPING.register(CreeperHealing::onServerStopping);
 		ServerTickEvents.END_SERVER_TICK.register(server -> ExplosionManager.getInstance().tick(server));
