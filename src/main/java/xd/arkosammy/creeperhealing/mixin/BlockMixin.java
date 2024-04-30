@@ -67,7 +67,7 @@ public abstract class BlockMixin {
             shouldDropItems = true;
         }
 
-        // Do not drop the inventories of blocks if they are to be restored
+        // Do not drop the inventories of blocks if the inventory will be restored later
         if(ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).getValue()) {
             ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(false);
         }
