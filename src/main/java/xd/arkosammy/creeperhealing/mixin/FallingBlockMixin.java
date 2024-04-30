@@ -16,7 +16,12 @@ public class FallingBlockMixin {
 
     @WrapOperation(method = "onBlockAdded", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;scheduleBlockTick(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;I)V"))
     private void preventFallingBlockFromFallingWhenHealed(World instance, BlockPos pos, Block block, int i, Operation<Void> original){
-        if(ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.get() && !ExcludedBlocks.isExcluded(block)){
+        // Hardcoded Exception. Place before all other logic
+        if(ExcludedBlocks.isExcluded(block)){
+            original.call(instance, pos, block, i);
+            return;
+        }
+        if(ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.get()){
             original.call(instance, pos, block, i);
         }
         ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(true);

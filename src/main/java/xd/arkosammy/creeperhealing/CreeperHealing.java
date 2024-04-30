@@ -15,12 +15,12 @@ import xd.arkosammy.creeperhealing.commands.CommandManager;
 
 public class CreeperHealing implements ModInitializer {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("Creeper-Healing");
+	public static final String MOD_ID = "creeper-healing";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override
 	public void onInitialize() {
-		ConfigSettings.registerConfigSettings();
-		ConfigManager.getInstance().init(ConfigTables.getConfigTables());
+		ConfigManager.init(ConfigTables.getConfigTables(), ConfigSettings.getSettingBuilders(), MOD_ID);
 		ServerLifecycleEvents.SERVER_STARTING.register(CreeperHealing::onServerStarting);
 		ServerLifecycleEvents.SERVER_STOPPING.register(CreeperHealing::onServerStopping);
 		ServerTickEvents.END_SERVER_TICK.register(server -> ExplosionManager.getInstance().tick(server));

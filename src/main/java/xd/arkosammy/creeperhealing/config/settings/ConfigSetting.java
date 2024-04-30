@@ -52,7 +52,7 @@ public abstract class ConfigSetting<T>  {
         this.value = this.defaultValue;
     }
 
-    public static abstract class Builder<S extends ConfigSetting<?>, V> {
+    public static abstract class Builder<V, S extends ConfigSetting<V>> {
 
         final SettingIdentifier id;
         final V defaultValue;
@@ -64,7 +64,7 @@ public abstract class ConfigSetting<T>  {
             this.defaultValue = defaultValue;
         }
 
-        public Builder<S, V> withComment(String comment) {
+        public Builder<V, S> withComment(String comment) {
             this.comment = comment;
             return this;
         }

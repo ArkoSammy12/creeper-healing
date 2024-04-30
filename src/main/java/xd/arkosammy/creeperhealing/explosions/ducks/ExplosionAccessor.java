@@ -9,4 +9,8 @@ public interface ExplosionAccessor {
 
     DamageSource creeper_healing$getDamageSource();
 
+    boolean creeper_healing$shouldHeal();
+
+    boolean creeper_healing$willBeHealed();
+
 }

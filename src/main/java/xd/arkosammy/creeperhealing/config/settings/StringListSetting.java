@@ -10,7 +10,7 @@ public class StringListSetting extends ConfigSetting<List<String>> {
         super(name, value);
     }
 
-    public static class Builder extends ConfigSetting.Builder<StringListSetting, List<String>> {
+    public static class Builder extends ConfigSetting.Builder<List<String>, StringListSetting> {
         public Builder(SettingIdentifier name, List<String> defaultValue) {
             super(name, defaultValue);
         }

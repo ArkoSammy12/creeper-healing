@@ -8,7 +8,7 @@ public class BooleanSetting extends ConfigSetting<Boolean> {
         super(name, value, comment);
     }
 
-    public static class Builder extends ConfigSetting.Builder<BooleanSetting, Boolean> {
+    public static class Builder extends ConfigSetting.Builder<Boolean, BooleanSetting> {
 
         public Builder(SettingIdentifier name, boolean defaultValue) {
             super(name, defaultValue);

@@ -31,7 +31,12 @@ public abstract class WorldMixin {
 
     @WrapOperation(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;II)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;updateNeighbors(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;II)V"))
     private void preventItemsFromDroppingOnExplosionsIfNeeded(BlockState instance, WorldAccess worldAccess, BlockPos blockPos, int flags, int maxUpdateDepth, Operation<Void> original, @Share("isBlockAtPosExcluded") LocalBooleanRef isBlockAtPosExcluded) {
-        int newFlags = !ExplosionUtils.DROP_EXPLOSION_ITEMS.get() && !isBlockAtPosExcluded.get() ? flags | Block.SKIP_DROPS : flags;
+        // Hardcoded exception. Place before all other logic
+        if(isBlockAtPosExcluded.get()) {
+            return;
+        }
+
+        int newFlags = ExplosionUtils.DROP_EXPLOSION_ITEMS.get() ? flags : flags | Block.SKIP_DROPS;
         original.call(instance, worldAccess, blockPos, newFlags, maxUpdateDepth);
 
     }

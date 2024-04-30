@@ -31,7 +31,7 @@ public class DoubleSetting extends ConfigSetting<Double> {
 
     }
 
-    public static class Builder extends ConfigSetting.Builder<DoubleSetting, Double> {
+    public static class Builder extends ConfigSetting.Builder<Double, DoubleSetting> {
 
         @Nullable
         Double lowerBound;

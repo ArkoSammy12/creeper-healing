@@ -5,7 +5,6 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.GenericBuilder;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import net.fabricmc.loader.api.FabricLoader;
-import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.config.settings.*;
 import xd.arkosammy.creeperhealing.config.util.SettingIdentifier;
@@ -21,48 +20,60 @@ import java.util.function.Function;
 
 public class ConfigManager {
 
-    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("creeper-healing.toml");
     private static ConfigManager INSTANCE;
+    private final Path configPath;
     private final GenericBuilder<CommentedConfig, CommentedFileConfig> CONFIG_BUILDER;
     private final List<ConfigTable> configTables = new ArrayList<>();
-    @Nullable
-    private List<ConfigSetting.Builder<?, ?>> temporarySettingBuilders = new ArrayList<>();
+    private boolean isInitialized = false;
 
-    private ConfigManager() {
+    private ConfigManager(String configName) {
+        this.configPath = FabricLoader.getInstance().getConfigDir().resolve(configName + ".toml");
         System.setProperty("nightconfig.preserveInsertionOrder", "true");
         GenericBuilder<CommentedConfig, CommentedFileConfig> builder;
         try {
-            builder = CommentedFileConfig.builder(CONFIG_PATH, TomlFormat.instance())
+            builder = CommentedFileConfig.builder(this.configPath, TomlFormat.instance())
                     .preserveInsertionOrder()
                     .concurrent()
                     .sync();
         } catch (Throwable throwable) {
             builder = null;
-            CreeperHealing.LOGGER.error("Unable to initialize config: {}. Config will be unavailable.", throwable.getMessage());
+            CreeperHealing.LOGGER.error("Unable to initialize CommentedConfigBuilder: {}. Config will be unavailable.", throwable.getMessage());
         }
         CONFIG_BUILDER = builder;
     }
 
     public static ConfigManager getInstance() {
         if(INSTANCE == null) {
-            INSTANCE = new ConfigManager();
+            throw new IllegalStateException("ConfigManager has not been initialized");
         }
         return INSTANCE;
     }
 
-    public void addConfigSetting(ConfigSetting.Builder<?, ?> builder) {
-        if(this.temporarySettingBuilders == null) {
-            return;
-        }
-        this.temporarySettingBuilders.add(builder);
+    public static void init(List<ConfigTable> configTables, List<ConfigSetting.Builder<?, ?>> settingBuilders, String configName) {
+        INSTANCE = new ConfigManager(configName);
+        getInstance().registerConfigSettings(configTables, settingBuilders);
+        getInstance().checkForSettingNameUniqueness();
+        getInstance().ifConfigPresent(fileConfig -> {
+            if(!Files.exists(getInstance().configPath)) {
+                CreeperHealing.LOGGER.warn("Found no preexisting configuration file. Creating a new configuration file with default values in {}", getInstance().configPath);
+                getInstance().createNewConfigFile(fileConfig);
+            } else {
+                fileConfig.load();
+                getInstance().configTables.forEach(table -> table.loadValues(fileConfig));
+                getInstance().saveToFile();
+                CreeperHealing.LOGGER.info("Found existing configuration file. Loaded values from {}", getInstance().configPath);
+            }
+            return true;
+        });
+        getInstance().isInitialized = true;
     }
 
-    private void registerConfigTables(List<ConfigTable> configTables) {
-        if(this.temporarySettingBuilders == null) {
-            return;
+    private void registerConfigSettings(List<ConfigTable> configTables, List<ConfigSetting.Builder<?, ?>> settingBuilders) {
+        if(isInitialized) {
+            throw new IllegalStateException("ConfigManager has already been initialized");
         }
         this.configTables.addAll(configTables);
-        for(ConfigSetting.Builder<?, ?> settingBuilder : this.temporarySettingBuilders) {
+        for(ConfigSetting.Builder<?, ?> settingBuilder : settingBuilders) {
             String tableName = settingBuilder.getTableName();
             for(ConfigTable configTable : this.configTables) {
                 if(configTable.getName().equals(tableName)) {
@@ -72,8 +83,6 @@ public class ConfigManager {
                 }
             }
         }
-        this.temporarySettingBuilders.clear();
-        this.temporarySettingBuilders = null;
         this.configTables.forEach(ConfigTable::setAsRegistered);
     }
 
@@ -89,26 +98,9 @@ public class ConfigManager {
         return false;
     }
 
-    public void init(List<ConfigTable> configTables) {
-        this.registerConfigTables(configTables);
-        this.checkForSettingNameUniqueness();
-        this.ifConfigPresent(fileConfig -> {
-            if(!Files.exists(CONFIG_PATH)) {
-                CreeperHealing.LOGGER.warn("Found no preexisting configuration file. Creating a new configuration file with default values in {}", CONFIG_PATH);
-                this.createNewConfigFile(fileConfig);
-            } else {
-                fileConfig.load();
-                this.configTables.forEach(table -> table.loadValues(fileConfig));
-                this.saveToFile();
-                CreeperHealing.LOGGER.info("Found existing configuration file. Loaded values from {}", CONFIG_PATH);
-            }
-            return true;
-        });
-    }
-
     public boolean reloadFromFile() {
         return this.ifConfigPresent(fileConfig -> {
-            if(!Files.exists(CONFIG_PATH)) {
+            if(!Files.exists(configPath)) {
                 return false;
             }
             fileConfig.load();
@@ -118,10 +110,11 @@ public class ConfigManager {
         });
     }
 
+
     public void saveToFile() {
         this.ifConfigPresent(fileConfig -> {
-            if(!Files.exists(CONFIG_PATH)) {
-                CreeperHealing.LOGGER.warn("Found no preexisting configuration file. Creating a new configuration file with default values in {}", CONFIG_PATH);
+            if(!Files.exists(configPath)) {
+                CreeperHealing.LOGGER.warn("Found no preexisting configuration file to save settings to. Creating a new configuration file with default values in {}", configPath);
                 this.createNewConfigFile(fileConfig);
             } else {
                 fileConfig.load();

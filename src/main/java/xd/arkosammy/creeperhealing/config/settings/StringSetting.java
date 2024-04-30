@@ -8,7 +8,7 @@ public class StringSetting extends ConfigSetting<String> {
         super(name, value, comment);
     }
 
-    public static class Builder extends ConfigSetting.Builder<StringSetting, String> {
+    public static class Builder extends ConfigSetting.Builder<String, StringSetting> {
         public Builder(SettingIdentifier name, String defaultValue) {
             super(name, defaultValue);
         }

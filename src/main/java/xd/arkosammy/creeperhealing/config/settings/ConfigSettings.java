@@ -1,12 +1,12 @@
 package xd.arkosammy.creeperhealing.config.settings;
 
-import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.config.ConfigTables;
 import xd.arkosammy.creeperhealing.config.util.SettingIdentifier;
 import xd.arkosammy.creeperhealing.explosions.ExplosionHealingMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public enum ConfigSettings {
     EXPLOSION_HEAL_DELAY(new HealDelaySetting.Builder(new SettingIdentifier(ConfigTables.DELAYS_CONFIG_TABLE.getName(), "explosion_heal_delay"), 3.0)
@@ -76,10 +76,12 @@ public enum ConfigSettings {
         return this.id;
     }
 
-    public static void registerConfigSettings() {
+    public static List<ConfigSetting.Builder<?, ?>> getSettingBuilders() {
+        List<ConfigSetting.Builder<?, ?>> settingBuilders = new ArrayList<>();
         for (ConfigSettings setting : ConfigSettings.values()) {
-            ConfigManager.getInstance().addConfigSetting(setting.builder);
+            settingBuilders.add(setting.builder);
         }
+        return settingBuilders;
     }
 
 }
