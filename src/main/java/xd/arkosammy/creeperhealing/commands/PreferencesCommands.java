@@ -24,10 +24,17 @@ public final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
-        //Heal block inventories node
+        // Restore block nbt node
         LiteralCommandNode<ServerCommandSource> restoreBlockNbtNode = CommandManager
                 .literal("restore_block_nbt")
                 .executes(PreferencesCommands::getRestoreBlockNbtCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
+        // Force blocks with nbt to always heal node
+        LiteralCommandNode<ServerCommandSource> forceBlocksToHealNode = CommandManager
+                .literal("force_blocks_to_heal")
+                .executes(PreferencesCommands::getForceBlocksToHealCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
@@ -74,6 +81,13 @@ public final class PreferencesCommands {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
 
+        // Force blocks with nbt to always heal argument node
+        ArgumentCommandNode<ServerCommandSource, Boolean> forceBlocksToHealArgumentNode = CommandManager
+                .argument("value", BoolArgumentType.bool())
+                .executes(PreferencesCommands::setForceBlocksToHealCommand)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .build();
+
         // Make falling blocks fall argument node
         ArgumentCommandNode<ServerCommandSource, Boolean> makeFallingBlocksFallArgumentNode = CommandManager
                 .argument("value", BoolArgumentType.bool())
@@ -114,6 +128,7 @@ public final class PreferencesCommands {
 
         //Preferences commands nodes
         settingsNode.addChild(restoreBlockNbtNode);
+        settingsNode.addChild(forceBlocksToHealNode);
         settingsNode.addChild(makeFallingBlocksFallNode);
         settingsNode.addChild(shouldPlaySoundOnBlockPlacementNode);
         settingsNode.addChild(healOnHealingPotionSplashNode);
@@ -122,6 +137,7 @@ public final class PreferencesCommands {
 
         //Argument nodes
         restoreBlockNbtNode.addChild(restoreBlockNbtArgumentNode);
+        forceBlocksToHealNode.addChild(forceBlocksToHealArgumentNode);
         makeFallingBlocksFallNode.addChild(makeFallingBlocksFallArgumentNode);
         shouldPlaySoundOnBlockPlacementNode.addChild(playSoundOnBlockPlacementArgumentNode);
         healOnHealingPotionSplashNode.addChild(healOnHealingPotionSplashArgumentNode);
@@ -134,6 +150,13 @@ public final class PreferencesCommands {
         boolean value = BoolArgumentType.getBool(ctx, "value");
         ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).setValue(value);
         ctx.getSource().sendMessage(Text.literal("Restore block nbt data has been set to: " + value));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setForceBlocksToHealCommand(CommandContext<ServerCommandSource> ctx){
+        boolean value = BoolArgumentType.getBool(ctx, "value");
+        ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getId()).setValue(value);
+        ctx.getSource().sendMessage(Text.literal("Force blocks with nbt to always heal has been set to: " + value));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -174,6 +197,11 @@ public final class PreferencesCommands {
 
     private static int getRestoreBlockNbtCommand(CommandContext<ServerCommandSource> ctx){
         ctx.getSource().sendMessage(Text.literal("Restore block nbt data currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).getValue()));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getForceBlocksToHealCommand(CommandContext<ServerCommandSource> ctx){
+        ctx.getSource().sendMessage(Text.literal("Force blocks with nbt to always heal currently set to: " + ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getId()).getValue()));
         return Command.SINGLE_SUCCESS;
     }
 

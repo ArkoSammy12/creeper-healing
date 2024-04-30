@@ -96,6 +96,9 @@ public class AffectedBlock {
     }
 
     public boolean canBePlaced(MinecraftServer server){
+        if(shouldForceHeal()) {
+            return true;
+        }
         return this.getState().canPlaceAt(this.getWorld(server), this.getPos());
     }
 
@@ -118,7 +121,7 @@ public class AffectedBlock {
         //If it is, switch the state for the corresponding one in the replace-map.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
         Optional<String> replaceMapValueOptional = ReplaceMapTable.getFromKey(blockIdentifier);
-        if(replaceMapValueOptional.isPresent()){
+        if(replaceMapValueOptional.isPresent() && !this.shouldForceHeal()){
             String replaceMapValue = replaceMapValueOptional.get();
             state = Registries.BLOCK.get(new Identifier(replaceMapValue)).getStateWithProperties(state);
             stateReplaced = true;
@@ -143,7 +146,14 @@ public class AffectedBlock {
     }
 
     boolean shouldHealBlock(World world, BlockPos pos) {
+        if(shouldForceHeal()) {
+            return true;
+        }
         return world.getBlockState(pos).isReplaceable();
+    }
+
+    private boolean shouldForceHeal() {
+        return this.nbt != null && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getId()).getValue();
     }
 
     @Override

@@ -51,6 +51,8 @@ public enum ConfigSettings {
 
     RESTORE_BLOCK_NBT(new BooleanSetting.Builder(new SettingIdentifier(ConfigTables.PREFERENCES_TABLE.getName(), "restore_block_nbt"), false)
             .withComment("(Default = false) Whether to restore block nbt data upon healing. This option prevents container blocks like chests from dropping their inventories. Does not apply when the healed block is different from the destroyed block due to a replace map entry.")),
+    FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL(new BooleanSetting.Builder(new SettingIdentifier(ConfigTables.PREFERENCES_TABLE.getName(), "force_blocks_with_nbt_to_always_heal"), false)
+            .withComment("(Default = false) Whether to force blocks with nbt data to always heal, even if the replace map specifies a replacement for that block, and regardless of the block that may be occupying that position at the moment of healing.")),
     MAKE_FALLING_BLOCKS_FALL(new BooleanSetting.Builder(new SettingIdentifier(ConfigTables.PREFERENCES_TABLE.getName(), "make_falling_blocks_fall"), true)
             .withComment("(Default = true) Allows for a falling block, like sand or gravel, to fall when healed. Disabling this option makes the falling block have to receive a neighbor update before falling.")),
     BLOCK_PLACEMENT_SOUND_EFFECT(new BooleanSetting.Builder(new SettingIdentifier(ConfigTables.PREFERENCES_TABLE.getName(), "block_placement_sound_effect"), true)
