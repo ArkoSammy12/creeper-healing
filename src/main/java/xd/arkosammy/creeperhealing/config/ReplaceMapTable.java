@@ -15,7 +15,7 @@ public class ReplaceMapTable implements ConfigTable {
 
     private final String name = "replace_map";
     private final String comment = """
-            dd your own replace entries to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
+            Add your own replace entries to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
             Specify the block's namespace along with the block's name identifier, separated by a colon and enclosed in double quotes.
             Example entry:
             "minecraft:gold_block" = "minecraft:stone"
