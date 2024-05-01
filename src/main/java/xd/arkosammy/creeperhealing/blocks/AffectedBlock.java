@@ -52,7 +52,7 @@ public class AffectedBlock {
         } else {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if(blockEntity != null && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).getValue()){
-                return new AffectedBlock(pos, state, world.getRegistryKey(), blockEntity.createNbtWithId(), BlockPlacementDelaySetting.getAsTicks(), false);
+                return new AffectedBlock(pos, state, world.getRegistryKey(), blockEntity.createNbtWithId(world.getRegistryManager()), BlockPlacementDelaySetting.getAsTicks(), false);
             } else {
                 return new AffectedBlock(pos, state, world.getRegistryKey(), null, BlockPlacementDelaySetting.getAsTicks(), false);
             }
@@ -137,7 +137,7 @@ public class AffectedBlock {
         }
         world.setBlockState(pos, state);
         if(this.nbt != null && !stateReplaced) {
-            world.addBlockEntity(BlockEntity.createFromNbt(pos, state, this.nbt));
+            world.addBlockEntity(BlockEntity.createFromNbt(pos, state, this.nbt, world.getRegistryManager()));
         }
         if(ExplosionUtils.shouldPlayBlockPlacementSound(world, state)) {
             world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());

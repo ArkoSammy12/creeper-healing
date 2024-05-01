@@ -120,16 +120,12 @@ public class ExplosionManager {
     private AbstractExplosionEvent combineCollidingExplosions(Set<AbstractExplosionEvent> collidingExplosions, AbstractExplosionEvent newestExplosion, World world){
         List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream().flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream()).collect(Collectors.toList());
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world);
-        AbstractExplosionEvent combinedExplosionEvent;
-        if(newestExplosion instanceof DaytimeExplosionEvent){
-            combinedExplosionEvent = new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        } else if (newestExplosion instanceof DifficultyBasedExplosionEvent){
-            combinedExplosionEvent = new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        } else if (newestExplosion instanceof BlastResistanceBasedExplosionEvent){
-            combinedExplosionEvent = new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        } else {
-            combinedExplosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        }
+        AbstractExplosionEvent combinedExplosionEvent = switch (newestExplosion) {
+            case DaytimeExplosionEvent ignored -> new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+            case DifficultyBasedExplosionEvent ignored -> new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+            case BlastResistanceBasedExplosionEvent ignored -> new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+            default -> new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        };
         combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(BlockPlacementDelaySetting.getAsTicks()));
         combinedExplosionEvent.setupExplosion(world);
         return combinedExplosionEvent;
