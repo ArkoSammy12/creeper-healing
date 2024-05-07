@@ -33,7 +33,7 @@ public final class PreferencesCommands {
 
         // Force blocks with nbt to always heal node
         LiteralCommandNode<ServerCommandSource> forceBlocksToHealNode = CommandManager
-                .literal("force_blocks_to_heal")
+                .literal("force_blocks_with_nbt_to_always_heal")
                 .executes(PreferencesCommands::getForceBlocksToHealCommand)
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .build();
