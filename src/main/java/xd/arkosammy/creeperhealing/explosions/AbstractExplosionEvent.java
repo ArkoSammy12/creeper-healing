@@ -5,9 +5,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
-import xd.arkosammy.creeperhealing.config.settings.HealDelaySetting;
+import xd.arkosammy.creeperhealing.config.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.util.SerializedExplosionEvent;
 
 import java.util.Collections;
@@ -29,12 +28,12 @@ public abstract class AbstractExplosionEvent {
 
     protected AbstractExplosionEvent(List<AffectedBlock> affectedBlocks) {
         this.affectedBlocks = affectedBlocks;
-        this.healTimer = HealDelaySetting.getAsTicks();
+        this.healTimer = ConfigUtils.getExplosionHealDelay();
         this.blockCounter = 0;
     }
 
     public static AbstractExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocks, World world){
-        ExplosionHealingMode explosionHealingMode = ExplosionHealingMode.getFromName(ConfigManager.getInstance().getAsStringSetting(ConfigSettings.MODE.getId()).getValue());
+        ExplosionHealingMode explosionHealingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
         AbstractExplosionEvent explosionEvent = switch (explosionHealingMode) {
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks);
             case DIFFICULTY_BASED_HEALING_MODE -> new DifficultyBasedExplosionEvent(affectedBlocks);

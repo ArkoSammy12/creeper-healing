@@ -17,11 +17,12 @@ import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.util.ExcludedBlocks;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
+import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 @Mixin(Block.class)
 public abstract class BlockMixin {
@@ -51,24 +52,24 @@ public abstract class BlockMixin {
         DamageSource damageSource = ((ExplosionAccessor)explosion).creeper_healing$getDamageSource();
 
         boolean shouldDropItems = false;
-        if (causingLivingEntity instanceof CreeperEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getId()).getValue()){
+        if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
-        } else if (causingLivingEntity instanceof GhastEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getId()).getValue()){
+        } else if (causingLivingEntity instanceof GhastEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
-        } else if (causingLivingEntity instanceof WitherEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getId()).getValue()){
+        } else if (causingLivingEntity instanceof WitherEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_WITHER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
-        } else if (causingEntity instanceof TntEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_TNT_EXPLOSIONS.getId()).getValue()){
+        } else if (causingEntity instanceof TntEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_TNT_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
-        } else if (causingEntity instanceof TntMinecartEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getId()).getValue()){
+        } else if (causingEntity instanceof TntMinecartEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_TNT_MINECART_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
-        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getId()).getValue()){
+        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
-        } else if (causingEntity instanceof EndCrystalEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getId()).getValue()){
+        } else if (causingEntity instanceof EndCrystalEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
         }
 
         // Do not drop the inventories of blocks if the inventory will be restored later
-        if(ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).getValue()) {
+        if(ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class)) {
             ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(false);
         }
 

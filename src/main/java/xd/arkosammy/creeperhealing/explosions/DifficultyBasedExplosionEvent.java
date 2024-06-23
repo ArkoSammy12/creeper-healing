@@ -4,8 +4,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
-import xd.arkosammy.creeperhealing.config.settings.HealDelaySetting;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
 
 import java.util.List;
 
@@ -33,8 +32,8 @@ public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
             case NORMAL -> 1;
             case HARD -> 2;
         };
-        long newBlockTimer = Math.max(1, (BlockPlacementDelaySetting.getAsTicks()) + (difficultyMultiplier * 20));
-        long newExplosionTimer = Math.max(1, (HealDelaySetting.getAsTicks()) + (difficultyMultiplier * 20));
+        long newBlockTimer = Math.max(1, (ConfigUtils.getBlockPlacementDelay()) + (difficultyMultiplier * 20));
+        long newExplosionTimer = Math.max(1, (ConfigUtils.getExplosionHealDelay()) + (difficultyMultiplier * 20));
         this.setHealTimer(newExplosionTimer);
         this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(newBlockTimer));
     }

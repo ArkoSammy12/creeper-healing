@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.7-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -17,6 +17,11 @@ repositories {
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
 	mavenCentral()
+
+	maven {
+		name "enjaraiMavenReleases"
+		url "https://maven.enjarai.dev/releases"
+	}
 }
 
 loom {
@@ -66,9 +71,8 @@ dependencies {
 
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 
-	// Night Config
-	include(modImplementation "com.electronwill.night-config:core:3.6.7")
-	include(modImplementation "com.electronwill.night-config:toml:3.6.7")
+	// Monkey config
+	include(modImplementation("xd.arkosammy:monkeyconfig:${project.monkey_config_version}"))
 
 }
 

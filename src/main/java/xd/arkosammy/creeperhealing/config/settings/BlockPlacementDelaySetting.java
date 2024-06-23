@@ -1,37 +1,42 @@
 package xd.arkosammy.creeperhealing.config.settings;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import kotlin.jvm.functions.Function2;
+import net.minecraft.server.command.ServerCommandSource;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.util.SettingIdentifier;
+import xd.arkosammy.creeperhealing.util.ExplosionManager;
+import xd.arkosammy.monkeyconfig.managers.ConfigManager;
+import xd.arkosammy.monkeyconfig.settings.NumberSetting;
+import xd.arkosammy.monkeyconfig.util.SettingLocation;
 
-public class BlockPlacementDelaySetting extends DoubleSetting {
+public class BlockPlacementDelaySetting extends NumberSetting<Double> {
 
-    BlockPlacementDelaySetting(String name, double value, @Nullable Double lowerBound, @Nullable Double upperBound, String comment) {
-        super(name, value, lowerBound, upperBound, comment);
+    public BlockPlacementDelaySetting(@NotNull SettingLocation settingLocation, @Nullable String comment, @NotNull Double defaultValue, @NotNull Double value, @Nullable Double lowerBound, @Nullable Double upperBound) {
+        super(settingLocation, comment, defaultValue, value, lowerBound, upperBound);
     }
 
-    public static long getAsTicks() {
-        DoubleSetting setting = ConfigManager.getInstance().getAsDoubleSetting(ConfigSettings.BLOCK_PLACEMENT_DELAY.getId());
-        if (!(setting instanceof BlockPlacementDelaySetting blockPlacementDelaySetting)) {
-            throw new IllegalStateException("Retrieved setting is not an instance of BlockPlacementDelaySetting");
+    @Override
+    @NotNull
+    public Function2<CommandContext<ServerCommandSource>, ConfigManager, Integer> getOnValueSetCallback() {
+        return (ctx, manager) -> {
+            super.getOnValueSetCallback().invoke(ctx, manager);
+            ExplosionManager.getInstance().updateAffectedBlocksTimers();
+            return Command.SINGLE_SUCCESS;
+        };
+    }
+
+    public static class Builder extends NumberSetting.Builder<Double> {
+
+        public Builder(@NotNull SettingLocation settingLocation, @Nullable String comment, @NotNull Double defaultValue) {
+            super(settingLocation, comment, defaultValue);
         }
-        return blockPlacementDelaySetting.asTicks();
-    }
 
-    public long asTicks() {
-        long rounded = Math.round(Math.max(0, this.getValue()) * 20);
-        return rounded == 0 ? 20 : rounded;
-    }
-
-    public static class Builder extends DoubleSetting.Builder {
-
-        public Builder(SettingIdentifier id, double defaultValue) {
-            super(id, defaultValue);
-        }
-
+        @NotNull
         @Override
-        public DoubleSetting build() {
-            return new BlockPlacementDelaySetting(this.id.settingName(), this.defaultValue, this.lowerBound, this.upperBound, this.comment);
+        public BlockPlacementDelaySetting build() {
+            return new BlockPlacementDelaySetting(this.getSettingLocation(), this.getComment(), this.getDefaultValue(), this.getDefaultValue(), this.getLowerBound(), this.getUpperBound());
         }
     }
 

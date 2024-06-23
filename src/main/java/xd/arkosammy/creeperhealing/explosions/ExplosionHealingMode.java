@@ -1,6 +1,8 @@
 package xd.arkosammy.creeperhealing.explosions;
 
-public enum ExplosionHealingMode {
+import net.minecraft.util.StringIdentifiable;
+
+public enum ExplosionHealingMode implements StringIdentifiable {
 
     DEFAULT_MODE("default_mode", "Default healing mode"),
     DAYTIME_HEALING_MODE("daytime_healing_mode", "Daytime healing mode"),
@@ -30,5 +32,10 @@ public enum ExplosionHealingMode {
             }
         }
         return ExplosionHealingMode.DEFAULT_MODE;
+    }
+
+    @Override
+    public String asString() {
+        return this.name;
     }
 }

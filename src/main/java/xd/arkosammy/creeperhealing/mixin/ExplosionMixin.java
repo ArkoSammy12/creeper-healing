@@ -21,14 +21,14 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
+import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.List;
-
 
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin implements ExplosionAccessor {
@@ -64,20 +64,21 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         if(this.getAffectedBlocks().isEmpty()){
             return false;
         }
+
         boolean shouldHealExplosion = false;
-        if(causingLivingEntity instanceof CreeperEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getId()).getValue()){
+        if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof GhastEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_GHAST_EXPLOSIONS.getId()).getValue()){
+        } else if (causingLivingEntity instanceof GhastEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_GHAST_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof WitherEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_WITHER_EXPLOSIONS.getId()).getValue()){
+        } else if (causingLivingEntity instanceof WitherEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_WITHER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_EXPLOSIONS.getId()).getValue()){
+        } else if (causingEntity instanceof TntEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntMinecartEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getId()).getValue()){
+        } else if (causingEntity instanceof TntMinecartEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;
-        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getId()).getValue()){
+        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigUtils.getSettingValue(ConfigSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;
-        } else if (causingEntity instanceof EndCrystalEntity && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getId()).getValue()){
+        } else if (causingEntity instanceof EndCrystalEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;
         }
         this.willBeHealed = shouldHealExplosion;

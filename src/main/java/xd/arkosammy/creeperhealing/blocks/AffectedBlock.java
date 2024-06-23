@@ -14,13 +14,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
+import xd.arkosammy.creeperhealing.config.SettingGroups;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
-import xd.arkosammy.creeperhealing.config.ReplaceMapTable;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.util.SerializedAffectedBlock;
+import xd.arkosammy.monkeyconfig.groups.SettingGroup;
+import xd.arkosammy.monkeyconfig.groups.maps.StringMapSettingGroup;
+import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -48,13 +50,14 @@ public class AffectedBlock {
 
     public static AffectedBlock newAffectedBlock(BlockPos pos, BlockState state, World world){
         if(state.contains(Properties.DOUBLE_BLOCK_HALF) || state.contains(Properties.BED_PART)){
-            return new DoubleAffectedBlock(pos, state, world.getRegistryKey(), BlockPlacementDelaySetting.getAsTicks(), false);
+            return new DoubleAffectedBlock(pos, state, world.getRegistryKey(), ConfigUtils.getBlockPlacementDelay(), false);
         } else {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if(blockEntity != null && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.RESTORE_BLOCK_NBT.getId()).getValue()){
-                return new AffectedBlock(pos, state, world.getRegistryKey(), blockEntity.createNbtWithId(world.getRegistryManager()), BlockPlacementDelaySetting.getAsTicks(), false);
-            } else {
-                return new AffectedBlock(pos, state, world.getRegistryKey(), null, BlockPlacementDelaySetting.getAsTicks(), false);
+            boolean restoreBlockNbt = ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class);
+            if (blockEntity != null && restoreBlockNbt) {
+                return new AffectedBlock(pos, state, world.getRegistryKey(),  blockEntity.createNbtWithId(world.getRegistryManager()), ConfigUtils.getBlockPlacementDelay(), false);
+            } else  {
+                return new AffectedBlock(pos, state, world.getRegistryKey(), null, ConfigUtils.getBlockPlacementDelay(), false);
             }
         }
     }
@@ -120,20 +123,24 @@ public class AffectedBlock {
         //Check if the block we are about to try placing is in the replace-map.
         //If it is, switch the state for the corresponding one in the replace-map.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
-        Optional<String> replaceMapValueOptional = ReplaceMapTable.getFromKey(blockIdentifier);
-        if(replaceMapValueOptional.isPresent() && !this.shouldForceHeal()){
-            String replaceMapValue = replaceMapValueOptional.get();
-            state = Registries.BLOCK.get(new Identifier(replaceMapValue)).getStateWithProperties(state);
-            stateReplaced = true;
+        SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
+        if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {
+            String replaceMapValue = replaceMapGroup.get(blockIdentifier);
+            if (replaceMapValue != null && !this.shouldForceHeal()) {
+                state = Registries.BLOCK.get(new Identifier(replaceMapValue)).getStateWithProperties(state);
+                stateReplaced = true;
+            }
         }
+
         if(!this.shouldHealBlock(world, this.pos)){
             return;
         }
         if(state.isSolidBlock(world, pos)) {
             ExplosionUtils.pushEntitiesUpwards(world, pos, false);
         }
+        boolean makeFallingBlocksFall = ConfigUtils.getSettingValue(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getSettingLocation(), BooleanSetting.class);
         if(state.getBlock() instanceof FallingBlock){
-            ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getId()).getValue());
+            ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(makeFallingBlocksFall);
         }
         world.setBlockState(pos, state);
         if(this.nbt != null && !stateReplaced) {
@@ -152,8 +159,9 @@ public class AffectedBlock {
         return world.getBlockState(pos).isReplaceable();
     }
 
-    private boolean shouldForceHeal() {
-        return this.nbt != null && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getId()).getValue();
+    protected boolean shouldForceHeal() {
+        boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getSettingValue(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getSettingLocation(), BooleanSetting.class);
+        return this.nbt != null && forceBlocksWithNbtToAlwaysHeal;
     }
 
     @Override

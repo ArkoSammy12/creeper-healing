@@ -19,11 +19,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.*;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
-import xd.arkosammy.creeperhealing.config.settings.BlockPlacementDelaySetting;
+import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
+import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -79,7 +80,10 @@ public class ExplosionManager {
                 continue; // Skip the current iteration if the block affectedState is air, TNT, or fire
             }
             String blockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
-            if (!ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.ENABLE_WHITELIST.getId()).getValue() || ConfigManager.getInstance().getAsStringListSetting(ConfigSettings.WHITELIST.getId()).getValue().contains(blockIdentifier)) {
+            boolean whitelistEnabled = ConfigUtils.getSettingValue(ConfigSettings.ENABLE_WHITELIST.getSettingLocation(), BooleanSetting.class);
+            List<? extends String> whitelist = ConfigUtils.getSettingValue(ConfigSettings.WHITELIST.getSettingLocation(), StringListSetting.class);
+            boolean whitelistContainsIdentifier = whitelist.contains(blockIdentifier);
+            if (!whitelistEnabled || whitelistContainsIdentifier) {
                 affectedBlocks.add(AffectedBlock.newAffectedBlock(affectedPos, affectedState, world));
             }
         }
@@ -120,13 +124,17 @@ public class ExplosionManager {
     private AbstractExplosionEvent combineCollidingExplosions(Set<AbstractExplosionEvent> collidingExplosions, AbstractExplosionEvent newestExplosion, World world){
         List<AffectedBlock> combinedAffectedBlockList = collidingExplosions.stream().flatMap(explosionEvent -> explosionEvent.getAffectedBlocks().stream()).collect(Collectors.toList());
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocksList(combinedAffectedBlockList, world);
-        AbstractExplosionEvent combinedExplosionEvent = switch (newestExplosion) {
-            case DaytimeExplosionEvent ignored -> new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-            case DifficultyBasedExplosionEvent ignored -> new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-            case BlastResistanceBasedExplosionEvent ignored -> new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-            default -> new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
-        };
-        combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(BlockPlacementDelaySetting.getAsTicks()));
+        AbstractExplosionEvent combinedExplosionEvent;
+        if(newestExplosion instanceof DaytimeExplosionEvent){
+            combinedExplosionEvent = new DaytimeExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        } else if (newestExplosion instanceof DifficultyBasedExplosionEvent){
+            combinedExplosionEvent = new DifficultyBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        } else if (newestExplosion instanceof BlastResistanceBasedExplosionEvent){
+            combinedExplosionEvent = new BlastResistanceBasedExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        } else {
+            combinedExplosionEvent = new DefaultExplosionEvent(sortedAffectedBlocks, newestExplosion.getHealTimer(), newestExplosion.getBlockCounter());
+        }
+        combinedExplosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(ConfigUtils.getBlockPlacementDelay()));
         combinedExplosionEvent.setupExplosion(world);
         return combinedExplosionEvent;
     }
@@ -215,7 +223,7 @@ public class ExplosionManager {
         for(AbstractExplosionEvent explosionEvent : this.explosionEvents){
             if(explosionEvent instanceof DefaultExplosionEvent) {
                 for (int i = explosionEvent.getBlockCounter() + 1; i < explosionEvent.getAffectedBlocks().size(); i++) {
-                    explosionEvent.getAffectedBlocks().get(i).setTimer(BlockPlacementDelaySetting.getAsTicks());
+                    explosionEvent.getAffectedBlocks().get(i).setTimer(ConfigUtils.getBlockPlacementDelay());
                 }
             }
         }

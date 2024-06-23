@@ -17,10 +17,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.creeperhealing.config.settings.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
-import xd.arkosammy.creeperhealing.config.ConfigManager;
 import xd.arkosammy.creeperhealing.util.ExplosionManager;
+import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,6 @@ public abstract class PotionEntityMixin {
             return;
         }
 
-
         Optional<RegistryKey<StatusEffect>> instantHealthOptionalKey = StatusEffects.INSTANT_HEALTH.getKey();
         if(instantHealthOptionalKey.isEmpty()) {
             return;
@@ -70,7 +70,9 @@ public abstract class PotionEntityMixin {
         }
         boolean hasRegeneration = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(regenerationOptionalEntry.get()));
 
-        if (hasInstantHealth && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_ON_HEALING_POTION_SPLASH.getId()).getValue()){
+        boolean healOnHealingPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_HEALING_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
+        boolean healOnRegenerationPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
+        if (hasInstantHealth && healOnHealingPotion){
             for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
                 boolean potionHitExplosion = explosionEvent.getAffectedBlocks().stream().anyMatch(affectedBlock -> affectedBlock.getPos().equals(potionHitPosition));
                 if(potionHitExplosion){
@@ -78,7 +80,7 @@ public abstract class PotionEntityMixin {
                     explosionEvent.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(1));
                 }
             }
-        } else if (hasRegeneration && ConfigManager.getInstance().getAsBooleanSetting(ConfigSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getId()).getValue()){
+        } else if (hasRegeneration && healOnRegenerationPotion){
             for(AbstractExplosionEvent explosionEvent : ExplosionManager.getInstance().getExplosionEvents()){
                 boolean potionHitExplosion = explosionEvent.getAffectedBlocks().stream().anyMatch(affectedBlock -> affectedBlock.getPos().equals(potionHitPosition));
                 if(potionHitExplosion){

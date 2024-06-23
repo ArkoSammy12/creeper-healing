@@ -11,11 +11,12 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
+import xd.arkosammy.creeperhealing.config.SettingGroups;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
-import xd.arkosammy.creeperhealing.config.ReplaceMapTable;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
-
-import java.util.Optional;
+import xd.arkosammy.monkeyconfig.groups.SettingGroup;
+import xd.arkosammy.monkeyconfig.groups.maps.StringMapSettingGroup;
 
 public class DoubleAffectedBlock extends AffectedBlock {
 
@@ -35,11 +36,16 @@ public class DoubleAffectedBlock extends AffectedBlock {
 
         BlockState state = this.getState();
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
-        Optional<String> replaceMapValueOptional = ReplaceMapTable.getFromKey(blockIdentifier);
-        if(replaceMapValueOptional.isPresent()){
-            super.tryHealing(server, currentExplosionEvent);
-            return;
+
+        SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
+        if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {
+            String replaceMapValue = replaceMapGroup.get(blockIdentifier);
+            if (replaceMapValue != null) {
+                super.tryHealing(server, currentExplosionEvent);
+                return;
+            }
         }
+
         if(state.contains(Properties.DOUBLE_BLOCK_HALF)) {
             handleDoubleBlocks(server ,currentExplosionEvent);
         } else if (state.contains(Properties.BED_PART)) {

@@ -12,7 +12,7 @@ import xd.arkosammy.creeperhealing.blocks.DoubleAffectedBlock;
 
 import java.util.Optional;
 
-public record SerializedAffectedBlock(String affectedBlockType, BlockPos blockPos, BlockState state, RegistryKey<World> worldRegistryKey, Optional<NbtCompound> optionalNbt, long affectedBlockTimer, boolean placed) {
+public record SerializedAffectedBlock(String affectedBlockType, BlockPos blockPos, BlockState state, RegistryKey<World> worldRegistryKey, Optional<NbtCompound> optionalNbt, long affectedBlockTimer, boolean placed)  {
 
     static final Codec<SerializedAffectedBlock> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("affected_block_type").forGetter(SerializedAffectedBlock::affectedBlockType),
