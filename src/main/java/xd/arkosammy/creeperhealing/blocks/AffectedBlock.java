@@ -127,7 +127,7 @@ public class AffectedBlock {
         if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {
             String replaceMapValue = replaceMapGroup.get(blockIdentifier);
             if (replaceMapValue != null && !this.shouldForceHeal()) {
-                state = Registries.BLOCK.get(new Identifier(replaceMapValue)).getStateWithProperties(state);
+                state = Registries.BLOCK.get(Identifier.of(replaceMapValue)).getStateWithProperties(state);
                 stateReplaced = true;
             }
         }
