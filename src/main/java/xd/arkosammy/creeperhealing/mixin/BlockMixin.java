@@ -52,7 +52,7 @@ public abstract class BlockMixin {
         DamageSource damageSource = ((ExplosionAccessor)explosion).creeper_healing$getDamageSource();
 
         boolean shouldDropItems = false;
-        if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_END_CRYSTAL_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
+        if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
         } else if (causingLivingEntity instanceof GhastEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_GHAST_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldDropItems = true;
