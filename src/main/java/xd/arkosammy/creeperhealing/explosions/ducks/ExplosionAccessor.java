@@ -5,12 +5,12 @@ import net.minecraft.world.World;
 
 public interface ExplosionAccessor {
 
-    World creeper_healing$getWorld();
+    World creeperhealing$getWorld();
 
-    DamageSource creeper_healing$getDamageSource();
+    DamageSource creeperhealing$getDamageSource();
 
-    boolean creeper_healing$shouldHeal();
+    boolean creeperhealing$shouldHeal();
 
-    boolean creeper_healing$willBeHealed();
+    boolean creeperhealing$willBeHealed();
 
 }

@@ -47,20 +47,20 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     private boolean willBeHealed = false;
 
     @Override
-    public World creeper_healing$getWorld(){
+    public World creeperhealing$getWorld(){
         return this.world;
     }
 
     @Override
-    public DamageSource creeper_healing$getDamageSource() {
+    public DamageSource creeperhealing$getDamageSource() {
         return this.damageSource;
     }
 
     @Override
-    public boolean creeper_healing$shouldHeal() {
-        LivingEntity causingLivingEntity = this.getCausingEntity();
-        Entity causingEntity = this.getEntity();
-        DamageSource damageSource = ((ExplosionAccessor)this).creeper_healing$getDamageSource();
+    public boolean creeperhealing$shouldHeal() {
+        final LivingEntity causingLivingEntity = this.getCausingEntity();
+        final Entity causingEntity = this.getEntity();
+        final DamageSource damageSource = ((ExplosionAccessor)this).creeperhealing$getDamageSource();
         if(this.getAffectedBlocks().isEmpty()){
             return false;
         }
@@ -86,25 +86,25 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     }
 
     @Override
-    public boolean creeper_healing$willBeHealed(){
+    public boolean creeperhealing$willBeHealed(){
         return this.willBeHealed;
     }
 
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void storeCurrentExplosionIfNeeded(CallbackInfo ci){
-        ExplosionManager.getInstance().processExplosion((Explosion) (Object) this);
+        ExplosionManager.getInstance().addExplosion((Explosion) (Object) this);
     }
 
     // Make sure the thread local is reset when entering and after exiting "affectWorld"
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
-    private void setDropItemsThreadLocal(boolean particles, CallbackInfo ci){
+    private void setThreadLocals(boolean particles, CallbackInfo ci){
         ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
         ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
     }
 
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
-    private void clearDropItemsThreadLocal(boolean particles, CallbackInfo ci){
+    private void resetThreadLocals(boolean particles, CallbackInfo ci){
         ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
         ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
     }

@@ -18,7 +18,7 @@ import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 public class ItemScattererMixin {
 
     @WrapOperation(method = "spawn(Lnet/minecraft/world/World;DDDLnet/minecraft/inventory/Inventory;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ItemScatterer;spawn(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V"))
-    private static void cancelItemScatteringFromInventoryBlocks(World world, double x, double y, double z, ItemStack stack, Operation<Void> original, @Local Inventory inventory){
+    private static void cancelItemScatteringFromInventoryBlocks(World world, double x, double y, double z, ItemStack stack, Operation<Void> original, @Local(argsOnly = true) Inventory inventory){
         // Hardcoded exception. Place before all other logic
         if(inventory instanceof BlockEntity blockEntity && ExcludedBlocks.isExcluded(blockEntity.getCachedState().getBlock())){
             original.call(world, x, y, z, stack);

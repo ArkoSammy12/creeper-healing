@@ -21,12 +21,13 @@ public class DefaultExplosionEvent extends AbstractExplosionEvent {
     }
 
     @Override
-    public void setupExplosion(World world) {
+    public void setup(World world) {
+        super.setup(world);
     }
 
     @Override
     public boolean shouldKeepHealing(World world) {
-        return true;
+        return super.shouldKeepHealing(world);
     }
 
 }

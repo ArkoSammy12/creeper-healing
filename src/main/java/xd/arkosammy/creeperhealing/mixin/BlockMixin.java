@@ -1,7 +1,6 @@
 package xd.arkosammy.creeperhealing.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -31,7 +30,7 @@ public abstract class BlockMixin {
 
     @SuppressWarnings("UnreachableCode")
     @ModifyReturnValue(method = "shouldDropItemsOnExplosion", at = @At("RETURN"))
-    private boolean shouldExplosionDropItems(boolean original, @Local Explosion explosion){
+    private boolean shouldExplosionDropItems(boolean original, Explosion explosion){
 
         // Hardcoded exception. Place before all other logic
         if(ExcludedBlocks.isExcluded((Block)(Object)this)) {
@@ -41,15 +40,15 @@ public abstract class BlockMixin {
         }
 
         // Allow the explosion to drop items normally if it cannot be healed
-        if(!((ExplosionAccessor)explosion).creeper_healing$willBeHealed()) {
+        if(!((ExplosionAccessor)explosion).creeperhealing$willBeHealed()) {
             ExplosionUtils.DROP_EXPLOSION_ITEMS.set(original);
             ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(original);
             return original;
         }
 
-        Entity causingEntity = explosion.getEntity();
-        Entity causingLivingEntity = explosion.getCausingEntity();
-        DamageSource damageSource = ((ExplosionAccessor)explosion).creeper_healing$getDamageSource();
+        final Entity causingEntity = explosion.getEntity();
+        final Entity causingLivingEntity = explosion.getCausingEntity();
+        final DamageSource damageSource = ((ExplosionAccessor)explosion).creeperhealing$getDamageSource();
 
         boolean shouldDropItems = false;
         if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){

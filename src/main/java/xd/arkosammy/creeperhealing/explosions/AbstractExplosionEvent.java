@@ -5,20 +5,17 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
-import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
-import xd.arkosammy.creeperhealing.util.SerializedExplosionEvent;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
-public abstract class AbstractExplosionEvent {
+public abstract class AbstractExplosionEvent implements ExplosionEvent {
 
     private final List<AffectedBlock> affectedBlocks;
     private long healTimer;
     private int blockCounter;
+    protected boolean finished;
 
     protected AbstractExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter){
         this.affectedBlocks = affectedBlocks;
@@ -32,65 +29,100 @@ public abstract class AbstractExplosionEvent {
         this.blockCounter = 0;
     }
 
-    public static AbstractExplosionEvent newExplosionEvent(List<AffectedBlock> affectedBlocks, World world){
-        ExplosionHealingMode explosionHealingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
-        AbstractExplosionEvent explosionEvent = switch (explosionHealingMode) {
-            case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks);
-            case DIFFICULTY_BASED_HEALING_MODE -> new DifficultyBasedExplosionEvent(affectedBlocks);
-            case BLAST_RESISTANCE_BASED_HEALING_MODE -> new BlastResistanceBasedExplosionEvent(affectedBlocks);
-            default -> new DefaultExplosionEvent(affectedBlocks);
-        };
-        explosionEvent.setupExplosion(world);
-        return explosionEvent;
+    public final Stream<AffectedBlock> getAffectedBlocks(){
+        return this.affectedBlocks.stream();
     }
+
+    @Override
+    public World getWorld(MinecraftServer server) {
+        return server.getWorld(this.affectedBlocks.getFirst().getWorldRegistryKey());
+    }
+
+    @Override
+    public final long getHealTimer(){
+        return this.healTimer;
+    }
+
+    @Override
+    public final int getBlockCounter(){
+        return this.blockCounter;
+    }
+
+    abstract ExplosionHealingMode getHealingMode();
 
     public final void setHealTimer(long healTimer){
         this.healTimer = healTimer;
     }
 
-    public final void incrementCounter(){
+    protected final void incrementCounter(){
         this.blockCounter++;
     }
 
-    public final List<AffectedBlock> getAffectedBlocks(){
-        return this.affectedBlocks;
-    }
-
-    public final long getHealTimer(){
-        return this.healTimer;
-    }
-
-    public final int getBlockCounter(){
-        return this.blockCounter;
-     }
-
-    abstract ExplosionHealingMode getHealingMode();
-
-    public final void tick(){
+    @Override
+    public final void tick(MinecraftServer server){
+        if (this.finished) {
+            return;
+        }
         this.healTimer--;
-     }
-
-    public abstract void setupExplosion(World world);
-
-    public final SerializedExplosionEvent toSerialized(){
-        return new SerializedExplosionEvent(this.getHealingMode().getName(), this.affectedBlocks.stream().map(AffectedBlock::toSerialized).toList(), this.healTimer, this.blockCounter);
+        if (healTimer >= 0) {
+            return;
+        }
+        final Optional<AffectedBlock> optionalAffectedBlock = this.getCurrentAffectedBlock();
+        if(optionalAffectedBlock.isEmpty()){
+            this.finished = true;
+            return;
+        }
+        final AffectedBlock affectedBlock = optionalAffectedBlock.get();
+        if(affectedBlock.isPlaced()){
+            this.incrementCounter();
+            return;
+        }
+        if(!affectedBlock.canBePlaced(server)){
+            this.delayAffectedBlock(affectedBlock, server);
+            return;
+        }
+        affectedBlock.tick(this, server);
+        this.incrementCounter();
     }
 
-     public final Optional<AffectedBlock> getCurrentAffectedBlock(){
+    @Override
+    public final SerializedExplosionEvent asSerialized(){
+        return new SerializedExplosionEvent(this.getHealingMode().getName(), this.affectedBlocks.stream().map(AffectedBlock::asSerialized).toList(), this.healTimer, this.blockCounter);
+    }
+
+    @Override
+    public final Optional<AffectedBlock> getCurrentAffectedBlock(){
         return this.blockCounter < this.affectedBlocks.size() ? Optional.of(this.affectedBlocks.get(this.blockCounter)) : Optional.empty();
-     }
+    }
+
+    @Override
+    public boolean shouldKeepHealing(World world) {
+        return !this.finished;
+    }
+
+    @Override
+    public void setup(World world) {
+    }
+
+    public final void findAndMarkPlaced(BlockPos blockPos, BlockState blockState, World world){
+        for(AffectedBlock affectedBlock : this.affectedBlocks) {
+            if(affectedBlock.getBlockState().equals(blockState) && affectedBlock.getBlockPos().equals(blockPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
+                affectedBlock.setPlaced();
+            }
+        }
+    }
 
      // If the current affected block cannot be placed at this moment, find the next block that is placeable in the list and swap them in the list.
      // This effectively gives the delayed block more chances to be placed until no more placeable blocks are found
      // Examples include wall torches, vines, lanterns, candles, etc.
-     public final void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
-         int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
+     private void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
+         final int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
          if(indexOfDelayedBlock < 0){
              this.incrementCounter();
              affectedBlockToDelay.setPlaced();
              return;
          }
-         int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
+         final int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
          if(indexOfNextPlaceable >= 0){
              Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
          } else {
@@ -107,16 +139,6 @@ public abstract class AbstractExplosionEvent {
         }
          return -1;
      }
-
-     public abstract boolean shouldKeepHealing(World world);
-
-    public final void markAsPlaced(BlockState secondHalfState, BlockPos secondHalfPos, World world){
-        for(AffectedBlock affectedBlock : this.getAffectedBlocks()) {
-            if(affectedBlock.getState().equals(secondHalfState) && affectedBlock.getPos().equals(secondHalfPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
-                affectedBlock.setPlaced();
-            }
-        }
-    }
 
     public boolean equals(Object o) {
         if (this == o) return true;

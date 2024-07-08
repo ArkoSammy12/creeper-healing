@@ -4,6 +4,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
+import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 
 import java.util.List;
@@ -25,17 +26,22 @@ public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
 
     // Speed up the timers of this explosion when the difficulty is set to easy or peaceful, and slow it down if it's set to hard
     @Override
-    public void setupExplosion(World world){
-        int difficultyMultiplier = switch (world.getDifficulty()) {
+    public void setup(World world){
+        final int difficultyMultiplier = switch (world.getDifficulty()) {
             case PEACEFUL -> -2;
             case EASY -> -1;
             case NORMAL -> 1;
             case HARD -> 2;
         };
-        long newBlockTimer = Math.max(1, (ConfigUtils.getBlockPlacementDelay()) + (difficultyMultiplier * 20));
-        long newExplosionTimer = Math.max(1, (ConfigUtils.getExplosionHealDelay()) + (difficultyMultiplier * 20));
+        final long newBlockTimer = Math.max(1, (ConfigUtils.getBlockPlacementDelay()) + (difficultyMultiplier * 20));
+        final long newExplosionTimer = Math.max(1, (ConfigUtils.getExplosionHealDelay()) + (difficultyMultiplier * 20));
         this.setHealTimer(newExplosionTimer);
-        this.getAffectedBlocks().forEach(affectedBlock -> affectedBlock.setTimer(newBlockTimer));
+        for (AffectedBlock affectedBlock : this.getAffectedBlocks().toList()) {
+            if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {
+                continue;
+            }
+            singleAffectedBlock.setTimer(newBlockTimer);
+        }
     }
 
     // 1/50 chance of the explosion stopping its healing process if the difficulty is hard
@@ -45,7 +51,7 @@ public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
             return true;
         }
         Random random = world.getRandom();
-        return random.nextBetween(0, 50) != 1;
+        return !this.finished && random.nextBetween(0, 50) != 1;
     }
 
 }

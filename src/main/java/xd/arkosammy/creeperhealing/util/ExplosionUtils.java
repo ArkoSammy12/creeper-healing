@@ -25,7 +25,7 @@ public final class ExplosionUtils {
     public static final ThreadLocal<Boolean> FALLING_BLOCK_SCHEDULE_TICK = ThreadLocal.withInitial(() -> true);
 
      public static void pushEntitiesUpwards(World world, BlockPos pos, boolean isTallBlock) {
-        int amountToPush = isTallBlock ? 2 : 1;
+        final int amountToPush = isTallBlock ? 2 : 1;
         for(Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)){
             if(areAboveBlocksFree(world, pos, entity, amountToPush)) {
                 entity.refreshPositionAfterTeleport(entity.getPos().withAxis(Direction.Axis.Y, entity.getBlockY() + amountToPush));
@@ -35,26 +35,27 @@ public final class ExplosionUtils {
 
     private static boolean areAboveBlocksFree(World world, BlockPos pos, Entity entity, int amountToPush){
         for(int i = pos.getY(); i < pos.offset(Direction.Axis.Y, (int) Math.ceil(entity.getStandingEyeHeight())).getY(); i++){
-            BlockPos currentPos = pos.withY(i + amountToPush);
-            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos))
+            final BlockPos currentPos = pos.withY(i + amountToPush);
+            if(world.getBlockState(currentPos).isSolidBlock(world, currentPos)) {
                 return false;
+            }
         }
         return true;
     }
 
      // The goal is to heal blocks inwards from the edge of the explosion, bottom to top, non-transparent blocks first
-     static @NotNull List<AffectedBlock> sortAffectedBlocksList(@NotNull List<AffectedBlock> affectedBlocksList, World world){
-        List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
-        List<BlockPos> affectedBlocksAsPositions = sortedAffectedBlocks.stream().map(AffectedBlock::getPos).collect(Collectors.toList());
-        int centerX = getCenterXCoordinate(affectedBlocksAsPositions);
-        int centerZ = getCenterZCoordinate(affectedBlocksAsPositions);
-        Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getPos().getX() - centerX, 2) + Math.pow(affectedBlock.getPos().getZ() - centerZ, 2))));
+     static @NotNull List<AffectedBlock> sortAffectedBlocks(@NotNull List<AffectedBlock> affectedBlocksList, World world){
+        final List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
+        final List<BlockPos> affectedBlocksAsPositions = sortedAffectedBlocks.stream().map(AffectedBlock::getBlockPos).collect(Collectors.toList());
+        final int centerX = getCenterXCoordinate(affectedBlocksAsPositions);
+        final int centerZ = getCenterZCoordinate(affectedBlocksAsPositions);
+        final Comparator<AffectedBlock> distanceToCenterComparator = Comparator.comparingInt(affectedBlock -> (int) -(Math.round(Math.pow(affectedBlock.getBlockPos().getX() - centerX, 2) + Math.pow(affectedBlock.getBlockPos().getZ() - centerZ, 2))));
         sortedAffectedBlocks.sort(distanceToCenterComparator);
-        Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getPos().getY());
+        final Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getBlockPos().getY());
         sortedAffectedBlocks.sort(yLevelComparator);
-        Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
-            boolean isAffectedBlock1Transparent = affectedBlock1.getState().isTransparent(world, affectedBlock1.getPos());
-            boolean isAffectedBlock2Transparent = affectedBlock2.getState().isTransparent(world, affectedBlock2.getPos());
+        final Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
+            boolean isAffectedBlock1Transparent = affectedBlock1.getBlockState().isTransparent(world, affectedBlock1.getBlockPos());
+            boolean isAffectedBlock2Transparent = affectedBlock2.getBlockState().isTransparent(world, affectedBlock2.getBlockPos());
             return Boolean.compare(isAffectedBlock1Transparent, isAffectedBlock2Transparent);
         };
         sortedAffectedBlocks.sort(transparencyComparator);
@@ -98,32 +99,32 @@ public final class ExplosionUtils {
     }
 
     static int getMaxExplosionRadius(List<BlockPos> affectedCoordinates){
-        int[] radii = new int[3];
-        int maxX = affectedCoordinates.stream()
+        final int[] radii = new int[3];
+        final int maxX = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getX)
                 .max()
                 .orElse(0);
-        int minX = affectedCoordinates.stream()
+        final int minX = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getX)
                 .min()
                 .orElse(0);
         radii[0] = (maxX - minX)/2;
 
-        int maxY = affectedCoordinates.stream()
+        final int maxY = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getY)
                 .max()
                 .orElse(0);
-        int minY = affectedCoordinates.stream()
+        final int minY = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getY)
                 .min()
                 .orElse(0);
         radii[1] = (maxY - minY)/2;
 
-        int maxZ = affectedCoordinates.stream()
+        final int maxZ = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getZ)
                 .max()
                 .orElse(0);
-        int minZ = affectedCoordinates.stream()
+        final int minZ = affectedCoordinates.stream()
                 .mapToInt(Vec3i::getZ)
                 .min()
                 .orElse(0);
@@ -133,7 +134,7 @@ public final class ExplosionUtils {
     }
 
     public static boolean shouldPlayBlockPlacementSound(World world, BlockState state) {
-         boolean blockPlacementSoundEffect = ConfigUtils.getSettingValue(ConfigSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getSettingLocation(), BooleanSetting.class);
+         final boolean blockPlacementSoundEffect = ConfigUtils.getSettingValue(ConfigSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getSettingLocation(), BooleanSetting.class);
          return !world.isClient && !state.isAir() && blockPlacementSoundEffect;
     }
 

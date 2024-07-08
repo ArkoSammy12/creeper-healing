@@ -4,6 +4,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
+import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 
 import java.util.List;
@@ -25,20 +26,23 @@ public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
 
     // Change the timers of each affected block in this explosion event based on their blast resistance
     @Override
-    public void setupExplosion(World world){
-        Random random = world.getRandom();
-        for(AffectedBlock affectedBlock : this.getAffectedBlocks()){
-            double randomOffset = random.nextBetween(-2, 2);
-            double blastResistanceMultiplier = Math.min(affectedBlock.getState().getBlock().getBlastResistance(), 9);
-            int offset = (int) (MathHelper.lerp(blastResistanceMultiplier / 9, -2, 2) + randomOffset);
-            long finalOffset = Math.max(1, ConfigUtils.getBlockPlacementDelay() + (offset * 20L));
-            affectedBlock.setTimer(finalOffset);
+    public void setup(World world){
+        final Random random = world.getRandom();
+        for(AffectedBlock affectedBlock : this.getAffectedBlocks().toList()){
+            if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {
+                continue;
+            }
+            final double randomOffset = random.nextBetween(-2, 2);
+            final double blastResistanceMultiplier = Math.min(singleAffectedBlock.getBlockState().getBlock().getBlastResistance(), 9);
+            final int offset = (int) (MathHelper.lerp(blastResistanceMultiplier / 9, -2, 2) + randomOffset);
+            final long finalOffset = Math.max(1, ConfigUtils.getBlockPlacementDelay() + (offset * 20L));
+            singleAffectedBlock.setTimer(finalOffset);
         }
     }
 
     @Override
     public boolean shouldKeepHealing(World world) {
-        return true;
+        return super.shouldKeepHealing(world);
     }
 
 }

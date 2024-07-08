@@ -22,6 +22,13 @@ repositories {
 		name "enjaraiMavenReleases"
 		url "https://maven.enjarai.dev/releases"
 	}
+
+	maven {
+		// Patbox's SGui
+		name "nucleoid"
+		url "https://maven.nucleoid.xyz"
+	}
+
 }
 
 loom {
@@ -72,7 +79,7 @@ dependencies {
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 
 	// Monkey config
-	include(modImplementation("xd.arkosammy:monkeyconfig:${project.monkey_config_version}"))
+	modImplementation("xd.arkosammy:monkeyconfig:${project.monkey_config_version}")
 
 }
 
