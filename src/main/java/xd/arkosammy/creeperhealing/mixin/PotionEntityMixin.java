@@ -7,7 +7,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.projectile.thrown.PotionEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -27,7 +26,6 @@ import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Mixin(PotionEntity.class)
 public abstract class PotionEntityMixin {
@@ -51,26 +49,16 @@ public abstract class PotionEntityMixin {
         if(potionHitPosition == null){
             return;
         }
-
-        final Optional<RegistryKey<StatusEffect>> instantHealthOptionalKey = StatusEffects.INSTANT_HEALTH.getKey();
-        if(instantHealthOptionalKey.isEmpty()) {
+        final RegistryEntry.Reference<StatusEffect> instantHealthEffect = StatusEffects.INSTANT_HEALTH.getKey().flatMap(Registries.STATUS_EFFECT::getEntry).orElse(null);
+        if (instantHealthEffect == null) {
             return;
         }
-        final Optional<RegistryEntry.Reference<StatusEffect>> instantHealthOptionalEntry = Registries.STATUS_EFFECT.getEntry(instantHealthOptionalKey.get());
-        if(instantHealthOptionalEntry.isEmpty()) {
+        boolean hasInstantHealth = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(instantHealthEffect));
+        final RegistryEntry.Reference<StatusEffect> regenerationEffect = StatusEffects.REGENERATION.getKey().flatMap(Registries.STATUS_EFFECT::getEntry).orElse(null);
+        if (regenerationEffect == null) {
             return;
         }
-        boolean hasInstantHealth = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(instantHealthOptionalEntry.get()));
-
-        final Optional<RegistryKey<StatusEffect>> regenerationOptionalKey = StatusEffects.REGENERATION.getKey();
-        if(regenerationOptionalKey.isEmpty()) {
-            return;
-        }
-        final Optional<RegistryEntry.Reference<StatusEffect>> regenerationOptionalEntry = Registries.STATUS_EFFECT.getEntry(regenerationOptionalKey.get());
-        if(regenerationOptionalEntry.isEmpty()) {
-            return;
-        }
-        final boolean hasRegeneration = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(regenerationOptionalEntry.get()));
+        final boolean hasRegeneration = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(regenerationEffect));
 
         final boolean healOnHealingPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_HEALING_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
         final boolean healOnRegenerationPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
