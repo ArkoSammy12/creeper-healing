@@ -65,9 +65,9 @@ public class CreeperHealing implements ModInitializer {
 		LOGGER.info("I will try my best to heal your explosions :)");
 
 		ExplosionCallbacks.AFTER_EXPLOSION.register((explosion) -> {
-			final Set<BlockPos> calculatedPositions = ((ExplosionAccessor) explosion).creeperhealing$getCalculatedBlockPositions();
-			final Map<BlockPos, Pair<BlockState, BlockEntity>> savedStatesAndEntities = ((ExplosionAccessor) explosion).creeperhealing$getSavedStatesAndEntities();
-			final DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(savedStatesAndEntities, explosion.getAffectedBlocks(), new ArrayList<>(calculatedPositions), explosion.getEntity(), explosion.getCausingEntity(), ((ExplosionAccessor) explosion).creeperhealing$getDamageSource(), ((ExplosionAccessor) explosion).creeperhealing$getWorld());
+			Set<BlockPos> calculatedPositions = ((ExplosionAccessor) explosion).creeperhealing$getCalculatedBlockPositions();
+			Map<BlockPos, Pair<BlockState, BlockEntity>> savedStatesAndEntities = ((ExplosionAccessor) explosion).creeperhealing$getSavedStatesAndEntities();
+			DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(savedStatesAndEntities, explosion.getAffectedBlocks(), new ArrayList<>(calculatedPositions), explosion.getEntity(), explosion.getCausingEntity(), ((ExplosionAccessor) explosion).creeperhealing$getDamageSource(), ((ExplosionAccessor) explosion).creeperhealing$getWorld());
 			EXPLOSION_MANAGER.addExplosionEvent(explosionFactory);
 		});
 
