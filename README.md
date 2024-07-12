@@ -174,6 +174,7 @@ Clone this repository on your PC, then open your command line prompt on the main
 
 ## Credits
 
+- Thanks to [Swanlab](https://github.com/swanslab) for the mod's icon.
 - Thanks to @sulpherstaer for giving me the idea and inspiration for making this mod.
 - Thansk to @_jacg on the Fabric Discord server helping me out with setting up the custom config file.
 - Thanks to @dale8699 for helping me improve and give me ideas for the mod.
