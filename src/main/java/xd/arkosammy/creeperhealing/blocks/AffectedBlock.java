@@ -13,7 +13,7 @@ import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.ExplosionEvent;
 import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
-public sealed interface AffectedBlock permits SingleAffectedBlock {
+public interface AffectedBlock {
 
     BlockPos getBlockPos();
 

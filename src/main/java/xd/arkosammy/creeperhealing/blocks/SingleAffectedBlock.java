@@ -25,7 +25,7 @@ import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 import java.util.List;
 import java.util.Objects;
 
-public non-sealed class SingleAffectedBlock implements AffectedBlock {
+public class SingleAffectedBlock implements AffectedBlock {
 
     public static final String TYPE = "single_affected_block";
     private final BlockPos blockPos;
@@ -162,18 +162,6 @@ public non-sealed class SingleAffectedBlock implements AffectedBlock {
         return this.nbt != null && forceBlocksWithNbtToAlwaysHeal;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SingleAffectedBlock that)) return false;
-        return Objects.equals(getBlockPos(), that.getBlockPos()) && Objects.equals(getBlockState(), that.getBlockState()) && Objects.equals(getWorldRegistryKey(), that.getWorldRegistryKey());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getBlockPos(), getBlockState(), getWorldRegistryKey());
-    }
-
     private void handleChestBlockIfNeeded(ExplosionEvent explosionEvent, BlockState blockState, BlockPos chestPos, MinecraftServer server) {
         if (!blockState.isOf(Blocks.CHEST)) {
             return;
@@ -215,6 +203,24 @@ public non-sealed class SingleAffectedBlock implements AffectedBlock {
             singleAffectedBlock.setPlaced();
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SingleAffectedBlock that)) return false;
+        return Objects.equals(getBlockPos(), that.getBlockPos()) && Objects.equals(getBlockState(), that.getBlockState()) && Objects.equals(getWorldRegistryKey(), that.getWorldRegistryKey());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getBlockPos(), getBlockState(), getWorldRegistryKey());
+    }
+
+    @Override
+    public String toString() {
+        return "SingleAffectedBlock(pos=%s, state=%s, world=%s, nbt=%s, timer=%s, placed=%s)"
+                .formatted(this.blockPos, this.blockState, this.worldRegistryKey, this.nbt != null ? this.nbt : "null", this.timer, this.placed);
     }
 
 }

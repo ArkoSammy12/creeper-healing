@@ -124,4 +124,10 @@ public class DoubleAffectedBlock extends SingleAffectedBlock {
         return world.getBlockState(this.getBlockPos()).isReplaceable() && world.getBlockState(secondBlockPos).isReplaceable();
     }
 
+    @Override
+    public String toString() {
+        return "DoubleAffectedBlock(pos=%s, state=%s, world=%s, timer=%s, placed=%s)"
+                .formatted(this.getBlockPos(), this.getBlockState(), this.getWorldRegistryKey(), this.getBlockTimer(), this.isPlaced());
+    }
+
 }

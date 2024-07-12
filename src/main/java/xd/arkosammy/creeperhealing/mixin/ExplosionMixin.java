@@ -69,6 +69,7 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void saveAffectedStates(CallbackInfo ci){
         this.checkForAffectedNeighborPositions();
+        // Cache the block states and block entites before the explosion takes effect for use later
         this.getAffectedBlocks().forEach(pos -> this.savedStatesAndEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
         this.calculatedBlockPositions.forEach(pos -> this.savedStatesAndEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
         ExplosionCallbacks.BEFORE_EXPLOSION.invoker().beforeExplosion(((Explosion) (Object) this));
@@ -85,6 +86,8 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     private void resetThreadLocals(boolean particles, CallbackInfo ci){
         ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
         ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
+        // After the explosion has happened, filter out the calculated positions that correspond to block states
+        // whose states did not change after the explosion (were not exploded).
         this.calculatedBlockPositions.removeIf(pos -> {
             BlockState oldState = this.creeperhealing$getSavedStatesAndEntities().get(pos).getLeft();
             BlockState newState = this.world.getBlockState(pos);
@@ -100,6 +103,9 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // TODO: Optimize this and make the max recursion depth configurable
     @Unique
     private void checkForAffectedNeighborPositions() {
+        // Start by filtering out vanilla affected positions with no non-affected neighbor positions.
+        // The goal is to start at the "edge" of the blast radius by considering blocks which might have adjacent blocks connected to them that will be indirectly destroyed
+        // due to the support block being destroyed.
         List<BlockPos> filteredPositions = this.getAffectedBlocks().stream().filter(pos -> {
             for (Direction direction : Direction.values()) {
                 BlockPos neighborPos = pos.offset(direction);
@@ -124,7 +130,7 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         for (Direction neighborDirection : Direction.values()) {
             BlockPos neighborPos = currentPosition.offset(neighborDirection);
             BlockState neighborState = this.world.getBlockState(neighborPos);
-            if (neighborState.isOf(Blocks.AIR) || newPositions.contains(neighborPos)) {
+            if (neighborState.isOf(Blocks.AIR) || newPositions.contains(neighborPos) || this.getAffectedBlocks().contains(neighborPos)) {
                 continue;
             }
             newPositions.add(neighborPos);

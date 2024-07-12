@@ -32,4 +32,5 @@ public enum ExplosionHealingMode implements StringIdentifiable {
     public String asString() {
         return this.name;
     }
+
 }

@@ -119,13 +119,13 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
     // This effectively gives the delayed block more chances to be placed until no more placeable blocks are found
     // Examples include wall torches, vines, lanterns, candles, etc.
     private void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
-        final int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
+        int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
         if(indexOfDelayedBlock < 0){
             this.incrementCounter();
             affectedBlockToDelay.setPlaced();
             return;
         }
-        final int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
+        int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
         if(indexOfNextPlaceable >= 0){
             Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
         } else {

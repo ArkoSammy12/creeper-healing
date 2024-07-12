@@ -26,7 +26,6 @@ public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
         return ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE;
     }
 
-
     // Change the timers of each affected block based on their blast resistance
     @Override
     public void setup(World world) {

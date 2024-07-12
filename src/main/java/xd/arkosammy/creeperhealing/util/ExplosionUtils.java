@@ -191,7 +191,7 @@ public final class ExplosionUtils {
     }
 
     public static void playBlockPlacementSoundEffect(World world, BlockPos blockPos, BlockState blockState) {
-        boolean placementSoundEffectSetting = ConfigUtils.getSettingValue(ConfigSettings.BLOCK_PLACEMENT_DELAY.getSettingLocation(), BooleanSetting.class);
+        boolean placementSoundEffectSetting = ConfigUtils.getSettingValue(ConfigSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getSettingLocation(), BooleanSetting.class);
         boolean doPlacementSoundEffect = placementSoundEffectSetting && !world.isClient() && !blockState.isAir();
         if (!doPlacementSoundEffect) {
             return;
