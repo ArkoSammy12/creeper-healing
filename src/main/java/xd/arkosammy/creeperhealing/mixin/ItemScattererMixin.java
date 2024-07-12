@@ -15,7 +15,7 @@ import xd.arkosammy.creeperhealing.util.ExcludedBlocks;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 
 @Mixin(ItemScatterer.class)
-public class ItemScattererMixin {
+public abstract class ItemScattererMixin {
 
     @WrapOperation(method = "spawn(Lnet/minecraft/world/World;DDDLnet/minecraft/inventory/Inventory;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ItemScatterer;spawn(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V"))
     private static void cancelItemScatteringFromInventoryBlocks(World world, double x, double y, double z, ItemStack stack, Operation<Void> original, @Local(argsOnly = true) Inventory inventory){

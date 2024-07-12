@@ -9,7 +9,7 @@ import xd.arkosammy.creeperhealing.util.ExcludedBlocks;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 
 @Mixin(FallingBlock.class)
-public class FallingBlockMixin {
+public abstract class FallingBlockMixin {
 
     @ModifyExpressionValue(method = "scheduledTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FallingBlock;canFallThrough(Lnet/minecraft/block/BlockState;)Z"))
     private boolean onBlockAttemptedFall(boolean original, BlockState blockState){

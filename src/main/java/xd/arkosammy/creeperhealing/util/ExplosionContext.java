@@ -1,0 +1,24 @@
+package xd.arkosammy.creeperhealing.util;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
+import java.util.List;
+import java.util.Map;
+
+public record ExplosionContext(
+        List<BlockPos> vanillaAffectedPositions,
+        List<BlockPos> indirectlyAffectedPositions,
+        Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities,
+        World world,
+        Entity causingEntity,
+        LivingEntity causingLivingEntity,
+        DamageSource damageSource
+) {
+}

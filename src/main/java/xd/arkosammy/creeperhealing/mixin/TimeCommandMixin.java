@@ -1,35 +1,24 @@
 package xd.arkosammy.creeperhealing.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.minecraft.SharedConstants;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.TimeCommand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import xd.arkosammy.creeperhealing.CreeperHealing;
-import xd.arkosammy.creeperhealing.explosions.DaytimeExplosionEvent;
-import xd.arkosammy.creeperhealing.explosions.ExplosionEvent;
+import xd.arkosammy.creeperhealing.util.callbacks.TimeCommandCallbacks;
 
 @Mixin(TimeCommand.class)
 public abstract class TimeCommandMixin {
 
-    // Recalculate DaytimeExplosionEvents' timers when ticks are added or set
     @ModifyReturnValue(method = "executeAdd", at = @At("RETURN"))
-    private static int onTimeAdd(int original){
-        for(ExplosionEvent explosionEvent : CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().toList()){
-            if(explosionEvent instanceof DaytimeExplosionEvent daytimeExplosionEvent && explosionEvent.getHealTimer() > 0){
-                daytimeExplosionEvent.setHealTimer(SharedConstants.TICKS_PER_IN_GAME_DAY - original);
-            }
-        }
+    private static int onTimeAdd(int original, ServerCommandSource serverCommandSource, int time){
+        TimeCommandCallbacks.ON_TIME_EXECUTE_ADD.invoker().onTimeExecuteAdd(serverCommandSource, time, original);
         return original;
     }
 
     @ModifyReturnValue(method = "executeSet", at = @At("RETURN"))
-    private static int onTimeSet(int original){
-        for(ExplosionEvent explosionEvent : CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().toList()){
-            if(explosionEvent instanceof DaytimeExplosionEvent daytimeExplosionEvent && explosionEvent.getHealTimer() > 0){
-                daytimeExplosionEvent.setHealTimer(SharedConstants.TICKS_PER_IN_GAME_DAY - original);
-            }
-        }
+    private static int onTimeSet(int original, ServerCommandSource serverCommandSource, int time){
+        TimeCommandCallbacks.ON_TIME_EXECUTE_SET.invoker().onTimeExecuteSet(serverCommandSource, time, original);
         return original;
     }
 
