@@ -28,7 +28,7 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
 
     @Override
     public void setup(World world) {
-        this.healTimer = SharedConstants.TICKS_PER_IN_GAME_DAY - (world.getTimeOfDay() % 24000);
+        this.healTimer = SharedConstants.TICKS_PER_IN_GAME_DAY - (world.getTimeOfDay() % SharedConstants.TICKS_PER_IN_GAME_DAY);
         int daylightBasedBlockPlacementDelay = (int) (13000 / Math.max(this.getAffectedBlocks().count(), 1));
         for (AffectedBlock affectedBlock : this.getAffectedBlocks().toList()) {
             if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {

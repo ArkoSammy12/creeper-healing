@@ -207,7 +207,7 @@ public final class ExplosionUtils {
         if (!blockPlacementParticlesSetting) {
             return;
         }
-        serverWorld.spawnParticles(ParticleTypes.CLOUD, blockPos.getX(), blockPos.getY() + 1, blockPos.getZ(), 1, 0, 1, 0, 0.5);
+        serverWorld.spawnParticles(ParticleTypes.CLOUD, blockPos.getX(), blockPos.getY() + 2, blockPos.getZ(), 1, 0, 1, 0, 0.001);
     }
 
 }
