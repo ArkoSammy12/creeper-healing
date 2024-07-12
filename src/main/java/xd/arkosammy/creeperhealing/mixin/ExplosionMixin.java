@@ -100,15 +100,23 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // Recursive algorithm to find blocks connected to the explosion indirectly.
     // Start from the edge of the explosion radius and visit each non-air block until we either hit the max recursion depth,
     // or we encounter a block which has no non-visited neighbors.
-    // TODO: Optimize this and make the max recursion depth configurable
     @Unique
     private void checkForAffectedNeighborPositions() {
         // Start by filtering out vanilla affected positions with no non-affected neighbor positions.
         // The goal is to start at the "edge" of the blast radius by considering blocks which might have adjacent blocks connected to them that will be indirectly destroyed
         // due to the support block being destroyed.
         List<BlockPos> filteredPositions = this.getAffectedBlocks().stream().filter(pos -> {
+            // No blocks will be connected to this position is the state is air
+            if (world.getBlockState(pos).isAir()) {
+                return false;
+            }
             for (Direction direction : Direction.values()) {
                 BlockPos neighborPos = pos.offset(direction);
+                BlockState neighborState = world.getBlockState(neighborPos);
+                // No blocks will be connected to the neighbor position if the state is air
+                if (neighborState.isAir()) {
+                    continue;
+                }
                 if (!this.getAffectedBlocks().contains(neighborPos)) {
                     return true;
                 }
