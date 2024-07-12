@@ -164,7 +164,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
             String affectedBlockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
             boolean whitelistContainsIdentifier = whitelist.contains(affectedBlockIdentifier);
             if (!whitelistEnabled || whitelistContainsIdentifier) {
-                final BlockEntity affectedBlockEntity = savedStatesAndEntites.get(affectedPosition).getRight();
+                BlockEntity affectedBlockEntity = savedStatesAndEntites.get(affectedPosition).getRight();
                 affectedBlocks.add(AffectedBlock.newInstance(affectedPosition, affectedState, affectedBlockEntity, world));
             }
         }
