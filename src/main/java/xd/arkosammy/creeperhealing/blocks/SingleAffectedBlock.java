@@ -107,11 +107,6 @@ public class SingleAffectedBlock implements AffectedBlock {
         return TYPE;
     }
 
-    @Override
-    public SerializedAffectedBlock asSerialized(){
-        return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, this.worldRegistryKey, this.nbt, this.timer, this.placed);
-    }
-
     protected void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent){
 
         BlockState state = this.getBlockState();
@@ -203,6 +198,11 @@ public class SingleAffectedBlock implements AffectedBlock {
             singleAffectedBlock.setPlaced();
         }
 
+    }
+
+    @Override
+    public SerializedAffectedBlock asSerialized(){
+        return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, this.worldRegistryKey, this.nbt, this.timer, this.placed);
     }
 
     @Override

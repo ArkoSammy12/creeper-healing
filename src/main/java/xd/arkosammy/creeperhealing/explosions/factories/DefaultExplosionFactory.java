@@ -33,7 +33,7 @@ import java.util.*;
 
 public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractExplosionEvent> {
 
-    private final Map<BlockPos, Pair<BlockState, BlockEntity>> savedStatesAndEntites;
+    private final Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities;
     private final World world;
     private final int blastRadius;
     private final Set<BlockPos> affectedPositions = new HashSet<>();
@@ -43,14 +43,14 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     private final LivingEntity causingLivingEntity;
     private final DamageSource damageSource;
 
-    public DefaultExplosionFactory(Map<BlockPos, Pair<BlockState, BlockEntity>> savedStatesAndEntities, List<BlockPos> vanillaPositions, List<BlockPos> calculatedPositions, Entity causingEntity, LivingEntity causingLivingEntity, DamageSource damageSource, World world) {
-        this.savedStatesAndEntites = savedStatesAndEntities;
+    public DefaultExplosionFactory(Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities, List<BlockPos> vanillaAffectedPositions, List<BlockPos> indirectlyExplodedPositions, Entity causingEntity, LivingEntity causingLivingEntity, DamageSource damageSource, World world) {
+        this.affectedStatesAndBlockEntities = affectedStatesAndBlockEntities;
         this.world = world;
-        this.affectedPositions.addAll(vanillaPositions);
-        this.affectedPositions.addAll(calculatedPositions);
-        this.blastRadius = ExplosionUtils.getMaxExplosionRadius(vanillaPositions);
-        this.center = ExplosionUtils.calculateCenter(vanillaPositions);
-        this.vanillaAffectedPositions = vanillaPositions;
+        this.affectedPositions.addAll(vanillaAffectedPositions);
+        this.affectedPositions.addAll(indirectlyExplodedPositions);
+        this.blastRadius = ExplosionUtils.getMaxExplosionRadius(vanillaAffectedPositions);
+        this.center = ExplosionUtils.calculateCenter(vanillaAffectedPositions);
+        this.vanillaAffectedPositions = vanillaAffectedPositions;
         this.causingEntity = causingEntity;
         this.causingLivingEntity = causingLivingEntity;
         this.damageSource = damageSource;
@@ -60,7 +60,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent() {
         ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
-        List<AffectedBlock> affectedBlocks = this.processData(new ArrayList<>(this.affectedPositions), this.world);
+        List<AffectedBlock> affectedBlocks = this.processAffectedPositions(new ArrayList<>(this.affectedPositions), this.world);
         if (affectedBlocks == null) {
             return null;
         }
@@ -80,7 +80,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent(List<BlockPos> affectedPositions, World world) {
         ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
-        List<AffectedBlock> affectedBlocks = this.processData(affectedPositions, world);
+        List<AffectedBlock> affectedBlocks = this.processAffectedPositions(affectedPositions, world);
         if (affectedBlocks == null) {
             return null;
         }
@@ -147,13 +147,13 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     }
 
     @Nullable
-    private List<AffectedBlock> processData(List<BlockPos> affectedPositions, World world) {
+    private List<AffectedBlock> processAffectedPositions(List<BlockPos> affectedPositions, World world) {
         List<AffectedBlock> affectedBlocks = new ArrayList<>();
         boolean whitelistEnabled = ConfigUtils.getSettingValue(ConfigSettings.ENABLE_WHITELIST.getSettingLocation(), BooleanSetting.class);
         List<? extends String> whitelist = ConfigUtils.getSettingValue(ConfigSettings.WHITELIST.getSettingLocation(), StringListSetting.class);
         for (BlockPos affectedPosition : affectedPositions) {
             // Hardcoded exception. Place before all logic
-            BlockState affectedState = this.savedStatesAndEntites.get(affectedPosition).getLeft();
+            BlockState affectedState = this.affectedStatesAndBlockEntities.get(affectedPosition).getLeft();
             if (affectedState == null || ExcludedBlocks.isExcluded(affectedState)) {
                 continue;
             }
@@ -164,7 +164,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
             String affectedBlockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
             boolean whitelistContainsIdentifier = whitelist.contains(affectedBlockIdentifier);
             if (!whitelistEnabled || whitelistContainsIdentifier) {
-                BlockEntity affectedBlockEntity = savedStatesAndEntites.get(affectedPosition).getRight();
+                BlockEntity affectedBlockEntity = affectedStatesAndBlockEntities.get(affectedPosition).getRight();
                 affectedBlocks.add(AffectedBlock.newInstance(affectedPosition, affectedState, affectedBlockEntity, world));
             }
         }

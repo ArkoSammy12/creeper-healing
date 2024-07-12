@@ -20,6 +20,7 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
@@ -64,12 +65,7 @@ public class CreeperHealing implements ModInitializer {
 		DaylightCycleEvents.ON_NIGHT_SKIPPED.register(CreeperHealing::onNightSkipped);
 		LOGGER.info("I will try my best to heal your explosions :)");
 
-		ExplosionCallbacks.AFTER_EXPLOSION.register((explosion) -> {
-			Set<BlockPos> calculatedPositions = ((ExplosionAccessor) explosion).creeperhealing$getCalculatedBlockPositions();
-			Map<BlockPos, Pair<BlockState, BlockEntity>> savedStatesAndEntities = ((ExplosionAccessor) explosion).creeperhealing$getSavedStatesAndEntities();
-			DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(savedStatesAndEntities, explosion.getAffectedBlocks(), new ArrayList<>(calculatedPositions), explosion.getEntity(), explosion.getCausingEntity(), ((ExplosionAccessor) explosion).creeperhealing$getDamageSource(), ((ExplosionAccessor) explosion).creeperhealing$getWorld());
-			EXPLOSION_MANAGER.addExplosionEvent(explosionFactory);
-		});
+		ExplosionCallbacks.AFTER_EXPLOSION.register(CreeperHealing::onAfterExplosion);
 
 	}
 
@@ -79,6 +75,13 @@ public class CreeperHealing implements ModInitializer {
 
 	private static void onServerStopping(MinecraftServer server) {
 		EXPLOSION_MANAGER.onServerStopping(server);
+	}
+
+	private static void onAfterExplosion(Explosion explosion) {
+		Set<BlockPos> indirectlyExplodedPositions = ((ExplosionAccessor) explosion).creeperhealing$getIndirectlyExplodedPositions();
+		Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = ((ExplosionAccessor) explosion).creeperhealing$getAffectedStatesAndBlockEntities();
+		DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(affectedStatesAndBlockEntities, explosion.getAffectedBlocks(), new ArrayList<>(indirectlyExplodedPositions), explosion.getEntity(), explosion.getCausingEntity(), ((ExplosionAccessor) explosion).creeperhealing$getDamageSource(), ((ExplosionAccessor) explosion).creeperhealing$getWorld());
+		EXPLOSION_MANAGER.addExplosionEvent(explosionFactory);
 	}
 
 	private static void onNightSkipped(ServerWorld world, BooleanSupplier shouldKeepTicking) {

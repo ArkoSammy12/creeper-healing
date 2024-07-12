@@ -83,7 +83,7 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
     abstract protected ExplosionHealingMode getHealingMode();
 
     @Override
-    public void tick(MinecraftServer server) {
+    public final void tick(MinecraftServer server) {
         if (this.isFinished()) {
             return;
         }

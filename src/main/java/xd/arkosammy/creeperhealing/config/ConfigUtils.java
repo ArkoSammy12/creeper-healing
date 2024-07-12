@@ -27,7 +27,7 @@ public final class ConfigUtils {
     public static <V, T extends ConfigSetting<V, ?>> V getSettingValue(SettingLocation settingLocation, Class<T> clazz) {
         final T setting = CONFIG_MANAGER.getTypedSetting(settingLocation, clazz);
         if (setting == null) {
-            throw new IllegalArgumentException("No setting with location " + settingLocation + " with type + " + clazz.getSimpleName() + " was found on Config Manager for file " + CONFIG_MANAGER.getConfigName());
+            throw new IllegalArgumentException("No setting with location " + settingLocation + " with type " + clazz.getSimpleName() + " was found on Config Manager for file " + CONFIG_MANAGER.getConfigName());
         }
         return setting.getValue();
     }

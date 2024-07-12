@@ -36,10 +36,10 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     @Shadow public abstract List<BlockPos> getAffectedBlocks();
 
     @Unique
-    private final Map<BlockPos, Pair<BlockState, BlockEntity>> savedStatesAndEntities = new HashMap<>();
+    private final Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = new HashMap<>();
 
     @Unique
-    private final Set<BlockPos> calculatedBlockPositions = new HashSet<>();
+    private final Set<BlockPos> indirectlyExplodedPositions = new HashSet<>();
 
     @Override
     public World creeperhealing$getWorld(){
@@ -57,21 +57,21 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     }
 
     @Override
-    public Set<BlockPos> creeperhealing$getCalculatedBlockPositions() {
-        return this.calculatedBlockPositions;
+    public Set<BlockPos> creeperhealing$getIndirectlyExplodedPositions() {
+        return this.indirectlyExplodedPositions;
     }
 
     @Override
-    public Map<BlockPos, Pair<BlockState, BlockEntity>> creeperhealing$getSavedStatesAndEntities() {
-        return this.savedStatesAndEntities;
+    public Map<BlockPos, Pair<BlockState, BlockEntity>> creeperhealing$getAffectedStatesAndBlockEntities() {
+        return this.affectedStatesAndBlockEntities;
     }
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void saveAffectedStates(CallbackInfo ci){
         this.checkForAffectedNeighborPositions();
         // Cache the block states and block entites before the explosion takes effect for use later
-        this.getAffectedBlocks().forEach(pos -> this.savedStatesAndEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
-        this.calculatedBlockPositions.forEach(pos -> this.savedStatesAndEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
+        this.getAffectedBlocks().forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
+        this.indirectlyExplodedPositions.forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
         ExplosionCallbacks.BEFORE_EXPLOSION.invoker().beforeExplosion(((Explosion) (Object) this));
     }
 
@@ -87,9 +87,9 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
         ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
         // After the explosion has happened, filter out the calculated positions that correspond to block states
-        // whose states did not change after the explosion (were not exploded).
-        this.calculatedBlockPositions.removeIf(pos -> {
-            BlockState oldState = this.creeperhealing$getSavedStatesAndEntities().get(pos).getLeft();
+        // whose states did not change before and after the explosion (were not exploded).
+        this.indirectlyExplodedPositions.removeIf(pos -> {
+            BlockState oldState = this.creeperhealing$getAffectedStatesAndBlockEntities().get(pos).getLeft();
             BlockState newState = this.world.getBlockState(pos);
             return newState.equals(oldState);
         });
@@ -125,9 +125,9 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         }).toList();
         Set<BlockPos> newPositions = new HashSet<>();
         for (BlockPos filteredPosition : filteredPositions) {
-            checkNeighbors(200, filteredPosition, newPositions);
+            checkNeighbors(150, filteredPosition, newPositions);
         }
-        this.calculatedBlockPositions.addAll(newPositions);
+        this.indirectlyExplodedPositions.addAll(newPositions);
     }
 
     @Unique

@@ -12,7 +12,7 @@ import java.util.Set;
 
 public interface ExplosionAccessor {
 
-    Set<BlockPos> creeperhealing$getCalculatedBlockPositions();
+    Set<BlockPos> creeperhealing$getIndirectlyExplodedPositions();
 
     World creeperhealing$getWorld();
 
@@ -20,6 +20,6 @@ public interface ExplosionAccessor {
 
     boolean creeperhealing$willBeHealed();
 
-    Map<BlockPos, Pair<BlockState, BlockEntity>> creeperhealing$getSavedStatesAndEntities();
+    Map<BlockPos, Pair<BlockState, BlockEntity>> creeperhealing$getAffectedStatesAndBlockEntities();
 
 }
