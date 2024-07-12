@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.ExplosionEvent;
@@ -22,9 +23,9 @@ public sealed interface AffectedBlock permits SingleAffectedBlock {
 
     World getWorld(MinecraftServer server);
 
-    void tick(ExplosionEvent currentExplosion, MinecraftServer server);
+    long getBlockTimer();
 
-    SerializedAffectedBlock asSerialized();
+    void tick(ExplosionEvent currentExplosion, MinecraftServer server);
 
     void setPlaced();
 
@@ -32,19 +33,19 @@ public sealed interface AffectedBlock permits SingleAffectedBlock {
 
     boolean canBePlaced(MinecraftServer server);
 
-    static AffectedBlock newInstance(BlockPos pos, BlockState state, World world){
-        final RegistryKey<World> worldRegistryKey = world.getRegistryKey();
-        final long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
+    SerializedAffectedBlock asSerialized();
+
+    static AffectedBlock newInstance(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, World world){
+        RegistryKey<World> worldRegistryKey = world.getRegistryKey();
+        long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
         if (state.contains(Properties.DOUBLE_BLOCK_HALF) || state.contains(Properties.BED_PART)) {
             return new DoubleAffectedBlock(pos, state, worldRegistryKey, blockPlacementDelay, false);
         }
-        final BlockEntity blockEntity = world.getBlockEntity(pos);
-        final boolean restoreBlockNbt = ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class);
+        boolean restoreBlockNbt = ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class);
         if (blockEntity != null && restoreBlockNbt) {
             return new SingleAffectedBlock(pos, state, worldRegistryKey, blockEntity.createNbtWithId(world.getRegistryManager()), blockPlacementDelay, false);
         }
         return new SingleAffectedBlock(pos, state, worldRegistryKey, null, blockPlacementDelay, false);
     }
-
 
 }

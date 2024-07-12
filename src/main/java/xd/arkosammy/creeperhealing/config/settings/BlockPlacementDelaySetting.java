@@ -6,7 +6,7 @@ import kotlin.jvm.functions.Function2;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xd.arkosammy.creeperhealing.util.ExplosionManager;
+import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.monkeyconfig.managers.ConfigManager;
 import xd.arkosammy.monkeyconfig.settings.NumberSetting;
 import xd.arkosammy.monkeyconfig.util.SettingLocation;
@@ -22,7 +22,7 @@ public class BlockPlacementDelaySetting extends NumberSetting<Double> {
     public Function2<CommandContext<ServerCommandSource>, ConfigManager, Integer> getOnValueSetCallback() {
         return (ctx, manager) -> {
             super.getOnValueSetCallback().invoke(ctx, manager);
-            ExplosionManager.getInstance().updateAffectedBlocksTimers();
+            CreeperHealing.EXPLOSION_MANAGER.updateAffectedBlocksTimers();
             return Command.SINGLE_SUCCESS;
         };
     }

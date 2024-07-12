@@ -17,7 +17,7 @@ public class FallingBlockMixin {
         if(ExcludedBlocks.isExcluded(blockState)){
             return original;
         }
-        final boolean canFall = original && ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.get();
+        boolean canFall = original && ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.get();
         ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(true);
         return canFall;
     }

@@ -35,10 +35,8 @@ public abstract class WorldMixin {
         if(isBlockAtPosExcluded.get()) {
             return;
         }
-
-        final int newFlags = ExplosionUtils.DROP_EXPLOSION_ITEMS.get() ? flags : flags | Block.SKIP_DROPS;
+        int newFlags = ExplosionUtils.DROP_EXPLOSION_ITEMS.get() ? flags : flags | Block.SKIP_DROPS;
         original.call(instance, worldAccess, blockPos, newFlags, maxUpdateDepth);
-
     }
 
 }

@@ -7,29 +7,34 @@ import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public abstract class AbstractExplosionEvent implements ExplosionEvent {
 
     private final List<AffectedBlock> affectedBlocks;
-    private long healTimer;
+    protected long healTimer;
     private int blockCounter;
     protected boolean finished;
+    private final int radius;
+    private final BlockPos center;
 
-    protected AbstractExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter){
+    public AbstractExplosionEvent(List<AffectedBlock> affectedBlocks, int radius, BlockPos center) {
+        this(affectedBlocks, ConfigUtils.getExplosionHealDelay(), 0, radius, center);
+    }
+
+    public AbstractExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter, int radius, BlockPos center) {
         this.affectedBlocks = affectedBlocks;
         this.healTimer = healTimer;
         this.blockCounter = blockCounter;
+        this.center = center;
+        this.radius = radius;
     }
 
-    protected AbstractExplosionEvent(List<AffectedBlock> affectedBlocks) {
-        this.affectedBlocks = affectedBlocks;
-        this.healTimer = ConfigUtils.getExplosionHealDelay();
-        this.blockCounter = 0;
-    }
-
-    public final Stream<AffectedBlock> getAffectedBlocks(){
+    @Override
+    public Stream<AffectedBlock> getAffectedBlocks() {
         return this.affectedBlocks.stream();
     }
 
@@ -39,69 +44,108 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
     }
 
     @Override
-    public final long getHealTimer(){
+    public long getHealTimer() {
         return this.healTimer;
     }
 
-    @Override
-    public final int getBlockCounter(){
+    public int getBlockCounter() {
         return this.blockCounter;
     }
 
-    abstract ExplosionHealingMode getHealingMode();
-
-    public final void setHealTimer(long healTimer){
-        this.healTimer = healTimer;
+    public BlockPos getCenter() {
+        return this.center;
     }
 
-    protected final void incrementCounter(){
-        this.blockCounter++;
+    public int getRadius() {
+        return this.radius;
     }
 
     @Override
-    public final void tick(MinecraftServer server){
-        if (this.finished) {
+    public boolean isFinished() {
+        return this.finished;
+    }
+
+    protected final Optional<AffectedBlock> getCurrentAffectedBlock() {
+        return this.blockCounter < this.affectedBlocks.size() ? Optional.of(this.affectedBlocks.get(this.blockCounter)) : Optional.empty();
+    }
+
+    protected final void incrementCounter() {
+        this.blockCounter++;
+    }
+
+    public final void setHealTimer(long timer) {
+        this.healTimer = timer;
+    }
+
+    protected void updateFinishedStatus(World world) {
+    }
+
+    abstract protected ExplosionHealingMode getHealingMode();
+
+    @Override
+    public void tick(MinecraftServer server) {
+        if (this.isFinished()) {
             return;
         }
         this.healTimer--;
         if (healTimer >= 0) {
             return;
         }
-        final Optional<AffectedBlock> optionalAffectedBlock = this.getCurrentAffectedBlock();
-        if(optionalAffectedBlock.isEmpty()){
+        Optional<AffectedBlock> optionalAffectedBlock = this.getCurrentAffectedBlock();
+        if (optionalAffectedBlock.isEmpty()) {
             this.finished = true;
             return;
         }
-        final AffectedBlock affectedBlock = optionalAffectedBlock.get();
-        if(affectedBlock.isPlaced()){
+        AffectedBlock currentAffectedBlock = optionalAffectedBlock.get();
+        if (currentAffectedBlock.isPlaced()) {
             this.incrementCounter();
             return;
         }
-        if(!affectedBlock.canBePlaced(server)){
-            this.delayAffectedBlock(affectedBlock, server);
+        if (!currentAffectedBlock.canBePlaced(server)) {
+            this.delayAffectedBlock(currentAffectedBlock, server);
             return;
         }
-        affectedBlock.tick(this, server);
-        this.incrementCounter();
+        this.updateFinishedStatus(this.getWorld(server));
+        if (this.isFinished()) {
+            return;
+        }
+        currentAffectedBlock.tick(this, server);
+        if (currentAffectedBlock.getBlockTimer() < 0) {
+            this.incrementCounter();
+        }
+    }
+
+    // If the current affected block cannot be placed at this moment, find the next block that is placeable in the list and swap them in the list.
+    // This effectively gives the delayed block more chances to be placed until no more placeable blocks are found
+    // Examples include wall torches, vines, lanterns, candles, etc.
+    private void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
+        final int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
+        if(indexOfDelayedBlock < 0){
+            this.incrementCounter();
+            affectedBlockToDelay.setPlaced();
+            return;
+        }
+        final int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
+        if(indexOfNextPlaceable >= 0){
+            Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
+        } else {
+            this.incrementCounter();
+            affectedBlockToDelay.setPlaced();
+        }
+    }
+
+    private int findNextPlaceableBlockIndex(MinecraftServer server){
+        for(int i = this.blockCounter; i < this.affectedBlocks.size(); i++){
+            if(this.affectedBlocks.get(i).canBePlaced(server)){
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
-    public final SerializedExplosionEvent asSerialized(){
-        return new SerializedExplosionEvent(this.getHealingMode().getName(), this.affectedBlocks.stream().map(AffectedBlock::asSerialized).toList(), this.healTimer, this.blockCounter);
-    }
-
-    @Override
-    public final Optional<AffectedBlock> getCurrentAffectedBlock(){
-        return this.blockCounter < this.affectedBlocks.size() ? Optional.of(this.affectedBlocks.get(this.blockCounter)) : Optional.empty();
-    }
-
-    @Override
-    public boolean shouldKeepHealing(World world) {
-        return !this.finished;
-    }
-
-    @Override
-    public void setup(World world) {
+    public SerializedExplosionEvent asSerialized() {
+        return new DefaultSerializedExplosion(this.getHealingMode().asString(), this.getAffectedBlocks().map(AffectedBlock::asSerialized).toList(), this.healTimer, this.blockCounter, this.radius, this.center);
     }
 
     public final void findAndMarkPlaced(BlockPos blockPos, BlockState blockState, World world){
@@ -110,45 +154,6 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
                 affectedBlock.setPlaced();
             }
         }
-    }
-
-     // If the current affected block cannot be placed at this moment, find the next block that is placeable in the list and swap them in the list.
-     // This effectively gives the delayed block more chances to be placed until no more placeable blocks are found
-     // Examples include wall torches, vines, lanterns, candles, etc.
-     private void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
-         final int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
-         if(indexOfDelayedBlock < 0){
-             this.incrementCounter();
-             affectedBlockToDelay.setPlaced();
-             return;
-         }
-         final int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
-         if(indexOfNextPlaceable >= 0){
-             Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
-         } else {
-             this.incrementCounter();
-             affectedBlockToDelay.setPlaced();
-         }
-     }
-
-     private int findNextPlaceableBlockIndex(MinecraftServer server){
-        for(int i = this.blockCounter; i < this.affectedBlocks.size(); i++){
-            if(this.affectedBlocks.get(i).canBePlaced(server)){
-                return i;
-            }
-        }
-         return -1;
-     }
-
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AbstractExplosionEvent that)) return false;
-        return Objects.equals(getAffectedBlocks(), that.getAffectedBlocks());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getAffectedBlocks());
     }
 
 }

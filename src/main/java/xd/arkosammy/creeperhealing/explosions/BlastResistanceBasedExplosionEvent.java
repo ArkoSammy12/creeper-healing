@@ -1,5 +1,6 @@
 package xd.arkosammy.creeperhealing.explosions;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
@@ -11,38 +12,36 @@ import java.util.List;
 
 public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
 
-    public BlastResistanceBasedExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
-        super(affectedBlocks, healTimer, blockCounter);
+
+    public BlastResistanceBasedExplosionEvent(List<AffectedBlock> affectedBlocks, int radius, BlockPos center) {
+        super(affectedBlocks, radius, center);
     }
 
-    BlastResistanceBasedExplosionEvent(List<AffectedBlock> affectedBlocks){
-        super(affectedBlocks);
+    public BlastResistanceBasedExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter, int radius, BlockPos center) {
+        super(affectedBlocks, healTimer, blockCounter, radius, center);
     }
 
     @Override
-    public ExplosionHealingMode getHealingMode(){
+    protected ExplosionHealingMode getHealingMode() {
         return ExplosionHealingMode.BLAST_RESISTANCE_BASED_HEALING_MODE;
     }
 
-    // Change the timers of each affected block in this explosion event based on their blast resistance
+
+    // Change the timers of each affected block based on their blast resistance
     @Override
-    public void setup(World world){
-        final Random random = world.getRandom();
-        for(AffectedBlock affectedBlock : this.getAffectedBlocks().toList()){
+    public void setup(World world) {
+        Random random = world.getRandom();
+        for (AffectedBlock affectedBlock : this.getAffectedBlocks().toList()) {
             if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {
                 continue;
             }
-            final double randomOffset = random.nextBetween(-2, 2);
-            final double blastResistanceMultiplier = Math.min(singleAffectedBlock.getBlockState().getBlock().getBlastResistance(), 9);
-            final int offset = (int) (MathHelper.lerp(blastResistanceMultiplier / 9, -2, 2) + randomOffset);
-            final long finalOffset = Math.max(1, ConfigUtils.getBlockPlacementDelay() + (offset * 20L));
+            double randomOffset = random.nextBetween(-2, 2);
+            float blastResistance = singleAffectedBlock.getBlockState().getBlock().getBlastResistance();
+            double blastResistanceMultiplier = Math.min(blastResistance, 9);
+            int offset = (int) (MathHelper.lerp(blastResistanceMultiplier / 9, -2, 2) + randomOffset);
+            long finalOffset = Math.max(1, ConfigUtils.getBlockPlacementDelay() + (offset * 20L));
             singleAffectedBlock.setTimer(finalOffset);
         }
-    }
-
-    @Override
-    public boolean shouldKeepHealing(World world) {
-        return super.shouldKeepHealing(world);
     }
 
 }

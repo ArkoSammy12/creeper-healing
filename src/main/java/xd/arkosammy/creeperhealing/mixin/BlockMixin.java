@@ -46,9 +46,9 @@ public abstract class BlockMixin {
             return original;
         }
 
-        final Entity causingEntity = explosion.getEntity();
-        final Entity causingLivingEntity = explosion.getCausingEntity();
-        final DamageSource damageSource = ((ExplosionAccessor)explosion).creeperhealing$getDamageSource();
+        Entity causingEntity = explosion.getEntity();
+        Entity causingLivingEntity = explosion.getCausingEntity();
+        DamageSource damageSource = ((ExplosionAccessor)explosion).creeperhealing$getDamageSource();
 
         boolean shouldDropItems = false;
         if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){

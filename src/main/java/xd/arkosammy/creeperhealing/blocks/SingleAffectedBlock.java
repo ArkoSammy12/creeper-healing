@@ -1,15 +1,15 @@
 package xd.arkosammy.creeperhealing.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FallingBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.ChestType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +22,8 @@ import xd.arkosammy.monkeyconfig.groups.SettingGroup;
 import xd.arkosammy.monkeyconfig.groups.maps.StringMapSettingGroup;
 import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public non-sealed class SingleAffectedBlock implements AffectedBlock {
 
@@ -81,12 +81,14 @@ public non-sealed class SingleAffectedBlock implements AffectedBlock {
     }
 
     @Override
+    public long getBlockTimer() {
+        return this.timer;
+    }
+
+    @Override
     public void tick(ExplosionEvent explosionEvent, MinecraftServer server){
         this.timer--;
         if (this.timer >= 0) {
-            return;
-        }
-        if(!explosionEvent.shouldKeepHealing(this.getWorld(server))){
             return;
         }
         this.tryHealing(server, explosionEvent);
@@ -101,28 +103,28 @@ public non-sealed class SingleAffectedBlock implements AffectedBlock {
         return this.getBlockState().canPlaceAt(this.getWorld(server), this.getBlockPos());
     }
 
-    String getAffectedBlockType(){
+    protected String getAffectedBlockType() {
         return TYPE;
     }
 
     @Override
     public SerializedAffectedBlock asSerialized(){
-        return new SerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, this.worldRegistryKey, Optional.ofNullable(this.nbt), this.timer, this.placed);
+        return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, this.worldRegistryKey, this.nbt, this.timer, this.placed);
     }
 
     protected void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent){
 
         BlockState state = this.getBlockState();
-        final BlockPos pos = this.getBlockPos();
-        final World world = this.getWorld(server);
+        BlockPos pos = this.getBlockPos();
+        World world = this.getWorld(server);
         boolean stateReplaced = false;
 
         //Check if the block we are about to try placing is in the replace-map.
         //If it is, switch the state for the corresponding one in the replace-map.
-        final String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
-        final SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
+        String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
+        SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
         if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {
-            final String replaceMapValue = replaceMapGroup.get(blockIdentifier);
+            String replaceMapValue = replaceMapGroup.get(blockIdentifier);
             if (replaceMapValue != null && !this.shouldForceHeal()) {
                 state = Registries.BLOCK.get(Identifier.of(replaceMapValue)).getStateWithProperties(state);
                 stateReplaced = true;
@@ -132,22 +134,20 @@ public non-sealed class SingleAffectedBlock implements AffectedBlock {
         if(!this.shouldHealBlock(world, this.blockPos)){
             return;
         }
-        if(state.isSolidBlock(world, pos)) {
-            ExplosionUtils.pushEntitiesUpwards(world, pos, false);
-        }
+
+        ExplosionUtils.pushEntitiesUpwards(world, pos, state, false);
         boolean makeFallingBlocksFall = ConfigUtils.getSettingValue(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getSettingLocation(), BooleanSetting.class);
         if(state.getBlock() instanceof FallingBlock){
             ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(makeFallingBlocksFall);
         }
         world.setBlockState(pos, state);
+        this.handleChestBlockIfNeeded(currentExplosionEvent, state, pos, server);
         boolean healNbt = this.nbt != null && !stateReplaced;
         if(healNbt) {
             world.addBlockEntity(BlockEntity.createFromNbt(pos, state, this.nbt, world.getRegistryManager()));
         }
-        if(ExplosionUtils.shouldPlayBlockPlacementSound(world, state)) {
-            world.playSound(null, pos, state.getSoundGroup().getPlaceSound(), SoundCategory.BLOCKS, state.getSoundGroup().getVolume(), state.getSoundGroup().getPitch());
-        }
-
+        ExplosionUtils.playBlockPlacementSoundEffect(world, pos, state);
+        ExplosionUtils.spawnParticles(world, pos);
     }
 
     protected boolean shouldHealBlock(World world, BlockPos pos) {
@@ -158,7 +158,7 @@ public non-sealed class SingleAffectedBlock implements AffectedBlock {
     }
 
     protected boolean shouldForceHeal() {
-        final boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getSettingValue(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getSettingLocation(), BooleanSetting.class);
+        boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getSettingValue(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getSettingLocation(), BooleanSetting.class);
         return this.nbt != null && forceBlocksWithNbtToAlwaysHeal;
     }
 
@@ -172,6 +172,49 @@ public non-sealed class SingleAffectedBlock implements AffectedBlock {
     @Override
     public int hashCode() {
         return Objects.hash(getBlockPos(), getBlockState(), getWorldRegistryKey());
+    }
+
+    private void handleChestBlockIfNeeded(ExplosionEvent explosionEvent, BlockState blockState, BlockPos chestPos, MinecraftServer server) {
+        if (!blockState.isOf(Blocks.CHEST)) {
+            return;
+        }
+        ChestType chestType = blockState.get(ChestBlock.CHEST_TYPE);
+        Direction facing = blockState.get(ChestBlock.FACING);
+        BlockPos otherHalfPos = switch (chestType) {
+            case SINGLE -> null;
+            case LEFT -> switch (facing) {
+                case NORTH -> chestPos.east();
+                case EAST -> chestPos.south();
+                case SOUTH -> chestPos.west();
+                case WEST -> chestPos.north();
+                default -> null;
+            };
+            case RIGHT -> switch (facing) {
+                case NORTH -> chestPos.west();
+                case EAST -> chestPos.north();
+                case SOUTH -> chestPos.east();
+                case WEST -> chestPos.south();
+                default -> null;
+            };
+        };
+        if (otherHalfPos == null) {
+            return;
+        }
+
+        List<AffectedBlock> affectedBlocks = explosionEvent.getAffectedBlocks().toList();
+        for (AffectedBlock affectedBlock : affectedBlocks) {
+            if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {
+                continue;
+            }
+            BlockState affectedState = singleAffectedBlock.getBlockState();
+            BlockPos affectedPosition = singleAffectedBlock.getBlockPos();
+            if (!affectedState.isOf(Blocks.CHEST) || !affectedPosition.equals(otherHalfPos)) {
+                continue;
+            }
+            singleAffectedBlock.tryHealing(server, explosionEvent);
+            singleAffectedBlock.setPlaced();
+        }
+
     }
 
 }

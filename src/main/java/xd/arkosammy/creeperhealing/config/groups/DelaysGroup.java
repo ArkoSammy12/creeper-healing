@@ -2,7 +2,7 @@ package xd.arkosammy.creeperhealing.config.groups;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xd.arkosammy.creeperhealing.util.ExplosionManager;
+import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.monkeyconfig.groups.DefaultSettingGroup;
 import xd.arkosammy.monkeyconfig.settings.ConfigSetting;
 
@@ -20,7 +20,7 @@ public class DelaysGroup extends DefaultSettingGroup {
 
     @Override
     public void onLoaded() {
-        ExplosionManager.getInstance().updateAffectedBlocksTimers();
+        CreeperHealing.EXPLOSION_MANAGER.updateAffectedBlocksTimers();
     }
 
 }

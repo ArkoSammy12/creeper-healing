@@ -24,7 +24,6 @@ public enum ExcludedBlocks {
         return Arrays.stream(ExcludedBlocks.values()).anyMatch(excludedBlock -> state.isOf(excludedBlock.blockInstance));
     }
 
-
     ExcludedBlocks(Block blockInstance){
         this.blockInstance = blockInstance;
     }

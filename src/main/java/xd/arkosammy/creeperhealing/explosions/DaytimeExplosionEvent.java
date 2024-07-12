@@ -1,6 +1,8 @@
 package xd.arkosammy.creeperhealing.explosions;
 
 import net.minecraft.SharedConstants;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
@@ -10,25 +12,24 @@ import java.util.List;
 
 public class DaytimeExplosionEvent extends AbstractExplosionEvent {
 
-    public DaytimeExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter) {
-        super(affectedBlocks, healTimer, blockCounter);
+
+    public DaytimeExplosionEvent(List<AffectedBlock> affectedBlocks, int radius, BlockPos center) {
+        super(affectedBlocks, radius, center);
     }
 
-    DaytimeExplosionEvent(List<AffectedBlock> affectedBlocks){
-        super(affectedBlocks);
+    public DaytimeExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter, int radius, BlockPos center) {
+        super(affectedBlocks, healTimer, blockCounter, radius, center);
     }
 
     @Override
-    ExplosionHealingMode getHealingMode() {
+    protected ExplosionHealingMode getHealingMode() {
         return ExplosionHealingMode.DAYTIME_HEALING_MODE;
     }
 
-    // Set the timer of this explosion equal to the time left between now and the next sunrise (getTimeOfDay % 24000 == 0)
-    // Spread the placements of this explosion's affected blocks evenly throughout the day
     @Override
-    public void setup(World world){
-        this.setHealTimer(SharedConstants.TICKS_PER_IN_GAME_DAY - (world.getTimeOfDay() % 24000));
-        final int daylightBasedBlockPlacementDelay = (int) (13000 / Math.max(this.getAffectedBlocks().count(), 1));
+    public void setup(World world) {
+        this.healTimer = SharedConstants.TICKS_PER_IN_GAME_DAY - (world.getTimeOfDay() % 24000);
+        int daylightBasedBlockPlacementDelay = (int) (13000 / Math.max(this.getAffectedBlocks().count(), 1));
         for (AffectedBlock affectedBlock : this.getAffectedBlocks().toList()) {
             if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {
                 continue;
@@ -37,15 +38,20 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
         }
     }
 
-    // Check for sufficient light level at the explosion's location
     @Override
-    public boolean shouldKeepHealing(World world) {
-        //We return whether it has finished if the current block counter is greater than 0,
-        //since we want to allow explosions to heal completely if the light conditions were only met initially
-        if (this.getBlockCounter() > 0){
-            return !this.finished;
+    public void updateFinishedStatus(World world) {
+        if (this.getBlockCounter() > 0) {
+            return;
         }
-        return !this.finished && this.getAffectedBlocks().anyMatch(affectedBlock -> affectedBlock.getWorld(world.getServer()).getLightLevel(LightType.BLOCK, affectedBlock.getBlockPos()) > 0 || affectedBlock.getWorld(world.getServer()).getLightLevel(LightType.SKY, affectedBlock.getBlockPos()) > 0);
+        MinecraftServer server = world.getServer();
+        boolean sufficientLight = this.getAffectedBlocks().anyMatch(affectedBlock -> {
+            BlockPos pos = affectedBlock.getBlockPos();
+            World blockWorld = affectedBlock.getWorld(server);
+            return blockWorld.getLightLevel(LightType.BLOCK, pos) > 0 || blockWorld.getLightLevel(LightType.SKY, pos) > 0;
+        });
+        if (!sufficientLight) {
+            this.finished = true;
+        }
     }
 
 }

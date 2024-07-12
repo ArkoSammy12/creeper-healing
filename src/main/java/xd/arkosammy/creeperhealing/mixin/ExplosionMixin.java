@@ -1,16 +1,13 @@
 package xd.arkosammy.creeperhealing.mixin;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.decoration.EndCrystalEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.mob.GhastEntity;
-import net.minecraft.entity.vehicle.TntMinecartEntity;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
@@ -21,14 +18,11 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xd.arkosammy.creeperhealing.config.ConfigSettings;
-import xd.arkosammy.creeperhealing.config.ConfigUtils;
-import xd.arkosammy.creeperhealing.util.ExplosionManager;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
+import xd.arkosammy.creeperhealing.util.callbacks.ExplosionCallbacks;
 
-import java.util.List;
+import java.util.*;
 
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin implements ExplosionAccessor {
@@ -37,14 +31,15 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
 
     @Shadow @Final private DamageSource damageSource;
 
-    @Shadow public abstract @Nullable LivingEntity getCausingEntity();
-
     @Shadow public abstract @Nullable Entity getEntity();
 
     @Shadow public abstract List<BlockPos> getAffectedBlocks();
 
     @Unique
-    private boolean willBeHealed = false;
+    private final Map<BlockPos, Pair<BlockState, BlockEntity>> savedStatesAndEntities = new HashMap<>();
+
+    @Unique
+    private final Set<BlockPos> calculatedBlockPositions = new HashSet<>();
 
     @Override
     public World creeperhealing$getWorld(){
@@ -57,43 +52,26 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     }
 
     @Override
-    public boolean creeperhealing$shouldHeal() {
-        final LivingEntity causingLivingEntity = this.getCausingEntity();
-        final Entity causingEntity = this.getEntity();
-        final DamageSource damageSource = ((ExplosionAccessor)this).creeperhealing$getDamageSource();
-        if(this.getAffectedBlocks().isEmpty()){
-            return false;
-        }
-
-        boolean shouldHealExplosion = false;
-        if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof GhastEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_GHAST_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof WitherEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_WITHER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntMinecartEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigUtils.getSettingValue(ConfigSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingEntity instanceof EndCrystalEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        }
-        this.willBeHealed = shouldHealExplosion;
-        return shouldHealExplosion;
+    public boolean creeperhealing$willBeHealed(){
+        return ExplosionUtils.getShouldHealPredicate().test(((Explosion) (Object) this));
     }
 
     @Override
-    public boolean creeperhealing$willBeHealed(){
-        return this.willBeHealed;
+    public Set<BlockPos> creeperhealing$getCalculatedBlockPositions() {
+        return this.calculatedBlockPositions;
     }
 
+    @Override
+    public Map<BlockPos, Pair<BlockState, BlockEntity>> creeperhealing$getSavedStatesAndEntities() {
+        return this.savedStatesAndEntities;
+    }
 
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
-    private void storeCurrentExplosionIfNeeded(CallbackInfo ci){
-        ExplosionManager.getInstance().addExplosion((Explosion) (Object) this);
+    private void saveAffectedStates(CallbackInfo ci){
+        this.checkForAffectedNeighborPositions();
+        this.getAffectedBlocks().forEach(pos -> this.savedStatesAndEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
+        this.calculatedBlockPositions.forEach(pos -> this.savedStatesAndEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
+        ExplosionCallbacks.BEFORE_EXPLOSION.invoker().beforeExplosion(((Explosion) (Object) this));
     }
 
     // Make sure the thread local is reset when entering and after exiting "affectWorld"
@@ -107,5 +85,51 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     private void resetThreadLocals(boolean particles, CallbackInfo ci){
         ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
         ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
+        this.calculatedBlockPositions.removeIf(pos -> {
+            BlockState oldState = this.creeperhealing$getSavedStatesAndEntities().get(pos).getLeft();
+            BlockState newState = this.world.getBlockState(pos);
+            return newState.equals(oldState);
+        });
+        ExplosionCallbacks.AFTER_EXPLOSION.invoker().afterExplosion(((Explosion) (Object) this));
     }
+
+
+    // Recursive algorithm to find blocks connected to the explosion indirectly.
+    // Start from the edge of the explosion radius and visit each non-air block until we either hit the max recursion depth,
+    // or we encounter a block which has no non-visited neighbors.
+    // TODO: Optimize this and make the max recursion depth configurable
+    @Unique
+    private void checkForAffectedNeighborPositions() {
+        List<BlockPos> filteredPositions = this.getAffectedBlocks().stream().filter(pos -> {
+            for (Direction direction : Direction.values()) {
+                BlockPos neighborPos = pos.offset(direction);
+                if (!this.getAffectedBlocks().contains(neighborPos)) {
+                    return true;
+                }
+            }
+            return false;
+        }).toList();
+        Set<BlockPos> newPositions = new HashSet<>();
+        for (BlockPos filteredPosition : filteredPositions) {
+            checkNeighbors(200, filteredPosition, newPositions);
+        }
+        this.calculatedBlockPositions.addAll(newPositions);
+    }
+
+    @Unique
+    private void checkNeighbors(int maxCheckDepth, BlockPos currentPosition, Set<BlockPos> newPositions) {
+        if (maxCheckDepth <= 0) {
+            return;
+        }
+        for (Direction neighborDirection : Direction.values()) {
+            BlockPos neighborPos = currentPosition.offset(neighborDirection);
+            BlockState neighborState = this.world.getBlockState(neighborPos);
+            if (neighborState.isOf(Blocks.AIR) || newPositions.contains(neighborPos)) {
+                continue;
+            }
+            newPositions.add(neighborPos);
+            this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions);
+        }
+    }
+
 }
