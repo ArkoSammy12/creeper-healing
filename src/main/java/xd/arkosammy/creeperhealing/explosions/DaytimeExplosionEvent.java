@@ -3,6 +3,7 @@ package xd.arkosammy.creeperhealing.explosions;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
@@ -28,6 +29,9 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
 
     @Override
     public void setup(World world) {
+        if (!world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
+            return;
+        }
         this.healTimer = SharedConstants.TICKS_PER_IN_GAME_DAY - (world.getTimeOfDay() % SharedConstants.TICKS_PER_IN_GAME_DAY);
         int daylightBasedBlockPlacementDelay = (int) (13000 / Math.max(this.getAffectedBlocks().count(), 1));
         for (AffectedBlock affectedBlock : this.getAffectedBlocks().toList()) {

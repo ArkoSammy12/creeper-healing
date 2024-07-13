@@ -64,7 +64,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         if (affectedBlocks == null) {
             return null;
         }
-        if (!shouldHealExplosion(this.causingEntity, this.causingLivingEntity, this.damageSource)) {
+        if (!shouldHealExplosion()) {
             return null;
         }
         AbstractExplosionEvent explosionEvent = switch (healingMode) {
@@ -84,7 +84,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         if (affectedBlocks == null) {
             return null;
         }
-        if (!shouldHealExplosion(this.causingEntity, this.causingLivingEntity, this.damageSource)) {
+        if (!shouldHealExplosion()) {
             return null;
         }
         BlockPos center = ExplosionUtils.calculateCenter(affectedPositions);
@@ -114,7 +114,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         if (affectedBlocks.isEmpty()) {
             return null;
         }
-        if(!shouldHealExplosion(this.causingEntity, this.causingLivingEntity, this.damageSource)) {
+        if(!shouldHealExplosion()) {
             return null;
         }
         List<BlockPos> affectedPositions = affectedBlocks.stream().map(AffectedBlock::getBlockPos).toList();
@@ -175,7 +175,13 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         return sortedAffectedBlocks;
     }
 
-    protected boolean shouldHealExplosion(Entity causingEntity, LivingEntity causingLivingEntity, DamageSource damageSource) {
+    @Override
+    public boolean shouldHealExplosion() {
+
+        Entity causingEntity = this.causingEntity;
+        LivingEntity causingLivingEntity = this.causingLivingEntity;
+        DamageSource damageSource = this.damageSource;
+
         boolean shouldHealExplosion = false;
         if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;

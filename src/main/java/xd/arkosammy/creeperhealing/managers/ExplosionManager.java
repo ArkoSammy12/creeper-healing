@@ -3,10 +3,14 @@ package xd.arkosammy.creeperhealing.managers;
 import net.minecraft.server.MinecraftServer;
 import xd.arkosammy.creeperhealing.explosions.ExplosionEvent;
 import xd.arkosammy.creeperhealing.explosions.factories.ExplosionEventFactory;
+import xd.arkosammy.creeperhealing.util.ExplosionContext;
 
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface ExplosionManager {
+
+    Function<ExplosionContext, ExplosionEventFactory<?>> getExplosionContextToEventFactoryFunction();
 
     void tick(MinecraftServer server);
 

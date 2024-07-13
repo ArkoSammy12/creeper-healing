@@ -19,10 +19,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xd.arkosammy.creeperhealing.ExplosionManagerRegistrar;
 import xd.arkosammy.creeperhealing.util.ExplosionContext;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
-import xd.arkosammy.creeperhealing.util.callbacks.OnExplosionCallback;
 
 import java.util.*;
 
@@ -99,19 +99,21 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
                 this.getCausingEntity(),
                 this.damageSource
         );
-        OnExplosionCallback.EVENT.invoker().onExplosion(explosionContext);
+        ExplosionManagerRegistrar.getInstance().consumeExplosionContext(explosionContext);
         this.affectedStatesAndBlockEntities.clear();
         this.indirectlyExplodedPositions.clear();
     }
 
 
     // Recursive algorithm to find blocks connected to the explosion indirectly.
-    // Start from the edge of the explosion radius and visit each non-air block until we either hit the max recursion depth,
+    // Start from the edge of the explosion radius and visit each non-air block until
+    // we either hit the max recursion depth,
     // or we encounter a block which has no non-visited neighbors.
     @Unique
     private void checkForIndirectlyAffectedPositions() {
         // Start by filtering out vanilla affected positions with no non-affected neighbor positions.
-        // The goal is to start at the "edge" of the blast radius by considering blocks which might have adjacent blocks connected to them that will be indirectly destroyed
+        // The goal is to start at the "edge" of the blast radius by considering blocks
+        // which might have adjacent blocks connected to them that will be indirectly destroyed
         // due to the support block being destroyed.
         List<BlockPos> filteredPositions = this.getAffectedBlocks().stream().filter(pos -> {
             if (world.getBlockState(pos).isAir()) {

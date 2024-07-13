@@ -27,4 +27,6 @@ public interface ExplosionEventFactory<T extends ExplosionEvent> {
     @Nullable
     T createExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, long blockHealDelay);
 
+    boolean shouldHealExplosion();
+
 }

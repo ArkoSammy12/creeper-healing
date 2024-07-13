@@ -7,7 +7,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Pair;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
 import xd.arkosammy.creeperhealing.CreeperHealing;
@@ -15,17 +18,17 @@ import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.*;
+import xd.arkosammy.creeperhealing.explosions.factories.DefaultExplosionFactory;
 import xd.arkosammy.creeperhealing.explosions.factories.ExplosionEventFactory;
+import xd.arkosammy.creeperhealing.util.ExplosionContext;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,6 +36,20 @@ public class DefaultExplosionManager implements ExplosionManager {
 
     private final Codec<DefaultExplosionManager> CODEC;
     private final List<ExplosionEvent> explosionEvents = new ArrayList<>();
+    private final Function<ExplosionContext, ExplosionEventFactory<?>> explosionContextToFactoryFunction = explosionContext -> {
+        List<BlockPos> indirectlyExplodedPositions = explosionContext.indirectlyAffectedPositions();
+        Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = explosionContext.affectedStatesAndBlockEntities();
+        DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(
+                affectedStatesAndBlockEntities,
+                explosionContext.vanillaAffectedPositions(),
+                indirectlyExplodedPositions,
+                explosionContext.causingEntity(),
+                explosionContext.causingLivingEntity(),
+                explosionContext.damageSource(),
+                explosionContext.world()
+        );
+        return explosionFactory;
+    };
 
     public DefaultExplosionManager(Codec<SerializedExplosionEvent> explosionSerializer) {
         this.CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -64,6 +81,11 @@ public class DefaultExplosionManager implements ExplosionManager {
     public void onServerStopping(MinecraftServer server) {
         this.storeExplosionEvents(server);
         this.explosionEvents.clear();
+    }
+
+    @Override
+    public Function<ExplosionContext, ExplosionEventFactory<?>> getExplosionContextToEventFactoryFunction() {
+        return this.explosionContextToFactoryFunction;
     }
 
     @Override

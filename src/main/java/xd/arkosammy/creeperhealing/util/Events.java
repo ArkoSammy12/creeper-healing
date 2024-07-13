@@ -1,10 +1,7 @@
 package xd.arkosammy.creeperhealing.util;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.SharedConstants;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -12,33 +9,28 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.projectile.thrown.PotionEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Pair;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.CreeperHealing;
+import xd.arkosammy.creeperhealing.ExplosionManagerRegistrar;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
 import xd.arkosammy.creeperhealing.explosions.DaytimeExplosionEvent;
 import xd.arkosammy.creeperhealing.explosions.ExplosionEvent;
-import xd.arkosammy.creeperhealing.explosions.factories.DefaultExplosionFactory;
 import xd.arkosammy.creeperhealing.util.callbacks.DaylightCycleEvents;
-import xd.arkosammy.creeperhealing.util.callbacks.OnExplosionCallback;
 import xd.arkosammy.creeperhealing.util.callbacks.SplashPotionCallbacks;
 import xd.arkosammy.creeperhealing.util.callbacks.TimeCommandCallbacks;
 import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 public final class Events {
@@ -47,39 +39,13 @@ public final class Events {
 
     public static void registerEvents() {
 
-        ServerLifecycleEvents.SERVER_STARTING.register(Events::onServerStarting);
-        ServerLifecycleEvents.SERVER_STOPPING.register(Events::onServerStopping);
         ServerTickEvents.END_SERVER_TICK.register(CreeperHealing.EXPLOSION_MANAGER::tick);
         DaylightCycleEvents.ON_NIGHT_SKIPPED.register(Events::onNightSkipped);
         SplashPotionCallbacks.ON_COLLISION.register(Events::onSplashPotionHit);
-        OnExplosionCallback.EVENT.register(Events::onExplosion);
+        ExplosionManagerRegistrar.getInstance().registerExplosionManager(CreeperHealing.EXPLOSION_MANAGER);
         TimeCommandCallbacks.ON_TIME_EXECUTE_SET.register(Events::onTimeCommand);
         TimeCommandCallbacks.ON_TIME_EXECUTE_ADD.register(Events::onTimeCommand);
 
-    }
-
-    private static void onServerStarting(MinecraftServer server) {
-        CreeperHealing.EXPLOSION_MANAGER.onServerStarting(server);
-    }
-
-    private static void onServerStopping(MinecraftServer server) {
-        CreeperHealing.EXPLOSION_MANAGER.onServerStopping(server);
-    }
-
-    private static ActionResult onExplosion(ExplosionContext explosionContext) {
-        List<BlockPos> indirectlyExplodedPositions = explosionContext.indirectlyAffectedPositions();
-        Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = explosionContext.affectedStatesAndBlockEntities();
-        DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(
-                affectedStatesAndBlockEntities,
-                explosionContext.vanillaAffectedPositions(),
-                indirectlyExplodedPositions,
-                explosionContext.causingEntity(),
-                explosionContext.causingLivingEntity(),
-                explosionContext.damageSource(),
-                explosionContext.world()
-        );
-        CreeperHealing.EXPLOSION_MANAGER.addExplosionEvent(explosionFactory);
-        return ActionResult.PASS;
     }
 
     // Start healing DaytimeExplosionEvents when the night is skipped

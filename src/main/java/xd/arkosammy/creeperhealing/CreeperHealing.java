@@ -1,6 +1,8 @@
 package xd.arkosammy.creeperhealing;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
@@ -21,9 +23,19 @@ public class CreeperHealing implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ServerLifecycleEvents.SERVER_STARTING.register(CreeperHealing::onServerStarting);
+		ServerLifecycleEvents.SERVER_STOPPING.register(CreeperHealing::onServerStopping);
 		DefaultConfigRegistrar.INSTANCE.registerConfigManager(CONFIG_MANAGER);
 		Events.registerEvents();
 		LOGGER.info("I will try my best to heal your explosions :)");
+	}
+
+	private static void onServerStarting(MinecraftServer server) {
+		ExplosionManagerRegistrar.getInstance().invokeOnServerStarting(server);
+	}
+
+	private static void onServerStopping(MinecraftServer server) {
+		ExplosionManagerRegistrar.getInstance().invokeOnServerStopping(server);
 	}
 
 }

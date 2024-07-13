@@ -30,7 +30,7 @@ public record DefaultSerializedAffectedBlock(
             NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock  -> serializedAffectedBlock.getCustomData("nbt", NbtCompound.class)),
             Codec.LONG.fieldOf("affected_block_timer").forGetter(SerializedAffectedBlock::getBlockTimer),
             Codec.BOOL.fieldOf("is_placed").forGetter(SerializedAffectedBlock::isPlaced)
-    ).apply(instance, (affectedBlockType, blockPos, blockState, world, optionalNbt, affectedBlockTimer, isPlaced) -> new DefaultSerializedAffectedBlock(affectedBlockType, blockPos, blockState, world, optionalNbt.orElse(null), affectedBlockTimer, isPlaced)) );
+    ).apply(instance, (affectedBlockType, blockPos, blockState, world, optionalNbt, affectedBlockTimer, isPlaced) -> new DefaultSerializedAffectedBlock(affectedBlockType, blockPos, blockState, world, optionalNbt.orElse(null), affectedBlockTimer, isPlaced)));
 
     @Override
     public String getAffectedBlockTypeName() {
