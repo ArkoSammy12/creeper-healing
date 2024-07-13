@@ -89,69 +89,77 @@ The following is the default configuration file generated upon first mod initial
 ```toml
 #Configure the delays related to the healing of explosions.
 [delays]
-    #(Default = 3) How much time in seconds should an explosion wait for to begin healing.
-    explosion_heal_delay = 3.0
-    #(Default = 1) The time in seconds that a block takes to heal.
-    block_placement_delay = 1.0
-    #Toggle whether certain explosion should drop items. Does not include items stored in container blocks.
-    [explosion_item_drops]
-    #(Default = true) Whether to drop items when a creeper explodes.
-    drop_items_on_creeper_explosions = true
-    #(Default = true) Whether to drop items when a ghast explodes.
-    drop_items_on_ghast_explosions = true
-    #(Default = true) Whether to drop items when a wither explodes.
-    drop_items_on_wither_explosions = true
-    #(Default = true) Whether to drop items when a tnt explodes.
-    drop_items_on_tnt_explosions = true
-    #(Default = true) Whether to drop items when a tnt minecart explodes.
-    drop_items_on_tnt_minecart_explosions = true
-    #(Default = true) Whether to drop items when a bed or respawn anchor explodes.
-    drop_items_on_bed_and_respawn_anchor_explosions = true
-    #(Default = true) Whether to drop items when an end crystal explodes.
-    drop_items_on_end_crystal_explosions = true
+#(Default = 3.0) How much time in seconds should an explosion wait for to begin healing.
+explosion_heal_delay = 3.0
+#(Default = 1.0) The time in seconds that a block takes to heal.
+block_placement_delay = 1.0
+
+#Toggle whether certain explosion should drop items. Does not include items stored in container blocks.
+[explosion_item_drops]
+#(Default = false) Whether to drop items when a creeper explodes.
+drop_items_on_creeper_explosions = false
+#(Default = false) Whether to drop items when a ghast explodes.
+drop_items_on_ghast_explosions = false
+#(Default = false) Whether to drop items when a wither explodes.
+drop_items_on_wither_explosions = false
+#(Default = false) Whether to drop items when a tnt explodes.
+drop_items_on_tnt_explosions = false
+#(Default = false) Whether to drop items when a tnt minecart explodes.
+drop_items_on_tnt_minecart_explosions = false
+#(Default = false) Whether to drop items when a bed or respawn anchor explodes.
+drop_items_on_bed_and_respawn_anchor_explosions = false
+#(Default = false) Whether to drop items when an end crystal explodes.
+drop_items_on_end_crystal_explosions = false
+
 #Configure which explosions are allowed to heal.
 [explosion_sources]
-    #(Default = true) Heal explosions caused by Creepers.
-    heal_creeper_explosions = true
-    #(Default = false) Heal explosions caused by Ghasts.
-    heal_ghast_explosions = false
-    #(Default = false) Heal explosions caused by Withers.
-    heal_wither_explosions = false
-    #(Default = false) Heal explosions caused by TNT blocks.
-    heal_tnt_explosions = false
-    #(Default = false) Heal explosions caused by TNT minecarts.
-    heal_tnt_minecart_explosions = false
-    #(Default = false) Heal explosions caused by beds and respawn anchors.
-    heal_bed_and_respawn_anchor_explosions = false
-    #(Default = false) Heal explosions caused by End Crystals.
-    heal_end_crystal_explosions = false
+#(Default = true) Heal explosions caused by Creepers.
+heal_creeper_explosions = true
+#(Default = false) Heal explosions caused by Ghasts.
+heal_ghast_explosions = false
+#(Default = false) Heal explosions caused by Withers.
+heal_wither_explosions = false
+#(Default = false) Heal explosions caused by TNT blocks.
+heal_tnt_explosions = false
+#(Default = false) Heal explosions caused by TNT minecarts.
+heal_tnt_minecart_explosions = false
+#(Default = false) Heal explosions caused by beds and respawn anchors.
+heal_bed_and_respawn_anchor_explosions = false
+#(Default = false) Heal explosions caused by End Crystals.
+heal_end_crystal_explosions = false
+
 #Choose between different special modes for explosion healing. Note that certain healing modes will not follow the explosion delay and block delay settings.
 [explosion_healing_mode]
-    #(Default = "default_mode") Choose any of the following healing modes by copying one of the strings and pasting it into the value of the "mode" setting below:
-    #- "default_mode", "daytime_healing_mode", "difficulty_based_healing_mode", "blast_resistance_based_healing_mode"
-    mode = "default_mode"
+#(Default = "default_mode") Choose any of the following healing modes by copying one of the strings and pasting it into the value of the "mode" setting below:
+#"default_mode", "daytime_healing_mode", "difficulty_based_healing_mode", "blast_resistance_based_healing_mode"
+mode = "DEFAULT_MODE"
+
 #Toggleable settings for extra features.
 [preferences]
-    #(Default = false) Whether to restore block nbt data upon healing. This option prevents container blocks like chests from dropping their inventories. Does not apply when the healed block is different from the destroyed block due to a replace map entry.
-    restore_block_nbt = false
-    #(Default = false) Whether to force blocks with nbt data to always heal, even if the replace map specifies a replacement for that block, and regardless of the block that may be occupying that position at the moment of healing.
-    force_blocks_with_nbt_to_always_heal = false
-    #(Default = true) Allows for a falling block, like sand or gravel, to fall when healed. Disabling this option makes the falling block have to receive a neighbor update before falling.
-    make_falling_blocks_fall = true
-    #(Default = true) Whether a block placement sound effect should be played when a block is healed.
-    block_placement_sound_effect = true
-    #(Default = true) Makes explosion heal immediately when a potion of Healing is thrown on them.
-    heal_on_healing_potion_splash = true
-    #(Default = true) Makes explosions begin their healing process when a potion of Regeneration is thrown on them.
-    heal_on_regeneration_potion_splash = true
-    #(Default = false) Toggle the usage of the whitelist.
-    enable_whitelist = false
-# Use an optional whitelist to customize which blocks are allowed to heal. To add an entry, specify the block's namespace
+#(Default = false) Whether to restore block nbt data upon healing. This option prevents container blocks like chests from dropping their inventories. Does not apply when the healed block is different from the destroyed block due to a replace map entry.
+restore_block_nbt = false
+#(Default = false) Whether to force blocks with nbt data to always heal, even if the replace map specifies a replacement for that block, and regardless of the block that may be occupying that position at the moment of healing.
+force_blocks_with_nbt_to_always_heal = false
+#(Default = true) Allows for a falling block, like sand or gravel, to fall when healed. Disabling this option makes the falling block have to receive a neighbor update before falling.
+make_falling_blocks_fall = true
+#(Default = true) Whether a block placement sound effect should be played when a block is healed.
+block_placement_sound_effect = true
+#(Default = true) Whether a block placement sound effect should produce some cloud particles.
+block_placement_particles = true
+#(Default = true) Makes explosion heal immediately when a potion of Healing is thrown on them.
+heal_on_healing_potion_splash = true
+#(Default = true) Makes explosions begin their healing process when a potion of Regeneration is thrown on them.
+heal_on_regeneration_potion_splash = true
+#(Default = false) Toggle the usage of the whitelist.
+enable_whitelist = false
+
+#Use an optional whitelist to customize which blocks are allowed to heal. To add an entry, specify the block's namespace
 #along with its identifier, separated by a colon and enclosed in double quotes, and add it in-between the square brackets below. Separate each entry with a comma.
 #Example entries:
 #whitelist_entries = ["minecraft:grass",  "minecraft:stone", "minecraft:sand"]
 [whitelist]
-    whitelist = ["minecraft:placeholder"]
+whitelist = ["minecraft:placeholder"]
+
 #Add your own replace entries to configure which blocks should be used to heal other blocks. The block on the right will be used to heal the block on the left.
 #Specify the block's namespace along with the block's name identifier, separated by a colon and enclosed in double quotes.
 #Example entry:
@@ -160,8 +168,7 @@ The following is the default configuration file generated upon first mod initial
 #"minecraft:diamond_block" = "minecraft:stone"
 #"minecraft:diamond_block" = "minecraft:air" 
 [replace_map]
-    "minecraft:diamond_block" = "minecraft:stone"
-
+"minecraft:diamond_block" = "minecraft:stone"
 ```
 
 ## Support

@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 
 public class DefaultExplosionManager implements ExplosionManager {
 
-    private final Codec<DefaultExplosionManager> CODEC;
+    private final Codec<DefaultExplosionManager> codec;
     private final List<ExplosionEvent> explosionEvents = new ArrayList<>();
     private final Function<ExplosionContext, ExplosionEventFactory<?>> explosionContextToFactoryFunction = explosionContext -> {
         List<BlockPos> indirectlyExplodedPositions = explosionContext.indirectlyAffectedPositions();
@@ -52,7 +52,7 @@ public class DefaultExplosionManager implements ExplosionManager {
     };
 
     public DefaultExplosionManager(Codec<SerializedExplosionEvent> explosionSerializer) {
-        this.CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        this.codec = RecordCodecBuilder.create(instance -> instance.group(
            Codec.list(explosionSerializer).fieldOf("scheduled_explosions").forGetter(DefaultExplosionManager::getSerializedExplosionEvents)
         ).apply(instance, (serializedExplosionEvents) -> new DefaultExplosionManager(serializedExplosionEvents, explosionSerializer)));
     }
@@ -119,7 +119,7 @@ public class DefaultExplosionManager implements ExplosionManager {
     @Override
     public void storeExplosionEvents(MinecraftServer server) {
         Path savedExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
-        DataResult<JsonElement> encodedExplosions = this.CODEC.encodeStart(JsonOps.COMPRESSED, this);
+        DataResult<JsonElement> encodedExplosions = this.codec.encodeStart(JsonOps.COMPRESSED, this);
         if (encodedExplosions.isError()) {
             CreeperHealing.LOGGER.error("Error storing creeper healing explosion(s): No value present!");
             return;
@@ -146,7 +146,7 @@ public class DefaultExplosionManager implements ExplosionManager {
             }
             try (BufferedReader br = Files.newBufferedReader(savedExplosionsFilePath)) {
                 JsonElement jsonElement = JsonParser.parseReader(br);
-                DataResult<DefaultExplosionManager> decodedExplosionManager = this.CODEC.parse(JsonOps.COMPRESSED, jsonElement);
+                DataResult<DefaultExplosionManager> decodedExplosionManager = this.codec.parse(JsonOps.COMPRESSED, jsonElement);
                 decodedExplosionManager
                         .resultOrPartial(error -> CreeperHealing.LOGGER.error("Error reading scheduled explosions from file {}: {}", savedExplosionsFilePath, error))
                         .ifPresent(decodedManager -> {

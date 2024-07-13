@@ -58,6 +58,7 @@ public final class Events {
     }
 
     private static void onSplashPotionHit(PotionEntity potionEntity, PotionContentsComponent potionContentsComponent, HitResult hitResult, World world) {
+
         Iterable<StatusEffectInstance> statusEffectsIterable = potionContentsComponent.getEffects();
         List<StatusEffectInstance> statusEffects = new ArrayList<>();
 

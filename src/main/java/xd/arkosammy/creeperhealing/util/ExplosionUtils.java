@@ -34,8 +34,9 @@ import java.util.stream.Collectors;
 public final class ExplosionUtils {
 
     private ExplosionUtils() { throw new AssertionError(); }
-    public static final ThreadLocal<Boolean> DROP_EXPLOSION_ITEMS = ThreadLocal.withInitial(() -> true);
-    public static final ThreadLocal<Boolean> DROP_BLOCK_INVENTORY_ITEMS = ThreadLocal.withInitial(() -> true);
+
+    public static final ThreadLocal<Boolean> DROP_BLOCK_ITEMS = ThreadLocal.withInitial(() -> true);
+    public static final ThreadLocal<Boolean> DROP_CONTAINER_INVENTORY_ITEMS = ThreadLocal.withInitial(() -> true);
     public static final ThreadLocal<Boolean> FALLING_BLOCK_SCHEDULE_TICK = ThreadLocal.withInitial(() -> true);
     private static Predicate<Explosion> shouldHealPredicate = (explosion) -> {
         LivingEntity causingLivingEntity = explosion.getCausingEntity();
@@ -103,10 +104,10 @@ public final class ExplosionUtils {
         sortedAffectedBlocks.sort(distanceToCenterComparator);
         Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getBlockPos().getY());
         sortedAffectedBlocks.sort(yLevelComparator);
-        Comparator<AffectedBlock> transparencyComparator = (affectedBlock1, affectedBlock2) -> {
-            boolean isAffectedBlock1Transparent = affectedBlock1.getBlockState().isTransparent(world, affectedBlock1.getBlockPos());
-            boolean isAffectedBlock2Transparent = affectedBlock2.getBlockState().isTransparent(world, affectedBlock2.getBlockPos());
-            return Boolean.compare(isAffectedBlock1Transparent, isAffectedBlock2Transparent);
+        Comparator<AffectedBlock> transparencyComparator = (currentAffectedBlock, nextAffectedBlock) -> {
+            boolean isCurrentAffectedBlockTransparent = currentAffectedBlock.getBlockState().isTransparent(world, currentAffectedBlock.getBlockPos());
+            boolean isNextAffectedBlockTransparent = nextAffectedBlock.getBlockState().isTransparent(world, nextAffectedBlock.getBlockPos());
+            return Boolean.compare(isCurrentAffectedBlockTransparent, isNextAffectedBlockTransparent);
         };
         sortedAffectedBlocks.sort(transparencyComparator);
         return sortedAffectedBlocks;

@@ -59,7 +59,6 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
 
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent() {
-        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
         List<AffectedBlock> affectedBlocks = this.processAffectedPositions(new ArrayList<>(this.affectedPositions), this.world);
         if (affectedBlocks == null) {
             return null;
@@ -67,6 +66,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         if (!shouldHealExplosion()) {
             return null;
         }
+        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
         AbstractExplosionEvent explosionEvent = switch (healingMode) {
             case DEFAULT_MODE -> new DefaultExplosionEvent(affectedBlocks, this.blastRadius, this.center);
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks, this.blastRadius, this.center);
@@ -79,7 +79,6 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
 
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent(List<BlockPos> affectedPositions, World world) {
-        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
         List<AffectedBlock> affectedBlocks = this.processAffectedPositions(affectedPositions, world);
         if (affectedBlocks == null) {
             return null;
@@ -89,6 +88,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         }
         BlockPos center = ExplosionUtils.calculateCenter(affectedPositions);
         int radius = ExplosionUtils.getMaxExplosionRadius(affectedPositions);
+        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
         AbstractExplosionEvent explosionEvent = switch (healingMode) {
             case DEFAULT_MODE -> new DefaultExplosionEvent(affectedBlocks, radius, center);
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks, radius, center);
@@ -110,7 +110,6 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     }
 
     public @Nullable AbstractExplosionEvent createExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter, long blockHealDelay) {
-        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
         if (affectedBlocks.isEmpty()) {
             return null;
         }
@@ -126,6 +125,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
                 singleAffectedBlock.setTimer(blockHealDelay);
             }
         });
+        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
         AbstractExplosionEvent explosionEvent = switch (healingMode) {
             case DEFAULT_MODE -> new DefaultExplosionEvent(sortedAffectedBlocks, healTimer, blockCounter, radius, center);
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(sortedAffectedBlocks, healTimer, blockCounter, radius, center);

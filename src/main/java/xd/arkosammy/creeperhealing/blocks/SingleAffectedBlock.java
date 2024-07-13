@@ -114,8 +114,8 @@ public class SingleAffectedBlock implements AffectedBlock {
         World world = this.getWorld(server);
         boolean stateReplaced = false;
 
-        //Check if the block we are about to try placing is in the replace-map.
-        //If it is, switch the state for the corresponding one in the replace-map.
+        // Check if the block we are about to try placing is in the replace-map.
+        // If it is, switch the state for the corresponding one in the replace-map.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
         SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
         if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {

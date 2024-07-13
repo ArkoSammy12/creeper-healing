@@ -43,7 +43,7 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     private final Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = new HashMap<>();
 
     @Unique
-    private final Set<BlockPos> indirectlyExplodedPositions = new HashSet<>();
+    private final Set<BlockPos> indirectlyAffectedPositions = new HashSet<>();
 
     @Override
     public DamageSource creeperhealing$getDamageSource() {
@@ -55,67 +55,60 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         return ExplosionUtils.getShouldHealPredicate().test(((Explosion) (Object) this));
     }
 
+    // Save the affected block states and block entities before the explosion takes effect
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
-    private void saveAffectedStates(CallbackInfo ci){
+    private void collectAffectedStatesAndBlockEntities(CallbackInfo ci){
         this.checkForIndirectlyAffectedPositions();
-        // Save the affected block states and block entities before the explosion takes effect
         this.getAffectedBlocks().forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
-        this.indirectlyExplodedPositions.forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
+        this.indirectlyAffectedPositions.forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
     }
 
-    // Make sure the thread local is reset when entering and after exiting "affectWorld"
+    // Make sure the thread local is reset when entering and exiting Explosion#affectWorld
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setThreadLocals(boolean particles, CallbackInfo ci){
-        ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
-        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
+        ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
+        ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
     }
 
+    // Filter out indirectly affected positions whose corresponding state did not change before and after the explosion.
+    // Filter out entries in the affected states and block entities map with block position keys not in the affected positions.
+    // Emit an ExplosionContext object for ExplosionManagers to receive.
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
     private void onExplosion(boolean particles, CallbackInfo ci){
-        ExplosionUtils.DROP_EXPLOSION_ITEMS.set(true);
-        ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.set(true);
-        // Filter out indirectly affected positions whose corresponding state did not change
-        // before and after the explosion.
-        this.indirectlyExplodedPositions.removeIf(pos -> {
+        ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
+        ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
+        this.indirectlyAffectedPositions.removeIf(pos -> {
             BlockState oldState = this.affectedStatesAndBlockEntities.get(pos).getLeft();
             BlockState newState = this.world.getBlockState(pos);
             return newState.equals(oldState);
         });
-        // Filter out entries in the affected states and block entities
-        // map with block pos keys not in the affected positions
         Map<BlockPos, Pair<BlockState, BlockEntity>> filteredSavedStatesAndBlockEntities = new HashMap<>();
         for (Map.Entry<BlockPos, Pair<BlockState, BlockEntity>> entry : this.affectedStatesAndBlockEntities.entrySet()) {
             BlockPos entryPos = entry.getKey();
-            if (this.getAffectedBlocks().contains(entryPos) || this.indirectlyExplodedPositions.contains(entryPos)) {
+            if (this.getAffectedBlocks().contains(entryPos) || this.indirectlyAffectedPositions.contains(entryPos)) {
                 filteredSavedStatesAndBlockEntities.put(entry.getKey(), entry.getValue());
             }
         }
         ExplosionContext explosionContext = new ExplosionContext(
                 new ArrayList<>(this.getAffectedBlocks()),
-                new ArrayList<>(this.indirectlyExplodedPositions),
+                new ArrayList<>(this.indirectlyAffectedPositions),
                 filteredSavedStatesAndBlockEntities,
                 this.world,
                 this.getEntity(),
                 this.getCausingEntity(),
                 this.damageSource
         );
-        ExplosionManagerRegistrar.getInstance().consumeExplosionContext(explosionContext);
+        ExplosionManagerRegistrar.getInstance().emitExplosionContext(explosionContext);
         this.affectedStatesAndBlockEntities.clear();
-        this.indirectlyExplodedPositions.clear();
+        this.indirectlyAffectedPositions.clear();
     }
 
-
-    // Recursive algorithm to find blocks connected to the explosion indirectly.
-    // Start from the edge of the explosion radius and visit each non-air block until
-    // we either hit the max recursion depth,
-    // or we encounter a block which has no non-visited neighbors.
+    // Recursively find indirectly affected positions connected to the main affected positions.
+    // Start from the "edge" of the blast radius and visit each neighbor until a neighbor has no
+    // non-visited positions, the neighbor is surrounded by air, or we hit the max recursion depth.
     @Unique
     private void checkForIndirectlyAffectedPositions() {
-        // Start by filtering out vanilla affected positions with no non-affected neighbor positions.
-        // The goal is to start at the "edge" of the blast radius by considering blocks
-        // which might have adjacent blocks connected to them that will be indirectly destroyed
-        // due to the support block being destroyed.
-        List<BlockPos> filteredPositions = this.getAffectedBlocks().stream().filter(pos -> {
+        List<BlockPos> edgeAffectedPositions = this.getAffectedBlocks().stream().filter(pos -> {
             if (world.getBlockState(pos).isAir()) {
                 return false;
             }
@@ -133,10 +126,10 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
             return false;
         }).toList();
         Set<BlockPos> newPositions = new HashSet<>();
-        for (BlockPos filteredPosition : filteredPositions) {
+        for (BlockPos filteredPosition : edgeAffectedPositions) {
             checkNeighbors(100, filteredPosition, newPositions);
         }
-        this.indirectlyExplodedPositions.addAll(newPositions);
+        this.indirectlyAffectedPositions.addAll(newPositions);
     }
 
     @Unique

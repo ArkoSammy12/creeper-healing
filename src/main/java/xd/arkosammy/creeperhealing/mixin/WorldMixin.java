@@ -22,7 +22,7 @@ public abstract class WorldMixin {
 
     @Shadow public abstract BlockState getBlockState(BlockPos pos);
 
-    // Use our thread local to pass an extra flag to setBlockState() to make explosion not drop the item of the current block
+    // Use our thread local to pass an extra flag to World#setBlockState to make the explosion not drop the item of the current block.
     // Container blocks can still drop their inventories
     @Inject(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;II)Z", at = @At("HEAD"))
     private void onBlockStateSet(BlockPos pos, BlockState state, int flags, int maxUpdateDepth, CallbackInfoReturnable<Boolean> cir, @Share("isBlockAtPosExcluded") LocalBooleanRef isBlockAtPosExcluded){
@@ -35,7 +35,7 @@ public abstract class WorldMixin {
         if(isBlockAtPosExcluded.get()) {
             return;
         }
-        int newFlags = ExplosionUtils.DROP_EXPLOSION_ITEMS.get() ? flags : flags | Block.SKIP_DROPS;
+        int newFlags = ExplosionUtils.DROP_BLOCK_ITEMS.get() ? flags : flags | Block.SKIP_DROPS;
         original.call(instance, worldAccess, blockPos, newFlags, maxUpdateDepth);
     }
 

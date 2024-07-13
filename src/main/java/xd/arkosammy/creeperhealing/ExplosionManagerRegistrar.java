@@ -7,7 +7,7 @@ import xd.arkosammy.creeperhealing.util.ExplosionContext;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ExplosionManagerRegistrar {
+public final class ExplosionManagerRegistrar {
 
     private static ExplosionManagerRegistrar instance;
 
@@ -27,7 +27,7 @@ public class ExplosionManagerRegistrar {
         }
     }
 
-    public void consumeExplosionContext(ExplosionContext explosionContext) {
+    public void emitExplosionContext(ExplosionContext explosionContext) {
         synchronized (this.explosionManagers) {
             List<ExplosionManager> idleManagers = this.explosionManagers.stream().filter(explosionManager -> explosionManager.getExplosionEvents().findAny().isEmpty()).collect(Collectors.toList());
             if (!idleManagers.isEmpty()) {
@@ -41,13 +41,7 @@ public class ExplosionManagerRegistrar {
                     return;
                 }
             }
-            Comparator<ExplosionManager> notHealingComparator = (current, next) -> {
-                boolean currentHealing = current.getExplosionEvents().findAny().isEmpty();
-                boolean nextHealing = next.getExplosionEvents().findAny().isEmpty();
-                return Boolean.compare(currentHealing, nextHealing);
-            };
             Collections.shuffle(this.explosionManagers);
-            this.explosionManagers.sort(notHealingComparator);
             for (ExplosionManager explosionManager : this.explosionManagers) {
                 ExplosionEventFactory<?> explosionEventFactory = explosionManager.getExplosionContextToEventFactoryFunction().apply(explosionContext);
                 if (!explosionEventFactory.shouldHealExplosion()) {

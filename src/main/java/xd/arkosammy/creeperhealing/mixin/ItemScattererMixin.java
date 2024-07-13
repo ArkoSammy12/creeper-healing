@@ -24,7 +24,7 @@ public abstract class ItemScattererMixin {
             original.call(world, x, y, z, stack);
             return;
         }
-        if(ExplosionUtils.DROP_BLOCK_INVENTORY_ITEMS.get()){
+        if(ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.get()){
             original.call(world, x, y, z, stack);
         }
     }
