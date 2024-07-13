@@ -3,6 +3,7 @@ package xd.arkosammy.creeperhealing.explosions;
 import xd.arkosammy.creeperhealing.blocks.SerializedAffectedBlock;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SerializedExplosionEvent {
 
@@ -12,7 +13,7 @@ public interface SerializedExplosionEvent {
 
     long getHealTimer();
 
-    <T> T getCustomData(String name, Class<T> clazz);
+    <T> Optional<T> getCustomData(String name, Class<T> clazz);
 
     ExplosionEvent asDeserialized();
 

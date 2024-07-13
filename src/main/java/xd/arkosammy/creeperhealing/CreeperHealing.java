@@ -14,7 +14,7 @@ import xd.arkosammy.monkeyconfig.registrars.DefaultConfigRegistrar;
 
 public class CreeperHealing implements ModInitializer {
 
-	public static final String MOD_ID = "creeperhealing";
+	public static final String MOD_ID = "creeper-healing";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final DefaultExplosionManager EXPLOSION_MANAGER = new DefaultExplosionManager(DefaultSerializedExplosion.CODEC);
 	public static final ConfigManager CONFIG_MANAGER = new TomlConfigManager(MOD_ID, SettingGroups.getSettingGroups(), ConfigSettings.getSettingBuilders());

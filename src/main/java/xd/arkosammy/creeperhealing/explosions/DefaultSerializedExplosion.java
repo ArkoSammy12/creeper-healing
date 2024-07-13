@@ -3,11 +3,14 @@ package xd.arkosammy.creeperhealing.explosions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.math.BlockPos;
+import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.blocks.DefaultSerializedAffectedBlock;
 import xd.arkosammy.creeperhealing.blocks.SerializedAffectedBlock;
+import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public record DefaultSerializedExplosion(
@@ -23,9 +26,9 @@ public record DefaultSerializedExplosion(
             Codec.STRING.fieldOf("healing_mode").forGetter(SerializedExplosionEvent::getExplosionTypeName),
             Codec.list(DefaultSerializedAffectedBlock.CODEC).fieldOf("affected_blocks").forGetter(SerializedExplosionEvent::getSerializedAffectedBlocks),
             Codec.LONG.fieldOf("heal_timer").forGetter(SerializedExplosionEvent::getHealTimer),
-            Codec.INT.fieldOf("block_counter").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("blockCounter", Integer.class)),
-            Codec.INT.fieldOf("radius").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("radius", Integer.class)),
-            BlockPos.CODEC.fieldOf("center").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("center", BlockPos.class))
+            Codec.INT.fieldOf("block_counter").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("blockCounter", Integer.class).orElse(0)),
+            Codec.INT.fieldOf("radius").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("radius", Integer.class).orElse(30)),
+            BlockPos.CODEC.fieldOf("center").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("center", BlockPos.class).orElse(ExplosionUtils.calculateCenter(serializedExplosionEvent.getSerializedAffectedBlocks().stream().map(SerializedAffectedBlock::getBlockPos).toList())))
     ).apply(instance, DefaultSerializedExplosion::new));
 
     @Override
@@ -46,17 +49,23 @@ public record DefaultSerializedExplosion(
     // Unchecked cast done under the assumption that T is always the proper type of the custom data that we wish to access
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getCustomData(String name, Class<T> clazz) {
+    public <T> Optional<T> getCustomData(String name, Class<T> clazz) {
         Object data = switch (name) {
             case "blockCounter" -> this.blockCounter;
             case "radius" -> this.radius;
             case "center" -> this.center;
-            default -> throw new IllegalArgumentException("Unknown serialized explosion event property of name: " + name + "!");
+            default -> {
+                CreeperHealing.LOGGER.warn("Tried to get unexpected property of name \"{}\" while serializing an explosion event!", name);
+                yield null;
+            }
         };
         if (clazz.isInstance(data)) {
-            return (T) data;
+            return Optional.of((T) data);
+        } else if (data == null) {
+            return Optional.empty();
         } else {
-            throw new IllegalArgumentException("Property of serialized explosion event with name " + name + " cannot be cased to " + clazz.getSimpleName());
+            CreeperHealing.LOGGER.error("Unsuccessfully tried to cast property with name \"{}\" of type \"{}\" to \"{}\" while serializing an explosion event!", name, data.getClass().getSimpleName(), clazz.getSimpleName());
+            return Optional.empty();
         }
     }
 

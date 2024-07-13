@@ -29,6 +29,11 @@ repositories {
 		url "https://maven.nucleoid.xyz"
 	}
 
+	maven {
+		name = "modrinth"
+		url = "https://api.modrinth.com/maven"
+	}
+
 }
 
 loom {
@@ -80,6 +85,9 @@ dependencies {
 
 	// Monkey config
 	modImplementation("xd.arkosammy:monkeyconfig:${project.monkey_config_version}")
+
+	// Creeper Overhaul
+	modImplementation("maven.modrinth:MI1LWe93:${project.creeper_overhaul_version}")
 
 }
 

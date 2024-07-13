@@ -175,7 +175,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         return sortedAffectedBlocks;
     }
 
-    private boolean shouldHealExplosion(Entity causingEntity, LivingEntity causingLivingEntity, DamageSource damageSource) {
+    protected boolean shouldHealExplosion(Entity causingEntity, LivingEntity causingLivingEntity, DamageSource damageSource) {
         boolean shouldHealExplosion = false;
         if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
             shouldHealExplosion = true;

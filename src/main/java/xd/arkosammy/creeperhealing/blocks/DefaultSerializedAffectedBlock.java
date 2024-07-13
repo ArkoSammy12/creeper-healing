@@ -8,6 +8,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xd.arkosammy.creeperhealing.CreeperHealing;
 
 import java.util.Optional;
 
@@ -26,10 +27,10 @@ public record DefaultSerializedAffectedBlock(
             BlockPos.CODEC.fieldOf("block_pos").forGetter(SerializedAffectedBlock::getBlockPos),
             BlockState.CODEC.fieldOf("block_state").forGetter(SerializedAffectedBlock::getBlockState),
             World.CODEC.fieldOf("world").forGetter(SerializedAffectedBlock::getWorldRegistryKey),
-            NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock -> Optional.ofNullable(serializedAffectedBlock.getCustomData("nbt", NbtCompound.class))),
+            NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock  -> serializedAffectedBlock.getCustomData("nbt", NbtCompound.class)),
             Codec.LONG.fieldOf("affected_block_timer").forGetter(SerializedAffectedBlock::getBlockTimer),
             Codec.BOOL.fieldOf("is_placed").forGetter(SerializedAffectedBlock::isPlaced)
-    ).apply(instance, (affectedBlockType, blockPos, blockState, world, nbt, timer, placed) -> new DefaultSerializedAffectedBlock(affectedBlockType, blockPos, blockState, world, nbt.orElse(null), timer, placed)));
+    ).apply(instance, (affectedBlockType, blockPos, blockState, world, optionalNbt, affectedBlockTimer, isPlaced) -> new DefaultSerializedAffectedBlock(affectedBlockType, blockPos, blockState, world, optionalNbt.orElse(null), affectedBlockTimer, isPlaced)) );
 
     @Override
     public String getAffectedBlockTypeName() {
@@ -64,15 +65,21 @@ public record DefaultSerializedAffectedBlock(
     // Unchecked cast done under the assumption that T is always the proper type of the custom data that we wish to access
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getCustomData(String name, Class<T> clazz) {
+    public <T> Optional<T> getCustomData(String name, Class<T> clazz) {
         Object data = switch (name) {
             case "nbt" -> this.nbt;
-            default -> throw new IllegalArgumentException("Unknown serialized affected block property of name: " + name + "!");
+            default -> {
+                CreeperHealing.LOGGER.warn("Tried to get unexpected property of name \"{}\" while serializing an affected block!", name);
+                yield null;
+            }
         };
         if (clazz.isInstance(data)) {
-            return (T) data;
+            return Optional.of((T) data);
+        } else if (data == null) {
+            return Optional.empty();
         } else {
-            throw new IllegalArgumentException("Property of serialized affected block with name " + name + " cannot be cased to " + clazz.getSimpleName());
+            CreeperHealing.LOGGER.error("Unsuccessfully tried to cast property with name \"{}\" of type \"{}\" to \"{}\" while serializing an affected block!", name, data.getClass().getSimpleName(), clazz.getSimpleName());
+            return Optional.empty();
         }
     }
 

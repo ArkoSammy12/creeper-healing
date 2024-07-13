@@ -5,6 +5,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Optional;
+
 public interface SerializedAffectedBlock {
 
     String getAffectedBlockTypeName();
@@ -19,7 +21,7 @@ public interface SerializedAffectedBlock {
 
     boolean isPlaced();
 
-    <T> T getCustomData(String name, Class<T> clazz);
+    <T> Optional<T> getCustomData(String name, Class<T> clazz);
 
     AffectedBlock asDeserialized();
 
