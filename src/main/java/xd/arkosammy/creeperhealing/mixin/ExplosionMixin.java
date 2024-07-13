@@ -132,7 +132,7 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         }).toList();
         Set<BlockPos> newPositions = new HashSet<>();
         for (BlockPos filteredPosition : filteredPositions) {
-            checkNeighbors(150, filteredPosition, newPositions);
+            checkNeighbors(100, filteredPosition, newPositions);
         }
         this.indirectlyExplodedPositions.addAll(newPositions);
     }
