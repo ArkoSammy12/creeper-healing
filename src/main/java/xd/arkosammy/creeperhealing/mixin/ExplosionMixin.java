@@ -1,7 +1,6 @@
 package xd.arkosammy.creeperhealing.mixin;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -140,11 +139,12 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         for (Direction neighborDirection : Direction.values()) {
             BlockPos neighborPos = currentPosition.offset(neighborDirection);
             BlockState neighborState = this.world.getBlockState(neighborPos);
-            if (neighborState.isOf(Blocks.AIR) || newPositions.contains(neighborPos) || this.getAffectedBlocks().contains(neighborPos)) {
+            if (neighborState.isAir() || this.getAffectedBlocks().contains(neighborPos)) {
                 continue;
             }
-            newPositions.add(neighborPos);
-            this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions);
+            if (newPositions.add(neighborPos)) {
+                this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions);
+            }
         }
     }
 

@@ -87,7 +87,7 @@ dependencies {
 	modImplementation("xd.arkosammy:monkeyconfig:${project.monkey_config_version}")
 
 	// Creeper Overhaul
-	modImplementation("maven.modrinth:MI1LWe93:${project.creeper_overhaul_version}")
+	//modImplementation("maven.modrinth:MI1LWe93:${project.creeper_overhaul_version}")
 
 }
 
