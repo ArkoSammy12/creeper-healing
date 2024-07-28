@@ -49,6 +49,10 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         return this.damageSource;
     }
 
+    @Unique
+    private static final int MAX_NEUTRAL_POS_ATTEMPTS = 10;
+
+
     @Override
     public boolean creeperhealing$willBeHealed(){
         return ExplosionUtils.getShouldHealPredicate().test(((Explosion) (Object) this));
@@ -130,6 +134,9 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         // by calling BlockState#canPlaceAt.
         // If this returns true for an empty and isolated position, we can guarantee that the block needs
         // supporting block to be placed, so we can safely ignore it.
+        // If we end up using the backup neutral position, which is above the build limit,
+        // then we are assuming that overrides of BlockState#canPlaceAt do not check for whether
+        // the position is within the build limit.
         BlockPos cachedNeutralPosition = null;
         BlockPos backupNeutralPosition = new BlockPos(0, this.world.getTopY() + 5, 0);
 
@@ -137,21 +144,10 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         for (BlockPos filteredPosition : edgeAffectedPositions) {
 
             if (cachedNeutralPosition == null) {
-                BlockPos.Mutable mutablePos = new BlockPos.Mutable(filteredPosition.getX(), this.world.getTopY() - 1, filteredPosition.getZ());
-                mainLoop: while (cachedNeutralPosition == null && !this.world.isOutOfHeightLimit(mutablePos)) {
-                    if (!this.world.getBlockState(mutablePos).isAir()) {
-                        mutablePos.setY(mutablePos.getY() - 1);
-                        continue;
-                    }
-                    for (Direction neighborDirection : Direction.values()) {
-                        if (!this.world.getBlockState(mutablePos.offset(neighborDirection)).isAir()) {
-                            mutablePos.setY(mutablePos.getY() - 1);
-                            continue mainLoop;
-                        }
-                    }
-                    cachedNeutralPosition = mutablePos.toImmutable();
+                BlockPos testPosition = new BlockPos(filteredPosition.getX(), this.world.getTopY() - 2, filteredPosition.getZ());
+                if (isPosAndSurroundingsAir(testPosition)) {
+                    cachedNeutralPosition = testPosition;
                 }
-
             }
 
             BlockPos neutralPos = cachedNeutralPosition == null ? backupNeutralPosition : cachedNeutralPosition;
@@ -176,6 +172,19 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
                 this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions, neutralPosition);
             }
         }
+    }
+
+    @Unique
+    private boolean isPosAndSurroundingsAir(BlockPos pos) {
+        if (!this.world.getBlockState(pos).isAir()) {
+            return false;
+        }
+        for (Direction neighborDirection : Direction.values()) {
+            if (!this.world.getBlockState(pos.offset(neighborDirection)).isAir()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
