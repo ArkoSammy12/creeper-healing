@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.ExplosionManagerRegistrar;
+import xd.arkosammy.creeperhealing.util.EmptyWorld;
 import xd.arkosammy.creeperhealing.util.ExplosionContext;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
@@ -48,10 +49,6 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     public DamageSource creeperhealing$getDamageSource() {
         return this.damageSource;
     }
-
-    @Unique
-    private static final int MAX_NEUTRAL_POS_ATTEMPTS = 10;
-
 
     @Override
     public boolean creeperhealing$willBeHealed(){
@@ -129,35 +126,19 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
             return false;
         }).toList();
 
-        // Look for a position that is air and surrounded by air,
-        // which can be used to check whether a block needs a supporting block
-        // by calling BlockState#canPlaceAt.
-        // If this returns true for an empty and isolated position, we can guarantee that the block needs
-        // supporting block to be placed, so we can safely ignore it.
-        // If we end up using the backup neutral position, which is above the build limit,
-        // then we are assuming that overrides of BlockState#canPlaceAt do not check for whether
-        // the position is within the build limit.
-        BlockPos cachedNeutralPosition = null;
-        BlockPos backupNeutralPosition = new BlockPos(0, this.world.getTopY() + 5, 0);
-
+        // Pass in a custom WorldView implementation that always returns an air BlockState when calling
+        // WorldView#getBlockState on it. This guarantees that further checks with BlockState#canPlaceAt
+        // are done in what will look like an empty world
+        EmptyWorld emptyWorld = new EmptyWorld(this.world);
         Set<BlockPos> newPositions = new HashSet<>();
         for (BlockPos filteredPosition : edgeAffectedPositions) {
-
-            if (cachedNeutralPosition == null) {
-                BlockPos testPosition = new BlockPos(filteredPosition.getX(), this.world.getTopY() - 2, filteredPosition.getZ());
-                if (isPosAndSurroundingsAir(testPosition)) {
-                    cachedNeutralPosition = testPosition;
-                }
-            }
-
-            BlockPos neutralPos = cachedNeutralPosition == null ? backupNeutralPosition : cachedNeutralPosition;
-            checkNeighbors(100, filteredPosition, newPositions, neutralPos);
+            checkNeighbors(100, filteredPosition, newPositions, emptyWorld);
         }
         this.indirectlyAffectedPositions.addAll(newPositions);
     }
 
     @Unique
-    private void checkNeighbors(int maxCheckDepth, BlockPos currentPosition, Set<BlockPos> newPositions, BlockPos neutralPosition) {
+    private void checkNeighbors(int maxCheckDepth, BlockPos currentPosition, Set<BlockPos> newPositions, EmptyWorld emptyWorld) {
         if (maxCheckDepth <= 0) {
             return;
         }
@@ -165,26 +146,15 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
             BlockPos neighborPos = currentPosition.offset(neighborDirection);
             BlockState neighborState = this.world.getBlockState(neighborPos);
 
-            if (neighborState.isAir() || neighborState.canPlaceAt(this.world, neutralPosition) || this.getAffectedBlocks().contains(neighborPos)) {
+            // If the block cannot be placed at an empty position also surrounded by air, then we assume
+            // the block needs a supporting block to be placed.
+            if (neighborState.isAir() || neighborState.canPlaceAt(emptyWorld, neighborPos) || this.getAffectedBlocks().contains(neighborPos)) {
                 continue;
             }
             if (newPositions.add(neighborPos)) {
-                this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions, neutralPosition);
+                this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions, emptyWorld);
             }
         }
-    }
-
-    @Unique
-    private boolean isPosAndSurroundingsAir(BlockPos pos) {
-        if (!this.world.getBlockState(pos).isAir()) {
-            return false;
-        }
-        for (Direction neighborDirection : Direction.values()) {
-            if (!this.world.getBlockState(pos.offset(neighborDirection)).isAir()) {
-                return false;
-            }
-        }
-        return true;
     }
 
 }
