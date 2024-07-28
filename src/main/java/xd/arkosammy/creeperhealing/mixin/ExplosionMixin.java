@@ -124,26 +124,56 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
             }
             return false;
         }).toList();
+
+        // Look for a block position that is air and is surrounded by air. This position will be used to test
+        // whether blocks need a supporting block. By checking whether a block can be placed at a position using
+        // BlockState#canPlaceAt, and guaranteeing that the position is both air and is surrounded by air, we can tell
+        // whether that block needs a supporting block. If it returns true, then we can safely omit the block as it will not
+        // be directly affected by the explosion.
+        BlockPos cachedNeutralPosition = null;
+        BlockPos backupNeutralPosition = new BlockPos(0, this.world.getTopY() + 5, 0);
+
         Set<BlockPos> newPositions = new HashSet<>();
         for (BlockPos filteredPosition : edgeAffectedPositions) {
-            checkNeighbors(100, filteredPosition, newPositions);
+
+            if (cachedNeutralPosition == null) {
+                BlockPos.Mutable mutablePos = filteredPosition.mutableCopy();
+                mainLoop: while (cachedNeutralPosition == null && !this.world.isOutOfHeightLimit(mutablePos)) {
+                    if (!this.world.getBlockState(mutablePos).isAir()) {
+                        mutablePos.setY(mutablePos.getY() + 1);
+                        continue;
+                    }
+                    for (Direction direction : Direction.values()) {
+                        if (!this.world.getBlockState(mutablePos.offset(direction)).isAir()) {
+                            mutablePos.setY(mutablePos.getY() + 1);
+                            continue mainLoop;
+                        }
+                    }
+                    cachedNeutralPosition = mutablePos.toImmutable();
+                }
+
+            }
+
+            BlockPos neutralPos = cachedNeutralPosition == null ? backupNeutralPosition : cachedNeutralPosition;
+            checkNeighbors(100, filteredPosition, newPositions, neutralPos);
         }
         this.indirectlyAffectedPositions.addAll(newPositions);
     }
 
     @Unique
-    private void checkNeighbors(int maxCheckDepth, BlockPos currentPosition, Set<BlockPos> newPositions) {
+    private void checkNeighbors(int maxCheckDepth, BlockPos currentPosition, Set<BlockPos> newPositions, BlockPos neutralPosition) {
         if (maxCheckDepth <= 0) {
             return;
         }
         for (Direction neighborDirection : Direction.values()) {
             BlockPos neighborPos = currentPosition.offset(neighborDirection);
             BlockState neighborState = this.world.getBlockState(neighborPos);
-            if (neighborState.isAir() || this.getAffectedBlocks().contains(neighborPos)) {
+
+            if (neighborState.isAir() || neighborState.canPlaceAt(this.world, neutralPosition) || this.getAffectedBlocks().contains(neighborPos)) {
                 continue;
             }
             if (newPositions.add(neighborPos)) {
-                this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions);
+                this.checkNeighbors(maxCheckDepth - 1, neighborPos, newPositions, neutralPosition);
             }
         }
     }
