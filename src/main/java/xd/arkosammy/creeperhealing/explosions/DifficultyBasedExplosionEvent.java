@@ -1,14 +1,12 @@
 package xd.arkosammy.creeperhealing.explosions;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 
 import java.util.List;
-import net.minecraft.util.math.random.Random;
 
 public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
 
@@ -41,19 +39,6 @@ public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
                 continue;
             }
             singleAffectedBlock.setTimer(newBlockTimer);
-        }
-    }
-
-    // 1/50 chance of the explosion stopping its healing process if the difficulty is too hard
-    @Override
-    public void updateFinishedStatus(World world) {
-        if (world.getDifficulty() != Difficulty.HARD) {
-            return;
-        }
-        Random random = world.getRandom();
-        int randInt = random.nextBetween(0, 50);
-        if (randInt == 1) {
-            this.finished = true;
         }
     }
 
