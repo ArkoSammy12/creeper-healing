@@ -125,11 +125,11 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
             return false;
         }).toList();
 
-        // Look for a block position that is air and is surrounded by air. This position will be used to test
-        // whether blocks need a supporting block. By checking whether a block can be placed at a position using
-        // BlockState#canPlaceAt, and guaranteeing that the position is both air and is surrounded by air, we can tell
-        // whether that block needs a supporting block. If it returns true, then we can safely omit the block as it will not
-        // be directly affected by the explosion.
+        // Look for a position that is air and surrounded by air,
+        // which can be used to check whether a block needs a supporting block
+        // by calling BlockState#canPlaceAt.
+        // If this returns true for an empty and isolated position, we can guarantee that the block needs
+        // supporting block to be placed, so we can safely ignore it.
         BlockPos cachedNeutralPosition = null;
         BlockPos backupNeutralPosition = new BlockPos(0, this.world.getTopY() + 5, 0);
 
@@ -137,7 +137,7 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         for (BlockPos filteredPosition : edgeAffectedPositions) {
 
             if (cachedNeutralPosition == null) {
-                BlockPos.Mutable mutablePos = new BlockPos.Mutable(filteredPosition.getX(), this.world.getTopY(), filteredPosition.getZ());
+                BlockPos.Mutable mutablePos = new BlockPos.Mutable(filteredPosition.getX(), this.world.getTopY() - 1, filteredPosition.getZ());
                 mainLoop: while (cachedNeutralPosition == null && !this.world.isOutOfHeightLimit(mutablePos)) {
                     if (!this.world.getBlockState(mutablePos).isAir()) {
                         mutablePos.setY(mutablePos.getY() - 1);
