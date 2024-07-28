@@ -119,7 +119,7 @@ public class DefaultExplosionManager implements ExplosionManager {
     @Override
     public void storeExplosionEvents(MinecraftServer server) {
         Path savedExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
-        DataResult<JsonElement> encodedExplosions = this.codec.encodeStart(JsonOps.COMPRESSED, this);
+        DataResult<JsonElement> encodedExplosions = this.codec.encodeStart(server.getRegistryManager().getOps(JsonOps.COMPRESSED), this);
         if (encodedExplosions.isError()) {
             CreeperHealing.LOGGER.error("Error storing creeper healing explosion(s): No value present!");
             return;
@@ -146,7 +146,7 @@ public class DefaultExplosionManager implements ExplosionManager {
             }
             try (BufferedReader br = Files.newBufferedReader(savedExplosionsFilePath)) {
                 JsonElement jsonElement = JsonParser.parseReader(br);
-                DataResult<DefaultExplosionManager> decodedExplosionManager = this.codec.parse(JsonOps.COMPRESSED, jsonElement);
+                DataResult<DefaultExplosionManager> decodedExplosionManager = this.codec.parse(server.getRegistryManager().getOps(JsonOps.COMPRESSED), jsonElement);
                 decodedExplosionManager
                         .resultOrPartial(error -> CreeperHealing.LOGGER.error("Error reading scheduled explosions from file {}: {}", savedExplosionsFilePath, error))
                         .ifPresent(decodedManager -> {
