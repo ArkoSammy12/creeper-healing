@@ -137,15 +137,15 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         for (BlockPos filteredPosition : edgeAffectedPositions) {
 
             if (cachedNeutralPosition == null) {
-                BlockPos.Mutable mutablePos = filteredPosition.mutableCopy();
+                BlockPos.Mutable mutablePos = new BlockPos.Mutable(filteredPosition.getX(), this.world.getTopY(), filteredPosition.getZ());
                 mainLoop: while (cachedNeutralPosition == null && !this.world.isOutOfHeightLimit(mutablePos)) {
                     if (!this.world.getBlockState(mutablePos).isAir()) {
-                        mutablePos.setY(mutablePos.getY() + 1);
+                        mutablePos.setY(mutablePos.getY() - 1);
                         continue;
                     }
-                    for (Direction direction : Direction.values()) {
-                        if (!this.world.getBlockState(mutablePos.offset(direction)).isAir()) {
-                            mutablePos.setY(mutablePos.getY() + 1);
+                    for (Direction neighborDirection : Direction.values()) {
+                        if (!this.world.getBlockState(mutablePos.offset(neighborDirection)).isAir()) {
+                            mutablePos.setY(mutablePos.getY() - 1);
                             continue mainLoop;
                         }
                     }
