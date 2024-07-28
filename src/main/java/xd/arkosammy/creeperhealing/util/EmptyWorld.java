@@ -26,6 +26,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * An instance of {@link  WorldView} backed by another instance.
+ * This class has the explicit purpose of simulating an empty world to be used
+ * when calling {@link  BlockState#canPlaceAt} to check if the block needs a supporting block.
+ * This way we guarantee that all positions read from this instance correspond to empty block states.
+ */
 public class EmptyWorld implements WorldView {
 
     private final WorldView worldView;
@@ -34,10 +40,13 @@ public class EmptyWorld implements WorldView {
         this.worldView = worldView;
     }
 
+    /**
+     * @return <b>null</b> always to prevent block states from being read by the returned chunks of the backing {@link WorldView} instance.
+     */
     @Nullable
     @Override
     public Chunk getChunk(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create) {
-        return this.worldView.getChunk(chunkX, chunkZ, leastStatus, create);
+        return null;
     }
 
     @Override
