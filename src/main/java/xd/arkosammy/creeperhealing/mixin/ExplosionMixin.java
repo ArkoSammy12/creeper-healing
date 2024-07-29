@@ -108,23 +108,26 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // non-visited positions, the neighbor is surrounded by air, or we hit the max recursion depth.
     @Unique
     private void checkForIndirectlyAffectedPositions() {
-        List<BlockPos> edgeAffectedPositions = this.getAffectedBlocks().stream().filter(pos -> {
-            if (world.getBlockState(pos).isAir()) {
-                return false;
+
+        // Only consider block positions with adjacent non-affected positions
+        List<BlockPos> edgeAffectedPositions = new ArrayList<>();
+        for (BlockPos vanillaAffectedPosition : this.getAffectedBlocks()) {
+            if (world.getBlockState(vanillaAffectedPosition).isAir()) {
+                continue;
             }
             for (Direction direction : Direction.values()) {
-                BlockPos neighborPos = pos.offset(direction);
+                BlockPos neighborPos = vanillaAffectedPosition.offset(direction);
                 BlockState neighborState = world.getBlockState(neighborPos);
                 // No blocks will be connected to the neighbor position if the state is air
                 if (neighborState.isAir()) {
                     continue;
                 }
                 if (!this.getAffectedBlocks().contains(neighborPos)) {
-                    return true;
+                    edgeAffectedPositions.add(vanillaAffectedPosition);
+                    break;
                 }
             }
-            return false;
-        }).toList();
+        }
 
         // Pass in a custom WorldView implementation that always returns an air BlockState when calling
         // WorldView#getBlockState on it. This guarantees that further checks with BlockState#canPlaceAt
