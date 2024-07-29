@@ -27,7 +27,7 @@ public record DefaultSerializedExplosion(
             Codec.list(DefaultSerializedAffectedBlock.CODEC).fieldOf("affected_blocks").forGetter(SerializedExplosionEvent::getSerializedAffectedBlocks),
             Codec.LONG.fieldOf("heal_timer").forGetter(SerializedExplosionEvent::getHealTimer),
             Codec.INT.fieldOf("block_counter").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("blockCounter", Integer.class).orElse(0)),
-            Codec.INT.fieldOf("radius").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("radius", Integer.class).orElse(30)),
+            Codec.INT.fieldOf("radius").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("radius", Integer.class).orElse(3)),
             BlockPos.CODEC.fieldOf("center").forGetter(serializedExplosionEvent -> serializedExplosionEvent.getCustomData("center", BlockPos.class).orElse(ExplosionUtils.calculateCenter(serializedExplosionEvent.getSerializedAffectedBlocks().stream().map(SerializedAffectedBlock::getBlockPos).toList())))
     ).apply(instance, DefaultSerializedExplosion::new));
 
