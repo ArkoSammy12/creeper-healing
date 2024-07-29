@@ -7,23 +7,30 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.Heightmap;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,89 +41,86 @@ import java.util.List;
  */
 public class EmptyWorld implements WorldView {
 
-    private final WorldView worldView;
+    private final World world;
 
-    public EmptyWorld(WorldView worldView) {
-        this.worldView = worldView;
+    public EmptyWorld(World world) {
+        this.world = world;
     }
 
-    /**
-     * @return <b>null</b> always to prevent block states from being read by the returned chunks of the backing {@link WorldView} instance.
-     */
     @Nullable
     @Override
     public Chunk getChunk(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create) {
-        return null;
+        return new EmptyChunk(this.world, new ChunkPos(chunkX, chunkZ), this.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.THE_VOID));
     }
 
     @Override
     public boolean isChunkLoaded(int chunkX, int chunkZ) {
-        return this.worldView.isChunkLoaded(chunkX, chunkZ);
+        return true;
     }
 
     @Override
     public int getTopY(Heightmap.Type heightmap, int x, int z) {
-        return this.worldView.getTopY(heightmap, x, z);
+        return this.world.getTopY(heightmap, x, z);
     }
 
     @Override
     public int getAmbientDarkness() {
-        return this.worldView.getAmbientDarkness();
+        return 15;
     }
 
     @Override
     public BiomeAccess getBiomeAccess() {
-        return this.worldView.getBiomeAccess();
+        return this.world.getBiomeAccess();
     }
 
     @Override
     public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return this.worldView.getGeneratorStoredBiome(biomeX, biomeY, biomeZ);
+        return this.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.THE_VOID);
     }
 
     @Override
     public boolean isClient() {
-        return this.worldView.isClient();
+        return false;
     }
 
     @Override
     public int getSeaLevel() {
-        return this.worldView.getSeaLevel();
+        return this.world.getSeaLevel();
     }
 
     @Override
     public DimensionType getDimension() {
-        return this.worldView.getDimension();
+        return this.world.getDimension();
     }
 
     @Override
     public DynamicRegistryManager getRegistryManager() {
-        return this.worldView.getRegistryManager();
+        return this.world.getRegistryManager();
     }
 
     @Override
     public FeatureSet getEnabledFeatures() {
-        return this.worldView.getEnabledFeatures();
+        return this.world.getEnabledFeatures();
     }
 
     @Override
     public float getBrightness(Direction direction, boolean shaded) {
-        return this.worldView.getBrightness(direction, shaded);
+        return 0;
     }
 
     @Override
     public LightingProvider getLightingProvider() {
-        return this.worldView.getLightingProvider();
+        return this.world.getLightingProvider();
     }
 
     @Override
     public WorldBorder getWorldBorder() {
-        return this.worldView.getWorldBorder();
+        return this.world.getWorldBorder();
     }
 
     @Override
     public List<VoxelShape> getEntityCollisions(@Nullable Entity entity, Box box) {
-        return this.worldView.getEntityCollisions(entity, box);
+        return new ArrayList<>();
     }
 
     @Nullable
