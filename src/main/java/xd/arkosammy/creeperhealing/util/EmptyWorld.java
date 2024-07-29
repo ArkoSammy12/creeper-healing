@@ -55,7 +55,7 @@ public class EmptyWorld implements WorldView {
 
     @Override
     public boolean isChunkLoaded(int chunkX, int chunkZ) {
-        return true;
+        return false;
     }
 
     @Override
