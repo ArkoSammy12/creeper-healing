@@ -15,6 +15,7 @@ public abstract class FallingBlockMixin {
     private boolean onBlockAttemptedFall(boolean original, BlockState blockState){
         // Hardcoded Exception. Place before all other logic
         if(ExcludedBlocks.isExcluded(blockState)){
+            ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(true);
             return original;
         }
         boolean canFall = original && ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.get();

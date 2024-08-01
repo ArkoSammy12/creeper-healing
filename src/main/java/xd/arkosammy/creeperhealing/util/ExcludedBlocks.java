@@ -3,6 +3,9 @@ package xd.arkosammy.creeperhealing.util;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -12,20 +15,41 @@ import java.util.Arrays;
  * or because they are not meant to be healed.
  */
 public enum ExcludedBlocks {
-    SHULKER_BOX(Blocks.SHULKER_BOX);
+    SHULKER_BOX(Blocks.SHULKER_BOX, BlockTags.SHULKER_BOXES);
 
     private final Block blockInstance;
+    @Nullable
+    private final TagKey<Block> blockTag;
 
-    public static boolean isExcluded(Block block) {
-        return Arrays.stream(ExcludedBlocks.values()).anyMatch(excludedBlock -> excludedBlock.blockInstance.equals(block));
+    public static boolean isExcluded(@Nullable Block block) {
+        if (block == null) {
+            return false;
+        }
+        return Arrays.stream(ExcludedBlocks.values()).anyMatch(excludedBlock -> {
+            if (block.getDefaultState().isOf(excludedBlock.blockInstance)) {
+                return true;
+            }
+            TagKey<Block> blockTag = excludedBlock.blockTag;
+            return blockTag != null && block.getDefaultState().isIn(blockTag);
+        });
     }
 
-    public static boolean isExcluded(BlockState state) {
-        return Arrays.stream(ExcludedBlocks.values()).anyMatch(excludedBlock -> state.isOf(excludedBlock.blockInstance));
+    public static boolean isExcluded(@Nullable BlockState state) {
+        if (state == null) {
+            return false;
+        }
+        return Arrays.stream(ExcludedBlocks.values()).anyMatch(excludedBlock -> {
+            if (state.isOf(excludedBlock.blockInstance)) {
+                return true;
+            }
+            TagKey<Block> blockTag = excludedBlock.blockTag;
+            return blockTag != null && state.isIn(blockTag);
+        });
     }
 
-    ExcludedBlocks(Block blockInstance){
+    ExcludedBlocks(Block blockInstance, @Nullable TagKey<Block> blockTag) {
         this.blockInstance = blockInstance;
+        this.blockTag = blockTag;
     }
 
 }

@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.ExplosionManagerRegistrar;
 import xd.arkosammy.creeperhealing.util.EmptyWorld;
+import xd.arkosammy.creeperhealing.util.ExcludedBlocks;
 import xd.arkosammy.creeperhealing.util.ExplosionContext;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
@@ -79,18 +80,34 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
         this.indirectlyAffectedPositions.removeIf(pos -> {
             BlockState oldState = this.affectedStatesAndBlockEntities.get(pos).getLeft();
+            // Hardcoded exception, place before all other logic
+            if (ExcludedBlocks.isExcluded(oldState)) {
+                return true;
+            }
             BlockState newState = this.world.getBlockState(pos);
-            return newState.equals(oldState);
+            return Objects.equals(oldState, newState);
         });
+
+        List<BlockPos> vanillaAffectedPositions = new ArrayList<>();
+        for (BlockPos pos : this.getAffectedBlocks()) {
+            // Hardcoded exception, place before all other logic
+            BlockState state = this.affectedStatesAndBlockEntities.get(pos).getLeft();
+            if (ExcludedBlocks.isExcluded(state)) {
+                continue;
+            }
+            vanillaAffectedPositions.add(pos);
+        }
         Map<BlockPos, Pair<BlockState, BlockEntity>> filteredSavedStatesAndBlockEntities = new HashMap<>();
         for (Map.Entry<BlockPos, Pair<BlockState, BlockEntity>> entry : this.affectedStatesAndBlockEntities.entrySet()) {
             BlockPos entryPos = entry.getKey();
-            if (this.getAffectedBlocks().contains(entryPos) || this.indirectlyAffectedPositions.contains(entryPos)) {
+            if (vanillaAffectedPositions.contains(entryPos) || this.indirectlyAffectedPositions.contains(entryPos)) {
                 filteredSavedStatesAndBlockEntities.put(entry.getKey(), entry.getValue());
             }
         }
+
+
         ExplosionContext explosionContext = new ExplosionContext(
-                new ArrayList<>(this.getAffectedBlocks()),
+                vanillaAffectedPositions,
                 new ArrayList<>(this.indirectlyAffectedPositions),
                 filteredSavedStatesAndBlockEntities,
                 this.world,

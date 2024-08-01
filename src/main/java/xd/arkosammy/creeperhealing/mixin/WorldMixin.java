@@ -33,6 +33,7 @@ public abstract class WorldMixin {
     private void preventItemsFromDroppingOnExplosionsIfNeeded(BlockState instance, WorldAccess worldAccess, BlockPos blockPos, int flags, int maxUpdateDepth, Operation<Void> original, @Share("isBlockAtPosExcluded") LocalBooleanRef isBlockAtPosExcluded) {
         // Hardcoded exception. Place before all other logic
         if(isBlockAtPosExcluded.get()) {
+            original.call(instance, worldAccess, blockPos, flags, maxUpdateDepth);
             return;
         }
         int newFlags = ExplosionUtils.DROP_BLOCK_ITEMS.get() ? flags : flags | Block.SKIP_DROPS;
