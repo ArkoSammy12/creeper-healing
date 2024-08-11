@@ -15,7 +15,10 @@ import java.util.Arrays;
  * or because they are not meant to be healed.
  */
 public enum ExcludedBlocks {
-    SHULKER_BOX(Blocks.SHULKER_BOX, BlockTags.SHULKER_BOXES);
+    SHULKER_BOX(Blocks.SHULKER_BOX, BlockTags.SHULKER_BOXES),
+    NETHER_PORTAL(Blocks.NETHER_PORTAL, BlockTags.PORTALS),
+    END_PORTAL(Blocks.END_PORTAL, BlockTags.PORTALS),
+    END_GATEWAY(Blocks.END_GATEWAY, BlockTags.PORTALS);
 
     private final Block blockInstance;
     @Nullable
