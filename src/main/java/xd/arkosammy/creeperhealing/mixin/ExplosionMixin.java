@@ -59,6 +59,9 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // Save the affected block states and block entities before the explosion takes effect
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
     private void collectAffectedStatesAndBlockEntities(CallbackInfo ci){
+        if (world.isClient())
+            return;
+
         this.checkForIndirectlyAffectedPositions();
         this.getAffectedBlocks().forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
         this.indirectlyAffectedPositions.forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
@@ -67,6 +70,9 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // Make sure the thread local is reset when entering and exiting Explosion#affectWorld
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
     private void setThreadLocals(boolean particles, CallbackInfo ci){
+        if (world.isClient())
+            return;
+
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
     }
@@ -76,6 +82,9 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // Emit an ExplosionContext object for ExplosionManagers to receive.
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
     private void onExplosion(boolean particles, CallbackInfo ci){
+        if (world.isClient())
+            return;
+
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
         this.indirectlyAffectedPositions.removeIf(pos -> {
