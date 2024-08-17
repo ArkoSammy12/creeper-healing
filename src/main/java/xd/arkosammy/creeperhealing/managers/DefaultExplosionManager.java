@@ -10,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
@@ -34,26 +35,31 @@ import java.util.stream.Stream;
 
 public class DefaultExplosionManager implements ExplosionManager {
 
-    private final Codec<DefaultExplosionManager> codec;
-    private final List<ExplosionEvent> explosionEvents = new ArrayList<>();
-    private final Function<ExplosionContext, ExplosionEventFactory<?>> explosionContextToFactoryFunction = explosionContext -> {
+    public static final Identifier ID = Identifier.of(CreeperHealing.MOD_ID, "default_explosion_manager");
+    private static final Function<ExplosionContext, ExplosionEventFactory<?>> explosionContextToFactoryFunction = explosionContext -> {
         List<BlockPos> indirectlyExplodedPositions = explosionContext.indirectlyAffectedPositions();
         Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = explosionContext.affectedStatesAndBlockEntities();
         DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(
                 affectedStatesAndBlockEntities,
                 explosionContext.vanillaAffectedPositions(),
                 indirectlyExplodedPositions,
-                explosionContext.causingEntity(),
-                explosionContext.causingLivingEntity(),
-                explosionContext.damageSource(),
                 explosionContext.world()
         );
         return explosionFactory;
     };
+    private static final String SCHEDULED_EXPLOSIONS_FILE = "scheduled-explosions.json";
+
+    private final Codec<DefaultExplosionManager> codec;
+    private final List<ExplosionEvent> explosionEvents = new ArrayList<>();
+
+    @Override
+    public Identifier getId() {
+        return ID;
+    }
 
     public DefaultExplosionManager(Codec<SerializedExplosionEvent> explosionSerializer) {
         this.codec = RecordCodecBuilder.create(instance -> instance.group(
-           Codec.list(explosionSerializer).fieldOf("scheduled_explosions").forGetter(DefaultExplosionManager::getSerializedExplosionEvents)
+                Codec.list(explosionSerializer).fieldOf("scheduled_explosions").forGetter(DefaultExplosionManager::getSerializedExplosionEvents)
         ).apply(instance, (serializedExplosionEvents) -> new DefaultExplosionManager(serializedExplosionEvents, explosionSerializer)));
     }
 
@@ -85,7 +91,7 @@ public class DefaultExplosionManager implements ExplosionManager {
 
     @Override
     public Function<ExplosionContext, ExplosionEventFactory<?>> getExplosionContextToEventFactoryFunction() {
-        return this.explosionContextToFactoryFunction;
+        return explosionContextToFactoryFunction;
     }
 
     @Override
@@ -105,7 +111,7 @@ public class DefaultExplosionManager implements ExplosionManager {
         if (explosionEvent == null) {
             return;
         }
-        Set<ExplosionEvent> collidingExplosions  = this.getCollidingExplosions(explosionEvent, explosionEventFactory.getAffectedPositions());
+        Set<ExplosionEvent> collidingExplosions = this.getCollidingExplosions(explosionEvent, explosionEventFactory.getAffectedPositions());
         if (collidingExplosions.isEmpty()) {
             this.explosionEvents.add(explosionEvent);
         } else {
@@ -118,7 +124,7 @@ public class DefaultExplosionManager implements ExplosionManager {
 
     @Override
     public void storeExplosionEvents(MinecraftServer server) {
-        Path savedExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
+        Path savedExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve(SCHEDULED_EXPLOSIONS_FILE);
         DataResult<JsonElement> encodedExplosions = this.codec.encodeStart(server.getRegistryManager().getOps(JsonOps.COMPRESSED), this);
         if (encodedExplosions.isError()) {
             CreeperHealing.LOGGER.error("Error storing creeper healing explosion(s): No value present!");
@@ -137,7 +143,7 @@ public class DefaultExplosionManager implements ExplosionManager {
 
     @Override
     public void readExplosionEvents(MinecraftServer server) {
-        Path savedExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve("scheduled-explosions.json");
+        Path savedExplosionsFilePath = server.getSavePath(WorldSavePath.ROOT).resolve(SCHEDULED_EXPLOSIONS_FILE);
         try {
             if (!Files.exists(savedExplosionsFilePath)) {
                 CreeperHealing.LOGGER.warn("Scheduled explosions file not found! Creating new one at {}", savedExplosionsFilePath);
@@ -203,7 +209,7 @@ public class DefaultExplosionManager implements ExplosionManager {
         return combinedExplosionEvent;
     }
 
-    public void updateAffectedBlocksTimers(){
+    public void updateAffectedBlocksTimers() {
         for (ExplosionEvent explosionEvent : this.explosionEvents) {
             if (!(explosionEvent instanceof AbstractExplosionEvent abstractExplosionEvent)) {
                 continue;

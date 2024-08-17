@@ -11,13 +11,13 @@ import xd.arkosammy.creeperhealing.util.callbacks.TimeCommandCallbacks;
 public abstract class TimeCommandMixin {
 
     @ModifyReturnValue(method = "executeAdd", at = @At("RETURN"))
-    private static int onTimeAdd(int original, ServerCommandSource serverCommandSource, int time){
+    private static int onTimeAdd(int original, ServerCommandSource serverCommandSource, int time) {
         TimeCommandCallbacks.ON_TIME_EXECUTE_ADD.invoker().onTimeExecuteAdd(serverCommandSource, time, original);
         return original;
     }
 
     @ModifyReturnValue(method = "executeSet", at = @At("RETURN"))
-    private static int onTimeSet(int original, ServerCommandSource serverCommandSource, int time){
+    private static int onTimeSet(int original, ServerCommandSource serverCommandSource, int time) {
         TimeCommandCallbacks.ON_TIME_EXECUTE_SET.invoker().onTimeExecuteSet(serverCommandSource, time, original);
         return original;
     }

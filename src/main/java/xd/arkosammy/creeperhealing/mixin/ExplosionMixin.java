@@ -4,7 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -19,20 +19,23 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.ExplosionManagerRegistrar;
+import xd.arkosammy.creeperhealing.config.ConfigSettings;
+import xd.arkosammy.creeperhealing.config.ConfigUtils;
+import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionDuck;
+import xd.arkosammy.creeperhealing.managers.DefaultExplosionManager;
 import xd.arkosammy.creeperhealing.util.EmptyWorld;
 import xd.arkosammy.creeperhealing.util.ExcludedBlocks;
 import xd.arkosammy.creeperhealing.util.ExplosionContext;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
-import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionAccessor;
+import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
+import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.util.*;
 
 @Mixin(Explosion.class)
-public abstract class ExplosionMixin implements ExplosionAccessor {
+public abstract class ExplosionMixin implements ExplosionDuck {
 
     @Shadow @Final private World world;
-
-    @Shadow @Final private DamageSource damageSource;
 
     @Shadow public abstract @Nullable Entity getEntity();
 
@@ -41,40 +44,71 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
 
     @Unique
+    @Nullable
+    private World.ExplosionSourceType explosionSourceType = null;
+
+    @Unique
     private final Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = new HashMap<>();
 
     @Unique
     private final Set<BlockPos> indirectlyAffectedPositions = new HashSet<>();
 
     @Override
-    public DamageSource creeperhealing$getDamageSource() {
-        return this.damageSource;
+    public void creeperhealing$setExplosionSourceType(World.ExplosionSourceType explosionSourceType) {
+        this.explosionSourceType = explosionSourceType;
     }
 
     @Override
-    public boolean creeperhealing$willBeHealed(){
-        return ExplosionUtils.getShouldHealPredicate().test(((Explosion) (Object) this));
+    public World.ExplosionSourceType creeperhealing$getExplosionSourceType() {
+        return this.explosionSourceType;
+    }
+
+    @Override
+    public boolean creeperhealing$shouldHeal() {
+        if (this.getAffectedBlocks().isEmpty()) {
+            return false;
+        }
+        World.ExplosionSourceType explosionSourceType = (this.explosionSourceType);
+        boolean shouldHeal = switch (explosionSourceType) {
+            case MOB -> {
+                if (!ConfigUtils.getSettingValue(ConfigSettings.HEAL_MOB_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)) {
+                    yield false;
+                }
+                LivingEntity causingEntity = this.getCausingEntity();
+                if (causingEntity == null) {
+                    yield true;
+                }
+                String entityId = Registries.ENTITY_TYPE.getId(causingEntity.getType()).toString();
+                List<? extends String> healMobExplosionsBlacklist = ConfigUtils.getSettingValue(ConfigSettings.HEAL_MOB_EXPLOSIONS_BLACKLIST.getSettingLocation(), StringListSetting.class);
+                yield !healMobExplosionsBlacklist.contains(entityId);
+            }
+            case BLOCK -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_BLOCK_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
+            case TNT -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
+            case TRIGGER -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_TRIGGERED_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
+            case null, default -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_OTHER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
+        };
+        return shouldHeal;
     }
 
     // Save the affected block states and block entities before the explosion takes effect
     @Inject(method = "collectBlocksAndDamageEntities", at = @At("RETURN"))
-    private void collectAffectedStatesAndBlockEntities(CallbackInfo ci){
+    private void collectAffectedBlockStatesAndBlockEntities(CallbackInfo ci) {
         if (world.isClient()) {
             return;
         }
         this.checkForIndirectlyAffectedPositions();
-        this.getAffectedBlocks().forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
-        this.indirectlyAffectedPositions.forEach(pos -> this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos))));
+        for (BlockPos pos : this.getAffectedBlocks()) {
+            this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos)));
+        }
+        for (BlockPos pos : this.indirectlyAffectedPositions) {
+            this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos)));
+        }
     }
 
     // Make sure the thread local is reset when entering and exiting Explosion#affectWorld
     @Inject(method = "affectWorld", at = @At(value = "HEAD"))
-    private void setThreadLocals(boolean particles, CallbackInfo ci){
-        if (world.isClient()) {
-            ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
-            ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
-            return;
-        }
+    private void setThreadLocals(boolean particles, CallbackInfo ci) {
+        // If adding more logic here, remember to check logical server side with World#isClient
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
     }
@@ -83,50 +117,59 @@ public abstract class ExplosionMixin implements ExplosionAccessor {
     // Filter out entries in the affected states and block entities map with block position keys not in the affected positions.
     // Emit an ExplosionContext object for ExplosionManagers to receive.
     @Inject(method = "affectWorld", at = @At(value = "RETURN"))
-    private void onExplosion(boolean particles, CallbackInfo ci){
-        if (world.isClient()) {
-            return;
-        }
+    private void emitExplosionContext(boolean particles, CallbackInfo ci) {
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
-        this.indirectlyAffectedPositions.removeIf(pos -> {
-            BlockState oldState = this.affectedStatesAndBlockEntities.get(pos).getLeft();
+        if (world.isClient()) {
+            this.affectedStatesAndBlockEntities.clear();
+            this.indirectlyAffectedPositions.clear();
+            return;
+        }
+        if (!this.creeperhealing$shouldHeal()) {
+            this.affectedStatesAndBlockEntities.clear();
+            this.indirectlyAffectedPositions.clear();
+            return;
+        }
+        List<BlockPos> filteredIndirectlyAffectedPositions = new ArrayList<>();
+        for (BlockPos pos : this.indirectlyAffectedPositions) {
+            Pair<BlockState, BlockEntity> pair = this.affectedStatesAndBlockEntities.get(pos);
+            if (pair == null) {
+                continue;
+            }
+            BlockState oldState = pair.getLeft();
             // Hardcoded exception, place before all other logic
             if (ExcludedBlocks.isExcluded(oldState)) {
-                return true;
+                continue;
             }
             BlockState newState = this.world.getBlockState(pos);
-            return Objects.equals(oldState, newState);
-        });
-
-        List<BlockPos> vanillaAffectedPositions = new ArrayList<>();
+            if (!Objects.equals(oldState, newState)) {
+                filteredIndirectlyAffectedPositions.add(pos);
+            }
+        }
+        List<BlockPos> filteredAffectedPositions = new ArrayList<>();
         for (BlockPos pos : this.getAffectedBlocks()) {
             // Hardcoded exception, place before all other logic
             BlockState state = this.affectedStatesAndBlockEntities.get(pos).getLeft();
             if (ExcludedBlocks.isExcluded(state)) {
                 continue;
             }
-            vanillaAffectedPositions.add(pos);
+            filteredAffectedPositions.add(pos);
         }
         Map<BlockPos, Pair<BlockState, BlockEntity>> filteredSavedStatesAndBlockEntities = new HashMap<>();
         for (Map.Entry<BlockPos, Pair<BlockState, BlockEntity>> entry : this.affectedStatesAndBlockEntities.entrySet()) {
             BlockPos entryPos = entry.getKey();
-            if (vanillaAffectedPositions.contains(entryPos) || this.indirectlyAffectedPositions.contains(entryPos)) {
-                filteredSavedStatesAndBlockEntities.put(entry.getKey(), entry.getValue());
+            if (filteredAffectedPositions.contains(entryPos) || filteredIndirectlyAffectedPositions.contains(entryPos)) {
+                filteredSavedStatesAndBlockEntities.put(entryPos, entry.getValue());
             }
         }
-
-
         ExplosionContext explosionContext = new ExplosionContext(
-                vanillaAffectedPositions,
-                new ArrayList<>(this.indirectlyAffectedPositions),
+                filteredAffectedPositions,
+                filteredIndirectlyAffectedPositions,
                 filteredSavedStatesAndBlockEntities,
                 this.world,
-                this.getEntity(),
-                this.getCausingEntity(),
-                this.damageSource
+                this.explosionSourceType
         );
-        ExplosionManagerRegistrar.getInstance().emitExplosionContext(explosionContext);
+        ExplosionManagerRegistrar.getInstance().emitExplosionContext(DefaultExplosionManager.ID, explosionContext);
         this.affectedStatesAndBlockEntities.clear();
         this.indirectlyAffectedPositions.clear();
     }

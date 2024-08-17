@@ -21,15 +21,11 @@ public interface TimeCommandCallbacks {
             }));
 
     interface OnTimeExecuteAdd {
-
         void onTimeExecuteAdd(ServerCommandSource serverCommandSource, int time, int newTime);
-
     }
 
     interface OnTimeExecuteSet {
-
         void onTimeExecuteSet(ServerCommandSource serverCommandSource, int time, int newTime);
-
     }
 
 }

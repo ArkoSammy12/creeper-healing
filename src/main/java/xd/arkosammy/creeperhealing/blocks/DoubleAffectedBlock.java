@@ -65,7 +65,7 @@ public class DoubleAffectedBlock extends SingleAffectedBlock {
         BlockState secondHalfState = firstHalfState.getBlock().getStateWithProperties(firstHalfState).with(Properties.DOUBLE_BLOCK_HALF, secondHalf);
         BlockPos secondHalfPos = secondHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? firstHalfPos.up() :  firstHalfPos.down();
 
-        if(!this.shouldHealBlock(world, secondHalfPos)){
+        if (!this.shouldHealBlock(world, secondHalfPos)) {
             return;
         }
         BlockState stateToPushFrom = firstHalfState.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.LOWER) ? firstHalfState : secondHalfState;

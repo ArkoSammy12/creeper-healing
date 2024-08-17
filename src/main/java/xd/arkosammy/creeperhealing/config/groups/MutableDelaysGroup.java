@@ -28,6 +28,6 @@ public class MutableDelaysGroup extends DelaysGroup implements MutableSettingGro
 
     @Override
     public @NotNull DelaysGroup toImmutable(List<? extends ConfigSetting<?, ?>> configSettings) {
-        return new DelaysGroup(this.getName(), this.getComment(), configSettings != null ? new ArrayList<>(configSettings) : new ArrayList<>(this.getConfigSettings()) ,this.getLoadBeforeSave(), this.getRegisterSettingsAsCommands());
+        return new DelaysGroup(this.getName(), this.getComment(), configSettings != null ? new ArrayList<>(configSettings) : new ArrayList<>(this.getConfigSettings()), this.getLoadBeforeSave(), this.getRegisterSettingsAsCommands());
     }
 }

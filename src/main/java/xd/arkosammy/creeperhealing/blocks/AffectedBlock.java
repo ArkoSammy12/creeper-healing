@@ -35,7 +35,7 @@ public interface AffectedBlock {
 
     SerializedAffectedBlock asSerialized();
 
-    static AffectedBlock newInstance(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, World world){
+    static AffectedBlock newInstance(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, World world) {
         RegistryKey<World> worldRegistryKey = world.getRegistryKey();
         long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
         if (state.contains(Properties.DOUBLE_BLOCK_HALF) || state.contains(Properties.BED_PART)) {

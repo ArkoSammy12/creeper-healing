@@ -16,26 +16,26 @@ import xd.arkosammy.monkeyconfig.registrars.DefaultConfigRegistrar;
 
 public class CreeperHealing implements ModInitializer {
 
-	public static final String MOD_ID = "creeper-healing";
+    public static final String MOD_ID = "creeperhealing";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static final DefaultExplosionManager EXPLOSION_MANAGER = new DefaultExplosionManager(DefaultSerializedExplosion.CODEC);
-	public static final ConfigManager CONFIG_MANAGER = new TomlConfigManager(MOD_ID, SettingGroups.getSettingGroups(), ConfigSettings.getSettingBuilders());
+    public static final DefaultExplosionManager EXPLOSION_MANAGER = new DefaultExplosionManager(DefaultSerializedExplosion.CODEC);
+    public static final ConfigManager CONFIG_MANAGER = new TomlConfigManager("creeper-healing", SettingGroups.getSettingGroups(), ConfigSettings.getSettingBuilders());
 
-	@Override
-	public void onInitialize() {
-		ServerLifecycleEvents.SERVER_STARTING.register(CreeperHealing::onServerStarting);
-		ServerLifecycleEvents.SERVER_STOPPING.register(CreeperHealing::onServerStopping);
-		DefaultConfigRegistrar.INSTANCE.registerConfigManager(CONFIG_MANAGER);
-		Events.registerEvents();
-		LOGGER.info("I will try my best to heal your explosions :)");
-	}
+    @Override
+    public void onInitialize() {
+        ServerLifecycleEvents.SERVER_STARTING.register(CreeperHealing::onServerStarting);
+        ServerLifecycleEvents.SERVER_STOPPING.register(CreeperHealing::onServerStopping);
+        DefaultConfigRegistrar.INSTANCE.registerConfigManager(CONFIG_MANAGER);
+        Events.registerEvents();
+        LOGGER.info("I will try my best to heal your explosions :)");
+    }
 
-	private static void onServerStarting(MinecraftServer server) {
-		ExplosionManagerRegistrar.getInstance().invokeOnServerStarting(server);
-	}
+    private static void onServerStarting(MinecraftServer server) {
+        ExplosionManagerRegistrar.getInstance().invokeOnServerStarting(server);
+    }
 
-	private static void onServerStopping(MinecraftServer server) {
-		ExplosionManagerRegistrar.getInstance().invokeOnServerStopping(server);
-	}
+    private static void onServerStopping(MinecraftServer server) {
+        ExplosionManagerRegistrar.getInstance().invokeOnServerStopping(server);
+    }
 
 }

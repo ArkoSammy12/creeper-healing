@@ -27,7 +27,7 @@ public record DefaultSerializedAffectedBlock(
             BlockPos.CODEC.fieldOf("block_pos").forGetter(SerializedAffectedBlock::getBlockPos),
             BlockState.CODEC.fieldOf("block_state").forGetter(SerializedAffectedBlock::getBlockState),
             World.CODEC.fieldOf("world").forGetter(SerializedAffectedBlock::getWorldRegistryKey),
-            NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock  -> serializedAffectedBlock.getCustomData("nbt", NbtCompound.class)),
+            NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("nbt", NbtCompound.class)),
             Codec.LONG.fieldOf("affected_block_timer").forGetter(SerializedAffectedBlock::getBlockTimer),
             Codec.BOOL.fieldOf("is_placed").forGetter(SerializedAffectedBlock::isPlaced)
     ).apply(instance, (affectedBlockType, blockPos, blockState, world, optionalNbt, affectedBlockTimer, isPlaced) -> new DefaultSerializedAffectedBlock(affectedBlockType, blockPos, blockState, world, optionalNbt.orElse(null), affectedBlockTimer, isPlaced)));
@@ -85,9 +85,11 @@ public record DefaultSerializedAffectedBlock(
 
     @Override
     public AffectedBlock asDeserialized() {
-        return switch (this.affectedBlockType){
-            case DoubleAffectedBlock.TYPE -> new DoubleAffectedBlock(this.pos, this.state(), this.worldRegistryKey(), this.getBlockTimer(), this.placed());
-            default -> new SingleAffectedBlock(this.pos(), this.state(), this.worldRegistryKey(), this.nbt(), this.getBlockTimer(), this.placed());
+        return switch (this.affectedBlockType) {
+            case DoubleAffectedBlock.TYPE ->
+                    new DoubleAffectedBlock(this.pos, this.state(), this.worldRegistryKey(), this.getBlockTimer(), this.placed());
+            default ->
+                    new SingleAffectedBlock(this.pos(), this.state(), this.worldRegistryKey(), this.nbt(), this.getBlockTimer(), this.placed());
         };
     }
 }

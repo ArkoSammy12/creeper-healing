@@ -37,7 +37,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     private long timer;
     private boolean placed;
 
-    protected SingleAffectedBlock(BlockPos blockPos, BlockState blockState, RegistryKey<World> registryKey, @Nullable NbtCompound nbt, long timer, boolean placed){
+    protected SingleAffectedBlock(BlockPos blockPos, BlockState blockState, RegistryKey<World> registryKey, @Nullable NbtCompound nbt, long timer, boolean placed) {
         this.blockPos = blockPos;
         this.blockState = blockState;
         this.worldRegistryKey = registryKey;
@@ -46,37 +46,37 @@ public class SingleAffectedBlock implements AffectedBlock {
         this.timer = timer;
     }
 
-    public void setTimer(long delay){
+    public void setTimer(long delay) {
         this.timer = delay;
     }
 
     @Override
-    public RegistryKey<World> getWorldRegistryKey(){
+    public RegistryKey<World> getWorldRegistryKey() {
         return this.worldRegistryKey;
     }
 
     @Override
-    public World getWorld(@NotNull MinecraftServer server){
+    public World getWorld(@NotNull MinecraftServer server) {
         return server.getWorld(this.getWorldRegistryKey());
     }
 
     @Override
-    public BlockPos getBlockPos(){
+    public BlockPos getBlockPos() {
         return this.blockPos;
     }
 
     @Override
-    public BlockState getBlockState(){
+    public BlockState getBlockState() {
         return this.blockState;
     }
 
     @Override
-    public final void setPlaced(){
+    public final void setPlaced() {
         this.placed = true;
     }
 
     @Override
-    public boolean isPlaced(){
+    public boolean isPlaced() {
         return this.placed;
     }
 
@@ -86,7 +86,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     @Override
-    public void tick(ExplosionEvent explosionEvent, MinecraftServer server){
+    public void tick(ExplosionEvent explosionEvent, MinecraftServer server) {
         this.timer--;
         if (this.timer >= 0) {
             return;
@@ -96,8 +96,8 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     @Override
-    public boolean canBePlaced(MinecraftServer server){
-        if(shouldForceHeal()) {
+    public boolean canBePlaced(MinecraftServer server) {
+        if (shouldForceHeal()) {
             return true;
         }
         return this.getBlockState().canPlaceAt(this.getWorld(server), this.getBlockPos());
@@ -107,7 +107,7 @@ public class SingleAffectedBlock implements AffectedBlock {
         return TYPE;
     }
 
-    protected void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent){
+    protected void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent) {
 
         BlockState state = this.getBlockState();
         BlockPos pos = this.getBlockPos();
@@ -126,19 +126,19 @@ public class SingleAffectedBlock implements AffectedBlock {
             }
         }
 
-        if(!this.shouldHealBlock(world, this.blockPos)){
+        if (!this.shouldHealBlock(world, this.blockPos)) {
             return;
         }
 
         ExplosionUtils.pushEntitiesUpwards(world, pos, state, false);
         boolean makeFallingBlocksFall = ConfigUtils.getSettingValue(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getSettingLocation(), BooleanSetting.class);
-        if(state.getBlock() instanceof FallingBlock){
+        if (state.getBlock() instanceof FallingBlock) {
             ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(makeFallingBlocksFall);
         }
         world.setBlockState(pos, state);
         this.handleChestBlockIfNeeded(currentExplosionEvent, state, pos, server);
         boolean healNbt = this.nbt != null && !stateReplaced;
-        if(healNbt) {
+        if (healNbt) {
             world.addBlockEntity(BlockEntity.createFromNbt(pos, state, this.nbt, world.getRegistryManager()));
         }
         ExplosionUtils.playBlockPlacementSoundEffect(world, pos, state);
@@ -146,7 +146,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     protected boolean shouldHealBlock(World world, BlockPos pos) {
-        if(shouldForceHeal()) {
+        if (shouldForceHeal()) {
             return true;
         }
         return world.getBlockState(pos).isReplaceable();
@@ -201,7 +201,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     @Override
-    public SerializedAffectedBlock asSerialized(){
+    public SerializedAffectedBlock asSerialized() {
         return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, this.worldRegistryKey, this.nbt, this.timer, this.placed);
     }
 

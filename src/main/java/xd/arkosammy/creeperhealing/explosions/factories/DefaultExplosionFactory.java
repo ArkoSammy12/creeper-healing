@@ -3,16 +3,6 @@ package xd.arkosammy.creeperhealing.explosions.factories;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.decoration.EndCrystalEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.mob.GhastEntity;
-import net.minecraft.entity.vehicle.TntMinecartEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.Pair;
@@ -39,11 +29,8 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     private final Set<BlockPos> affectedPositions = new HashSet<>();
     private final BlockPos center;
     private final List<BlockPos> vanillaAffectedPositions;
-    private final Entity causingEntity;
-    private final LivingEntity causingLivingEntity;
-    private final DamageSource damageSource;
 
-    public DefaultExplosionFactory(Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities, List<BlockPos> vanillaAffectedPositions, List<BlockPos> indirectlyExplodedPositions, Entity causingEntity, LivingEntity causingLivingEntity, DamageSource damageSource, World world) {
+    public DefaultExplosionFactory(Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities, List<BlockPos> vanillaAffectedPositions, List<BlockPos> indirectlyExplodedPositions, World world) {
         this.affectedStatesAndBlockEntities = affectedStatesAndBlockEntities;
         this.world = world;
         this.affectedPositions.addAll(vanillaAffectedPositions);
@@ -51,19 +38,13 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         this.blastRadius = ExplosionUtils.getMaxExplosionRadius(vanillaAffectedPositions);
         this.center = ExplosionUtils.calculateCenter(vanillaAffectedPositions);
         this.vanillaAffectedPositions = vanillaAffectedPositions;
-        this.causingEntity = causingEntity;
-        this.causingLivingEntity = causingLivingEntity;
-        this.damageSource = damageSource;
     }
 
 
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent() {
         List<AffectedBlock> affectedBlocks = this.processAffectedPositions(new ArrayList<>(this.affectedPositions), this.world);
-        if (affectedBlocks == null) {
-            return null;
-        }
-        if (!shouldHealExplosion()) {
+        if (affectedBlocks == null || affectedBlocks.isEmpty()) {
             return null;
         }
         ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
@@ -80,10 +61,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent(List<BlockPos> affectedPositions, World world) {
         List<AffectedBlock> affectedBlocks = this.processAffectedPositions(affectedPositions, world);
-        if (affectedBlocks == null) {
-            return null;
-        }
-        if (!shouldHealExplosion()) {
+        if (affectedBlocks == null || affectedBlocks.isEmpty()) {
             return null;
         }
         BlockPos center = ExplosionUtils.calculateCenter(affectedPositions);
@@ -101,19 +79,16 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
 
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer) {
-        return this.createExplosionEvent(affectedBlocks, healTimer,0, ConfigUtils.getBlockPlacementDelay());
+        return this.createExplosionEvent(affectedBlocks, healTimer, ConfigUtils.getBlockPlacementDelay());
     }
 
     @Override
     public @Nullable AbstractExplosionEvent createExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, long blockHealDelay) {
-        return this.createExplosionEvent(affectedBlocks, healTimer, 0, blockHealDelay);
+        return this.createExplosionEvent(affectedBlocks, healTimer, blockHealDelay, 0);
     }
 
-    public @Nullable AbstractExplosionEvent createExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, int blockCounter, long blockHealDelay) {
+    public @Nullable AbstractExplosionEvent createExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer, long blockHealDelay, int blockCounter) {
         if (affectedBlocks.isEmpty()) {
-            return null;
-        }
-        if(!shouldHealExplosion()) {
             return null;
         }
         List<BlockPos> affectedPositions = affectedBlocks.stream().map(AffectedBlock::getBlockPos).toList();
@@ -173,32 +148,6 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         }
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocks(affectedBlocks, world);
         return sortedAffectedBlocks;
-    }
-
-    @Override
-    public boolean shouldHealExplosion() {
-
-        Entity causingEntity = this.causingEntity;
-        LivingEntity causingLivingEntity = this.causingLivingEntity;
-        DamageSource damageSource = this.damageSource;
-
-        boolean shouldHealExplosion = false;
-        if (causingLivingEntity instanceof CreeperEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_CREEPER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof GhastEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_GHAST_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingLivingEntity instanceof WitherEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_WITHER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingEntity instanceof TntMinecartEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_MINECART_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (damageSource.isOf(DamageTypes.BAD_RESPAWN_POINT) && ConfigUtils.getSettingValue(ConfigSettings.HEAL_BED_AND_RESPAWN_ANCHOR_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        } else if (causingEntity instanceof EndCrystalEntity && ConfigUtils.getSettingValue(ConfigSettings.HEAL_END_CRYSTAL_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)){
-            shouldHealExplosion = true;
-        }
-        return shouldHealExplosion;
     }
 
 }

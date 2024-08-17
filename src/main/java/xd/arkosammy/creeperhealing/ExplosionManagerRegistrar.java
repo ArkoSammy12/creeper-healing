@@ -1,11 +1,12 @@
 package xd.arkosammy.creeperhealing;
+
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
 import xd.arkosammy.creeperhealing.explosions.factories.ExplosionEventFactory;
 import xd.arkosammy.creeperhealing.managers.ExplosionManager;
 import xd.arkosammy.creeperhealing.util.ExplosionContext;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class ExplosionManagerRegistrar {
 
@@ -20,37 +21,36 @@ public final class ExplosionManagerRegistrar {
         return instance;
     }
 
-
+    /**
+     * Registers a new {@link ExplosionManager}. Registered {@link ExplosionManager}s will receive emitted instances of {@link ExplosionContext} for Explosion Managers to process based on the provided id.
+     * This registrar will also invoke {@link ExplosionManager#onServerStarting} and {@link ExplosionManager#onServerStopping} on the registered Explosion Managers automatically.
+     *
+     * @param explosionManager The {@link ExplosionManager} to register.
+     * @throws IllegalArgumentException if an {@link ExplosionManager} with an ID matching that of the passed in Explosion Manager is already registered.
+     */
     public void registerExplosionManager(ExplosionManager explosionManager) {
         synchronized (this.explosionManagers) {
+            Identifier explosionManagerId = explosionManager.getId();
+            for (ExplosionManager manager : this.explosionManagers) {
+                if (manager.getId().equals(explosionManagerId)) {
+                    throw new IllegalArgumentException("Cannot register ExplosionManager with ID \"%s\" as an ExplosionManager with that ID has already been registered!".formatted(explosionManagerId));
+                }
+            }
             this.explosionManagers.add(explosionManager);
         }
     }
 
-    public void emitExplosionContext(ExplosionContext explosionContext) {
+    public void emitExplosionContext(Identifier explosionManagerId, ExplosionContext explosionContext) {
         synchronized (this.explosionManagers) {
-            List<ExplosionManager> idleManagers = this.explosionManagers.stream().filter(explosionManager -> explosionManager.getExplosionEvents().findAny().isEmpty()).collect(Collectors.toList());
-            if (!idleManagers.isEmpty()) {
-                Collections.shuffle(idleManagers);
-                for (ExplosionManager idleManager : idleManagers) {
-                    ExplosionEventFactory<?> explosionEventFactory = idleManager.getExplosionContextToEventFactoryFunction().apply(explosionContext);
-                    if (!explosionEventFactory.shouldHealExplosion()) {
-                        continue;
-                    }
-                    idleManager.addExplosionEvent(explosionEventFactory);
-                    return;
-                }
-            }
-            Collections.shuffle(this.explosionManagers);
             for (ExplosionManager explosionManager : this.explosionManagers) {
-                ExplosionEventFactory<?> explosionEventFactory = explosionManager.getExplosionContextToEventFactoryFunction().apply(explosionContext);
-                if (!explosionEventFactory.shouldHealExplosion()) {
+                if (!explosionManager.getId().equals(explosionManagerId)) {
                     continue;
                 }
+                ExplosionEventFactory<?> explosionEventFactory = explosionManager.getExplosionContextToEventFactoryFunction().apply(explosionContext);
                 explosionManager.addExplosionEvent(explosionEventFactory);
                 return;
             }
-
+            CreeperHealing.LOGGER.warn("Found no ExplosionManager with ID {}. An explosion will not be healed", explosionManagerId);
         }
     }
 

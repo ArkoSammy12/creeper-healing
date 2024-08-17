@@ -11,17 +11,17 @@ public enum ExplosionHealingMode implements StringIdentifiable {
 
     private final String name;
 
-    ExplosionHealingMode(String name){
+    ExplosionHealingMode(String name) {
         this.name = name;
     }
 
-    public String getName(){
+    public String getName() {
         return this.name;
     }
 
-    public static ExplosionHealingMode getFromName(String name){
-        for(ExplosionHealingMode explosionMode : ExplosionHealingMode.values()){
-            if(explosionMode.getName().equals(name)){
+    public static ExplosionHealingMode getFromName(String name) {
+        for (ExplosionHealingMode explosionMode : ExplosionHealingMode.values()) {
+            if (explosionMode.getName().equals(name)) {
                 return explosionMode;
             }
         }

@@ -17,9 +17,7 @@ public interface SplashPotionCallbacks {
             }));
 
     interface OnCollision {
-
         void onPotionCollide(PotionEntity potionEntity, PotionContentsComponent potionContentsComponent, HitResult hitResult, World world);
-
     }
 
 }

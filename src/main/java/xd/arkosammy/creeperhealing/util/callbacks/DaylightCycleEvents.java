@@ -16,9 +16,7 @@ public interface DaylightCycleEvents {
             });
 
     interface NightSkipped {
-
         void onNightSkipped(ServerWorld world, BooleanSupplier shouldKeepTicking);
-
     }
 
 }

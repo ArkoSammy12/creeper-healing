@@ -118,15 +118,15 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
     // If the current affected block cannot be placed at this moment, find the next block that is placeable in the list and swap them in the list.
     // This effectively gives the delayed block more chances to be placed until no more placeable blocks are found
     // Examples include wall torches, vines, lanterns, candles, etc.
-    private void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server){
+    private void delayAffectedBlock(AffectedBlock affectedBlockToDelay, MinecraftServer server) {
         int indexOfDelayedBlock = this.affectedBlocks.indexOf(affectedBlockToDelay);
-        if(indexOfDelayedBlock < 0){
+        if (indexOfDelayedBlock < 0) {
             this.incrementCounter();
             affectedBlockToDelay.setPlaced();
             return;
         }
         int indexOfNextPlaceable = this.findNextPlaceableBlockIndex(server);
-        if(indexOfNextPlaceable >= 0){
+        if (indexOfNextPlaceable >= 0) {
             Collections.swap(this.affectedBlocks, indexOfDelayedBlock, indexOfNextPlaceable);
         } else {
             this.incrementCounter();
@@ -134,9 +134,9 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
         }
     }
 
-    private int findNextPlaceableBlockIndex(MinecraftServer server){
-        for(int i = this.blockCounter; i < this.affectedBlocks.size(); i++){
-            if(this.affectedBlocks.get(i).canBePlaced(server)){
+    private int findNextPlaceableBlockIndex(MinecraftServer server) {
+        for (int i = this.blockCounter; i < this.affectedBlocks.size(); i++) {
+            if (this.affectedBlocks.get(i).canBePlaced(server)) {
                 return i;
             }
         }
@@ -148,9 +148,9 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
         return new DefaultSerializedExplosion(this.getHealingMode().asString(), this.getAffectedBlocks().map(AffectedBlock::asSerialized).toList(), this.healTimer, this.blockCounter, this.radius, this.center);
     }
 
-    public final void findAndMarkPlaced(BlockPos blockPos, BlockState blockState, World world){
-        for(AffectedBlock affectedBlock : this.affectedBlocks) {
-            if(affectedBlock.getBlockState().equals(blockState) && affectedBlock.getBlockPos().equals(blockPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
+    public final void findAndMarkPlaced(BlockPos blockPos, BlockState blockState, World world) {
+        for (AffectedBlock affectedBlock : this.affectedBlocks) {
+            if (affectedBlock.getBlockState().equals(blockState) && affectedBlock.getBlockPos().equals(blockPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
                 affectedBlock.setPlaced();
             }
         }
