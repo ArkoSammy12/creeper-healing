@@ -24,6 +24,12 @@ repositories {
 	}
 
 	maven {
+    	name "enjaraiMavenMirrors"
+    	url "https://maven.enjarai.dev/mirrors"
+	}
+
+
+	maven {
 		// Patbox's SGui
 		name "nucleoid"
 		url "https://maven.nucleoid.xyz"
@@ -40,7 +46,7 @@ loom {
     splitEnvironmentSourceSets()
 
 	mods {
-		"creeper-healing" {
+		"creeperhealing" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
@@ -85,6 +91,13 @@ dependencies {
 
 	// Monkey config
 	modImplementation("xd.arkosammy:monkeyconfig:${project.monkey_config_version}")
+
+	// Trickster
+	modImplementation("dev.enjarai:trickster:${project.trickster_version}")
+
+	// Mythic Metals
+	modImplementation("maven.modrinth:bAWzYNRd:${project.mythic_metals_version}")
+
 
 	// Creeper Overhaul
 	//modImplementation("maven.modrinth:MI1LWe93:${project.creeper_overhaul_version}")

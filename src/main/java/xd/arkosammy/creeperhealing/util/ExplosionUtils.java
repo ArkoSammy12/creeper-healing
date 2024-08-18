@@ -4,11 +4,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.particle.ParticleType;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -19,6 +22,7 @@ import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
+import xd.arkosammy.monkeyconfig.settings.StringSetting;
 import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.util.*;
@@ -177,6 +181,62 @@ public final class ExplosionUtils {
         return Arrays.stream(radii).max().orElse(0);
     }
 
+    // Recursively find indirectly affected positions connected to the main affected positions.
+    // Start from the "edge" of the blast radius and visit each neighbor until a neighbor has no
+    // non-visited positions, the neighbor is surrounded by air, or we hit the max recursion depth.
+    public static List<BlockPos> getIndirectlyAffectedBlocks(List<BlockPos> affectedPositions, World world) {
+
+        // Only consider block positions with adjacent non-affected positions
+        List<BlockPos> edgeAffectedPositions = new ArrayList<>();
+        for (BlockPos vanillaAffectedPosition : affectedPositions) {
+            if (world.getBlockState(vanillaAffectedPosition).isAir()) {
+                continue;
+            }
+            for (Direction direction : Direction.values()) {
+                BlockPos neighborPos = vanillaAffectedPosition.offset(direction);
+                BlockState neighborState = world.getBlockState(neighborPos);
+                // No blocks will be connected to the neighbor position if the state is air
+                if (neighborState.isAir()) {
+                    continue;
+                }
+                if (!affectedPositions.contains(neighborPos)) {
+                    edgeAffectedPositions.add(vanillaAffectedPosition);
+                    break;
+                }
+            }
+        }
+
+        // Pass in a custom WorldView implementation that always returns an air BlockState when calling
+        // WorldView#getBlockState on it. This guarantees that further checks with BlockState#canPlaceAt
+        // are done in what will look like an empty world
+        EmptyWorld emptyWorld = new EmptyWorld(world);
+        Set<BlockPos> newPositions = new HashSet<>();
+        for (BlockPos filteredPosition : edgeAffectedPositions) {
+            checkNeighbors(512, filteredPosition, affectedPositions, newPositions, world, emptyWorld);
+        }
+        return new ArrayList<>(ExplosionUtils.filterPositionsToHeal(newPositions, world::getBlockState));
+    }
+
+    public static void checkNeighbors(int maxCheckDepth, BlockPos currentPosition, List<BlockPos> affectedPositions, Set<BlockPos> newPositions, World normalWorld, EmptyWorld emptyWorld) {
+        if (maxCheckDepth <= 0) {
+            return;
+        }
+        for (Direction neighborDirection : Direction.values()) {
+            BlockPos neighborPos = currentPosition.offset(neighborDirection);
+            BlockState neighborState = normalWorld.getBlockState(neighborPos);
+
+            // If the block cannot be placed at an empty position also surrounded by air, then we assume
+            // the block needs a supporting block to be placed.
+            if (neighborState.isAir() || neighborState.canPlaceAt(emptyWorld, neighborPos) || affectedPositions.contains(neighborPos)) {
+                continue;
+            }
+            if (newPositions.add(neighborPos)) {
+                checkNeighbors(maxCheckDepth - 1, neighborPos, affectedPositions, newPositions, normalWorld, emptyWorld);
+            }
+        }
+    }
+
+
     public static void playBlockPlacementSoundEffect(World world, BlockPos blockPos, BlockState blockState) {
         boolean placementSoundEffectSetting = ConfigUtils.getSettingValue(ConfigSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getSettingLocation(), BooleanSetting.class);
         boolean doPlacementSoundEffect = placementSoundEffectSetting && !world.isClient() && !blockState.isAir();
@@ -194,7 +254,16 @@ public final class ExplosionUtils {
         if (!blockPlacementParticlesSetting) {
             return;
         }
-        serverWorld.spawnParticles(ParticleTypes.CLOUD, blockPos.getX(), blockPos.getY() + 2, blockPos.getZ(), 1, 0, 1, 0, 0.001);
+        String healingParticleTypeSetting = ConfigUtils.getSettingValue(ConfigSettings.HEALING_PARTICLE_TYPE.getSettingLocation(), StringSetting.class);
+        Identifier healingParticleIdentifier = Identifier.tryParse(healingParticleTypeSetting);
+        SimpleParticleType particleType = ParticleTypes.CLOUD;
+        if (healingParticleIdentifier != null) {
+            ParticleType<?> particleTypeFromRegistry = Registries.PARTICLE_TYPE.get(healingParticleIdentifier);
+            if (particleTypeFromRegistry instanceof SimpleParticleType simpleParticleType) {
+                particleType = simpleParticleType;
+            }
+        }
+        serverWorld.spawnParticles(particleType, blockPos.getX(), blockPos.getY() + 2, blockPos.getZ(), 1, 0, 1, 0, 0.001);
     }
 
 }

@@ -2,10 +2,12 @@ package xd.arkosammy.creeperhealing.util.callbacks;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.projectile.thrown.PotionEntity;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public interface SplashPotionCallbacks {
 
@@ -17,7 +19,7 @@ public interface SplashPotionCallbacks {
             }));
 
     interface OnCollision {
-        void onPotionCollide(PotionEntity potionEntity, PotionContentsComponent potionContentsComponent, HitResult hitResult, World world);
+        void onPotionCollide(PotionEntity potionEntity, List<StatusEffectInstance> statusEffects, HitResult hitResult, World world);
     }
 
 }

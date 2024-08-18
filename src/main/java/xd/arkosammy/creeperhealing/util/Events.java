@@ -1,8 +1,8 @@
 package xd.arkosammy.creeperhealing.util;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
-import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.CreeperHealing;
 import xd.arkosammy.creeperhealing.ExplosionManagerRegistrar;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
+import xd.arkosammy.creeperhealing.support.trickster.ModTricks;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.AbstractExplosionEvent;
@@ -29,7 +30,6 @@ import xd.arkosammy.creeperhealing.util.callbacks.SplashPotionCallbacks;
 import xd.arkosammy.creeperhealing.util.callbacks.TimeCommandCallbacks;
 import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
@@ -48,6 +48,11 @@ public final class Events {
         TimeCommandCallbacks.ON_TIME_EXECUTE_SET.register(Events::onTimeCommand);
         TimeCommandCallbacks.ON_TIME_EXECUTE_ADD.register(Events::onTimeCommand);
 
+        boolean isTricksterTrickstering = FabricLoader.getInstance().isModLoaded("trickster");
+        if (isTricksterTrickstering) {
+            ModTricks.registerTricks();
+        }
+
     }
 
     // Start healing DaytimeExplosionEvents when the night is skipped
@@ -59,14 +64,8 @@ public final class Events {
         }
     }
 
-    private static void onSplashPotionHit(PotionEntity potionEntity, PotionContentsComponent potionContentsComponent, HitResult hitResult, World world) {
-        Iterable<StatusEffectInstance> statusEffectsIterable = potionContentsComponent.getEffects();
-        List<StatusEffectInstance> statusEffects = new ArrayList<>();
-
-        for (StatusEffectInstance statusEffectInstance : statusEffectsIterable) {
-            statusEffects.add(statusEffectInstance);
-        }
-
+    // Make explosions start healing when you throw a potion of healing or regeneration on them
+    private static void onSplashPotionHit(PotionEntity potionEntity, List<StatusEffectInstance> statusEffects, HitResult hitResult, World world) {
         BlockPos potionHitPosition = switch (hitResult.getType()) {
             case BLOCK -> ((BlockHitResult) hitResult).getBlockPos().offset(((BlockHitResult) hitResult).getSide());
             case ENTITY -> ((EntityHitResult) hitResult).getEntity().getBlockPos();
@@ -89,7 +88,7 @@ public final class Events {
         boolean healOnHealingPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_HEALING_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
         boolean healOnRegenerationPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
         if (hasInstantHealth && healOnHealingPotion) {
-            for (ExplosionEvent explosionEvent : CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().toList()) {
+            CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().forEach(explosionEvent -> {
                 boolean potionHitExplosion = explosionEvent.getAffectedBlocks().anyMatch(affectedBlock -> affectedBlock.getBlockPos().equals(potionHitPosition));
                 if (potionHitExplosion && explosionEvent instanceof AbstractExplosionEvent abstractExplosionEvent) {
                     abstractExplosionEvent.setHealTimer(1);
@@ -99,14 +98,14 @@ public final class Events {
                         }
                     });
                 }
-            }
+            });
         } else if (hasRegeneration && healOnRegenerationPotion) {
-            for (ExplosionEvent explosionEvent : CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().toList()) {
+            CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().forEach(explosionEvent -> {
                 boolean potionHitExplosion = explosionEvent.getAffectedBlocks().anyMatch(affectedBlock -> affectedBlock.getBlockPos().equals(potionHitPosition));
                 if (potionHitExplosion && explosionEvent instanceof AbstractExplosionEvent abstractExplosionEvent) {
                     abstractExplosionEvent.setHealTimer(1);
                 }
-            }
+            });
         }
     }
 

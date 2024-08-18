@@ -36,17 +36,6 @@ import java.util.stream.Stream;
 public class DefaultExplosionManager implements ExplosionManager {
 
     public static final Identifier ID = Identifier.of(CreeperHealing.MOD_ID, "default_explosion_manager");
-    private static final Function<ExplosionContext, ExplosionEventFactory<?>> explosionContextToFactoryFunction = explosionContext -> {
-        List<BlockPos> indirectlyExplodedPositions = explosionContext.indirectlyAffectedPositions();
-        Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = explosionContext.affectedStatesAndBlockEntities();
-        DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(
-                affectedStatesAndBlockEntities,
-                explosionContext.vanillaAffectedPositions(),
-                indirectlyExplodedPositions,
-                explosionContext.world()
-        );
-        return explosionFactory;
-    };
     private static final String SCHEDULED_EXPLOSIONS_FILE = "scheduled-explosions.json";
 
     private final Codec<DefaultExplosionManager> codec;
@@ -90,11 +79,6 @@ public class DefaultExplosionManager implements ExplosionManager {
     }
 
     @Override
-    public Function<ExplosionContext, ExplosionEventFactory<?>> getExplosionContextToEventFactoryFunction() {
-        return explosionContextToFactoryFunction;
-    }
-
-    @Override
     public void tick(MinecraftServer server) {
         if (this.explosionEvents.isEmpty() || !server.getTickManager().shouldTick()) {
             return;
@@ -106,20 +90,27 @@ public class DefaultExplosionManager implements ExplosionManager {
     }
 
     @Override
-    public <T extends ExplosionEvent> void addExplosionEvent(ExplosionEventFactory<T> explosionEventFactory) {
-        ExplosionEvent explosionEvent = explosionEventFactory.createExplosionEvent();
+    public void onExplosionContext(ExplosionContext explosionContext) {
+        List<BlockPos> indirectlyExplodedPositions = explosionContext.indirectlyAffectedPositions();
+        Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = explosionContext.affectedStatesAndBlockEntities();
+        DefaultExplosionFactory explosionFactory = new DefaultExplosionFactory(
+                affectedStatesAndBlockEntities,
+                explosionContext.vanillaAffectedPositions(),
+                indirectlyExplodedPositions,
+                explosionContext.world()
+        );
+        ExplosionEvent explosionEvent = explosionFactory.createExplosionEvent();
         if (explosionEvent == null) {
             return;
         }
-        Set<ExplosionEvent> collidingExplosions = this.getCollidingExplosions(explosionEvent, explosionEventFactory.getAffectedPositions());
+        Set<ExplosionEvent> collidingExplosions = this.getCollidingExplosions(explosionEvent, explosionFactory.getAffectedPositions());
         if (collidingExplosions.isEmpty()) {
             this.explosionEvents.add(explosionEvent);
         } else {
             this.explosionEvents.removeIf(collidingExplosions::contains);
             collidingExplosions.add(explosionEvent);
-            this.explosionEvents.add(combineCollidingExplosions(explosionEvent, collidingExplosions, explosionEventFactory));
+            this.explosionEvents.add(combineCollidingExplosions(explosionEvent, collidingExplosions, explosionFactory));
         }
-
     }
 
     @Override

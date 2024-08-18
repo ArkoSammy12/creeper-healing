@@ -194,7 +194,9 @@ public class SingleAffectedBlock implements AffectedBlock {
             if (!affectedState.isOf(Blocks.CHEST) || !affectedPosition.equals(otherHalfPos)) {
                 continue;
             }
-            singleAffectedBlock.tryHealing(server, explosionEvent);
+            if (!singleAffectedBlock.isPlaced()) {
+                singleAffectedBlock.tryHealing(server, explosionEvent);
+            }
             singleAffectedBlock.setPlaced();
         }
 
@@ -209,12 +211,12 @@ public class SingleAffectedBlock implements AffectedBlock {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SingleAffectedBlock that)) return false;
-        return Objects.equals(getBlockPos(), that.getBlockPos()) && Objects.equals(getBlockState(), that.getBlockState()) && Objects.equals(getWorldRegistryKey(), that.getWorldRegistryKey());
+        return Objects.equals(blockPos, that.blockPos) && Objects.equals(blockState, that.blockState) && Objects.equals(worldRegistryKey, that.worldRegistryKey) && Objects.equals(nbt, that.nbt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBlockPos(), getBlockState(), getWorldRegistryKey());
+        return Objects.hash(blockPos, blockState, worldRegistryKey, nbt);
     }
 
     @Override

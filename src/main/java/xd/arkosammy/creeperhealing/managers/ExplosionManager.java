@@ -13,13 +13,11 @@ public interface ExplosionManager {
 
     Identifier getId();
 
-    Function<ExplosionContext, ExplosionEventFactory<?>> getExplosionContextToEventFactoryFunction();
-
     void tick(MinecraftServer server);
 
     Stream<ExplosionEvent> getExplosionEvents();
 
-    <T extends ExplosionEvent> void addExplosionEvent(ExplosionEventFactory<T> explosionEventFactory);
+    void onExplosionContext(ExplosionContext explosionContext);
 
     default void onServerStarting(MinecraftServer server) {
         this.readExplosionEvents(server);

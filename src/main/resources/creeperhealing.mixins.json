@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "xd.arkosammy.creeperhealing.mixin",
+  "plugin" : "xd.arkosammy.creeperhealing.CreeperHealingMixinConfigPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockMixin",
@@ -10,7 +11,8 @@
     "PotionEntityMixin",
     "ServerWorldMixin",
     "TimeCommandMixin",
-    "WorldMixin"
+    "WorldMixin",
+    "compat.mythicmetals.EpicExplosionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,5 +1,6 @@
 package xd.arkosammy.creeperhealing.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -34,9 +35,10 @@ public abstract class WorldMixin {
 
     // Use our thread local to pass an extra flag to World#setBlockState to make the explosion not drop the item of the current block.
     // Container blocks can still drop their inventories
-    @Inject(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;II)Z", at = @At("HEAD"))
-    private void checkExcludedBlock(BlockPos pos, BlockState state, int flags, int maxUpdateDepth, CallbackInfoReturnable<Boolean> cir, @Share("isBlockAtPosExcluded") LocalBooleanRef isBlockAtPosExcluded) {
+    @WrapMethod(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;II)Z")
+    private boolean checkExcludedBlock(BlockPos pos, BlockState state, int flags, int maxUpdateDepth, Operation<Boolean> original, @Share("isBlockAtPosExcluded") LocalBooleanRef isBlockAtPosExcluded) {
         isBlockAtPosExcluded.set(ExcludedBlocks.isExcluded(this.getBlockState(pos)));
+        return original.call(pos, state, flags, maxUpdateDepth);
     }
 
     @WrapOperation(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;II)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;updateNeighbors(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;II)V"))

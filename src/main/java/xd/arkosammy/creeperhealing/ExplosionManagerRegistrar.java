@@ -2,6 +2,7 @@ package xd.arkosammy.creeperhealing;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import xd.arkosammy.creeperhealing.explosions.factories.ExplosionEventFactory;
 import xd.arkosammy.creeperhealing.managers.ExplosionManager;
 import xd.arkosammy.creeperhealing.util.ExplosionContext;
@@ -42,15 +43,21 @@ public final class ExplosionManagerRegistrar {
 
     public void emitExplosionContext(Identifier explosionManagerId, ExplosionContext explosionContext) {
         synchronized (this.explosionManagers) {
+            boolean foundManager = false;
             for (ExplosionManager explosionManager : this.explosionManagers) {
                 if (!explosionManager.getId().equals(explosionManagerId)) {
                     continue;
                 }
-                ExplosionEventFactory<?> explosionEventFactory = explosionManager.getExplosionContextToEventFactoryFunction().apply(explosionContext);
-                explosionManager.addExplosionEvent(explosionEventFactory);
-                return;
+                explosionManager.onExplosionContext(explosionContext);
+                foundManager = true;
+                break;
             }
-            CreeperHealing.LOGGER.warn("Found no ExplosionManager with ID {}. An explosion will not be healed", explosionManagerId);
+            if (!foundManager) {
+                CreeperHealing.LOGGER.warn("Found no ExplosionManager with ID {}. An explosion will not be healed", explosionManagerId);
+            }
+            if (foundManager) {
+                Collections.rotate(this.explosionManagers, 1);
+            }
         }
     }
 
@@ -68,6 +75,7 @@ public final class ExplosionManagerRegistrar {
                 explosionManager.onServerStopping(server);
             }
         }
+
     }
 
 }

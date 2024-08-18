@@ -12,7 +12,7 @@
 		"sources": "https://github.com/ArkoSammy12/creeper-healing"
 	},
 	"license": "LGPL-3.0-only",
-	"icon": "assets/creeper-healing/icon.png",
+	"icon": "assets/creeperhealing/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -20,10 +20,10 @@
 		]
 	},
 	"mixins": [
-		"creeper-healing.mixins.json"
+		"creeperhealing.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.15.11",
+		"fabricloader": ">=0.16.2",
 		"minecraft": ">=1.21",
 		"java": ">=21",
 		"fabric-api": "*",
