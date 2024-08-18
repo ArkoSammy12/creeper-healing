@@ -1,10 +1,7 @@
 package xd.arkosammy.creeperhealing.explosions.factories;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -14,10 +11,7 @@ import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.creeperhealing.explosions.*;
-import xd.arkosammy.creeperhealing.util.ExcludedBlocks;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
-import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.util.*;
 
@@ -123,28 +117,16 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
 
     @Nullable
     private List<AffectedBlock> processAffectedPositions(List<BlockPos> affectedPositions, World world) {
-        List<AffectedBlock> affectedBlocks = new ArrayList<>();
-        boolean whitelistEnabled = ConfigUtils.getSettingValue(ConfigSettings.ENABLE_WHITELIST.getSettingLocation(), BooleanSetting.class);
-        List<? extends String> whitelist = ConfigUtils.getSettingValue(ConfigSettings.WHITELIST.getSettingLocation(), StringListSetting.class);
-        for (BlockPos affectedPosition : affectedPositions) {
-            // Hardcoded exception. Place before all logic
-            BlockState affectedState = this.affectedStatesAndBlockEntities.get(affectedPosition).getLeft();
-            if (affectedState == null || ExcludedBlocks.isExcluded(affectedState)) {
-                continue;
-            }
-            boolean isStateUnhealable = affectedState.isAir() || affectedState.isOf(Blocks.TNT) || affectedState.isIn(BlockTags.FIRE);
-            if (isStateUnhealable) {
-                continue;
-            }
-            String affectedBlockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
-            boolean whitelistContainsIdentifier = whitelist.contains(affectedBlockIdentifier);
-            if (!whitelistEnabled || whitelistContainsIdentifier) {
-                BlockEntity affectedBlockEntity = affectedStatesAndBlockEntities.get(affectedPosition).getRight();
-                affectedBlocks.add(AffectedBlock.newInstance(affectedPosition, affectedState, affectedBlockEntity, world));
-            }
-        }
-        if (affectedBlocks.isEmpty()) {
+        List<BlockPos> positionsToHeal = ExplosionUtils.filterPositionsToHeal(affectedPositions, (pos) -> this.affectedStatesAndBlockEntities.get(pos).getLeft());
+        if (positionsToHeal.isEmpty()) {
             return null;
+        }
+        List<AffectedBlock> affectedBlocks = new ArrayList<>();
+        for (BlockPos pos : positionsToHeal) {
+            BlockState affectedState = this.affectedStatesAndBlockEntities.get(pos).getLeft();
+            BlockEntity affectedBlockEntity = this.affectedStatesAndBlockEntities.get(pos).getRight();
+            AffectedBlock affectedBlock = AffectedBlock.newInstance(pos, affectedState, affectedBlockEntity, world);
+            affectedBlocks.add(affectedBlock);
         }
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocks(affectedBlocks, world);
         return sortedAffectedBlocks;

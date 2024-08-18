@@ -1,9 +1,12 @@
 package xd.arkosammy.creeperhealing.util;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -16,8 +19,10 @@ import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
 import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
+import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class ExplosionUtils {
@@ -50,6 +55,29 @@ public final class ExplosionUtils {
             }
         }
         return true;
+    }
+
+    public static List<BlockPos> filterPositionsToHeal(Collection<BlockPos> positions, Function<BlockPos, BlockState> positionToStateMapper) {
+        List<BlockPos> affectedPositions = new ArrayList<>();
+        boolean whitelistEnabled = ConfigUtils.getSettingValue(ConfigSettings.ENABLE_WHITELIST.getSettingLocation(), BooleanSetting.class);
+        List<? extends String> whitelist = ConfigUtils.getSettingValue(ConfigSettings.WHITELIST.getSettingLocation(), StringListSetting.class);
+        for (BlockPos affectedPosition : positions) {
+            // Hardcoded exception. Place before all logic
+            BlockState affectedState = positionToStateMapper.apply(affectedPosition);
+            if (ExcludedBlocks.isExcluded(affectedState)) {
+                continue;
+            }
+            boolean stateCannotHeal = affectedState.isAir() || affectedState.isOf(Blocks.TNT) || affectedState.isIn(BlockTags.FIRE);
+            if (stateCannotHeal) {
+                continue;
+            }
+            String affectedBlockIdentifier = Registries.BLOCK.getId(affectedState.getBlock()).toString();
+            boolean whitelistContainsIdentifier = whitelist.contains(affectedBlockIdentifier);
+            if (!whitelistEnabled || whitelistContainsIdentifier) {
+                affectedPositions.add(affectedPosition);
+            }
+        }
+        return affectedPositions;
     }
 
     // The goal is to heal blocks inwards from the edge of the explosion, bottom to top, non-transparent blocks first

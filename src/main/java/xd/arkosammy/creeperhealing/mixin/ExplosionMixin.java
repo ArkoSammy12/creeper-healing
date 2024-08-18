@@ -51,6 +51,9 @@ public abstract class ExplosionMixin implements ExplosionDuck {
     private final Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities = new HashMap<>();
 
     @Unique
+    private final Set<BlockPos> vanillaAffectedPositions = new HashSet<>();
+
+    @Unique
     private final Set<BlockPos> indirectlyAffectedPositions = new HashSet<>();
 
     @Override
@@ -65,7 +68,7 @@ public abstract class ExplosionMixin implements ExplosionDuck {
 
     @Override
     public boolean creeperhealing$shouldHeal() {
-        if (this.getAffectedBlocks().isEmpty()) {
+        if (this.vanillaAffectedPositions.isEmpty()) {
             return false;
         }
         World.ExplosionSourceType explosionSourceType = (this.explosionSourceType);
@@ -96,8 +99,9 @@ public abstract class ExplosionMixin implements ExplosionDuck {
         if (world.isClient()) {
             return;
         }
+        this.vanillaAffectedPositions.addAll(ExplosionUtils.filterPositionsToHeal(this.getAffectedBlocks(), (pos) -> this.world.getBlockState(pos)));
         this.checkForIndirectlyAffectedPositions();
-        for (BlockPos pos : this.getAffectedBlocks()) {
+        for (BlockPos pos : this.vanillaAffectedPositions) {
             this.affectedStatesAndBlockEntities.put(pos, new Pair<>(this.world.getBlockState(pos), this.world.getBlockEntity(pos)));
         }
         for (BlockPos pos : this.indirectlyAffectedPositions) {
@@ -121,11 +125,13 @@ public abstract class ExplosionMixin implements ExplosionDuck {
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
         if (world.isClient()) {
+            this.vanillaAffectedPositions.clear();
             this.affectedStatesAndBlockEntities.clear();
             this.indirectlyAffectedPositions.clear();
             return;
         }
         if (!this.creeperhealing$shouldHeal()) {
+            this.vanillaAffectedPositions.clear();
             this.affectedStatesAndBlockEntities.clear();
             this.indirectlyAffectedPositions.clear();
             return;
@@ -147,7 +153,7 @@ public abstract class ExplosionMixin implements ExplosionDuck {
             }
         }
         List<BlockPos> filteredAffectedPositions = new ArrayList<>();
-        for (BlockPos pos : this.getAffectedBlocks()) {
+        for (BlockPos pos : this.vanillaAffectedPositions) {
             // Hardcoded exception, place before all other logic
             BlockState state = this.affectedStatesAndBlockEntities.get(pos).getLeft();
             if (ExcludedBlocks.isExcluded(state)) {
@@ -170,6 +176,7 @@ public abstract class ExplosionMixin implements ExplosionDuck {
                 this.explosionSourceType
         );
         ExplosionManagerRegistrar.getInstance().emitExplosionContext(DefaultExplosionManager.ID, explosionContext);
+        this.vanillaAffectedPositions.clear();
         this.affectedStatesAndBlockEntities.clear();
         this.indirectlyAffectedPositions.clear();
     }
@@ -208,7 +215,7 @@ public abstract class ExplosionMixin implements ExplosionDuck {
         for (BlockPos filteredPosition : edgeAffectedPositions) {
             checkNeighbors(512, filteredPosition, newPositions, emptyWorld);
         }
-        this.indirectlyAffectedPositions.addAll(newPositions);
+        this.indirectlyAffectedPositions.addAll(ExplosionUtils.filterPositionsToHeal(newPositions, (pos) -> this.world.getBlockState(pos)));
     }
 
     @Unique
