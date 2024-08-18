@@ -124,13 +124,7 @@ public abstract class ExplosionMixin implements ExplosionDuck {
     private void emitExplosionContext(boolean particles, CallbackInfo ci) {
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
-        if (world.isClient()) {
-            this.vanillaAffectedPositions.clear();
-            this.affectedStatesAndBlockEntities.clear();
-            this.indirectlyAffectedPositions.clear();
-            return;
-        }
-        if (!this.creeperhealing$shouldHeal()) {
+        if (world.isClient() || !this.creeperhealing$shouldHeal()) {
             this.vanillaAffectedPositions.clear();
             this.affectedStatesAndBlockEntities.clear();
             this.indirectlyAffectedPositions.clear();
@@ -154,8 +148,12 @@ public abstract class ExplosionMixin implements ExplosionDuck {
         }
         List<BlockPos> filteredAffectedPositions = new ArrayList<>();
         for (BlockPos pos : this.vanillaAffectedPositions) {
+            Pair<BlockState, BlockEntity> pair = this.affectedStatesAndBlockEntities.get(pos);
+            if (pair == null) {
+                continue;
+            }
+            BlockState state = pair.getLeft();
             // Hardcoded exception, place before all other logic
-            BlockState state = this.affectedStatesAndBlockEntities.get(pos).getLeft();
             if (ExcludedBlocks.isExcluded(state)) {
                 continue;
             }
