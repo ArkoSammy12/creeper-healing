@@ -189,6 +189,9 @@ public class SingleAffectedBlock implements AffectedBlock {
             if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {
                 continue;
             }
+            if (singleAffectedBlock.isPlaced()) {
+                continue;
+            }
             BlockState affectedState = singleAffectedBlock.getBlockState();
             BlockPos affectedPosition = singleAffectedBlock.getBlockPos();
             if (!affectedState.isOf(Blocks.CHEST) || !affectedPosition.equals(otherHalfPos)) {
