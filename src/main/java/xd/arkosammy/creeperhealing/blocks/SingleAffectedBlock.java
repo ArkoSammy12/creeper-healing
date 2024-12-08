@@ -93,7 +93,6 @@ public class SingleAffectedBlock implements AffectedBlock {
             return;
         }
         this.tryHealing(server, explosionEvent);
-        this.setPlaced();
     }
 
     @Override
@@ -110,6 +109,7 @@ public class SingleAffectedBlock implements AffectedBlock {
 
     protected void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent) {
 
+        this.setPlaced();
         BlockState state = this.getBlockState();
         BlockPos pos = this.getBlockPos();
         World world = this.getWorld(server);
@@ -199,7 +199,6 @@ public class SingleAffectedBlock implements AffectedBlock {
                 continue;
             }
             singleAffectedBlock.tryHealing(server, explosionEvent);
-            singleAffectedBlock.setPlaced();
         }
 
     }
