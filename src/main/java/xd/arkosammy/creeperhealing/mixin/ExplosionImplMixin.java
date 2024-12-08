@@ -41,8 +41,6 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
 
     @Shadow @Nullable public abstract LivingEntity getCausingEntity();
 
-    @Shadow protected abstract List<BlockPos> getBlocksToDestroy();
-
     @Shadow public abstract ServerWorld getWorld();
 
     @Unique
@@ -204,7 +202,7 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
                 if (neighborState.isAir()) {
                     continue;
                 }
-                if (!this.getBlocksToDestroy().contains(neighborPos)) {
+                if (!this.vanillaAffectedPositions.contains(neighborPos)) {
                     edgeAffectedPositions.add(vanillaAffectedPosition);
                     break;
                 }
