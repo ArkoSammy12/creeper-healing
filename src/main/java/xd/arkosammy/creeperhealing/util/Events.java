@@ -76,12 +76,12 @@ public final class Events {
         if (potionHitPosition == null) {
             return;
         }
-        RegistryEntry.Reference<StatusEffect> instantHealthEffect = StatusEffects.INSTANT_HEALTH.getKey().flatMap(Registries.STATUS_EFFECT::getEntry).orElse(null);
+        RegistryEntry.Reference<StatusEffect> instantHealthEffect = StatusEffects.INSTANT_HEALTH.getKey().flatMap(key -> Registries.STATUS_EFFECT.getEntry(key.getValue())).orElse(null);
         if (instantHealthEffect == null) {
             return;
         }
         boolean hasInstantHealth = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(instantHealthEffect));
-        RegistryEntry.Reference<StatusEffect> regenerationEffect = StatusEffects.REGENERATION.getKey().flatMap(Registries.STATUS_EFFECT::getEntry).orElse(null);
+        RegistryEntry.Reference<StatusEffect> regenerationEffect = StatusEffects.REGENERATION.getKey().flatMap(key -> Registries.STATUS_EFFECT.getEntry(key.getValue())).orElse(null);
         if (regenerationEffect == null) {
             return;
         }

@@ -2,6 +2,7 @@ package xd.arkosammy.creeperhealing.explosions;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.LightType;
@@ -28,7 +29,7 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
     }
 
     @Override
-    public void setup(World world) {
+    public void setup(ServerWorld world) {
         if (!world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
             return;
         }

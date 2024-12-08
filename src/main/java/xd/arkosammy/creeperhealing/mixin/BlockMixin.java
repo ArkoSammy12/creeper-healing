@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
-import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionDuck;
+import xd.arkosammy.creeperhealing.explosions.ducks.ExplosionImplDuck;
 import xd.arkosammy.creeperhealing.util.ExcludedBlocks;
 import xd.arkosammy.creeperhealing.util.ExplosionUtils;
 import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
@@ -38,13 +38,13 @@ public abstract class BlockMixin {
         }
 
         // Allow the explosion to drop items normally if it cannot be healed
-        if (!((ExplosionDuck) explosion).creeperhealing$shouldHeal()) {
+        if (!((ExplosionImplDuck) explosion).creeperhealing$shouldHeal()) {
             ExplosionUtils.DROP_BLOCK_ITEMS.set(original);
             ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(original);
             return original;
         }
 
-        World.ExplosionSourceType explosionSourceType = ((ExplosionDuck) explosion).creeperhealing$getExplosionSourceType();
+        World.ExplosionSourceType explosionSourceType = ((ExplosionImplDuck) explosion).creeperhealing$getExplosionSourceType();
         boolean shouldDropItems = switch (explosionSourceType) {
             case MOB -> {
                 if (!ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_MOB_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)) {

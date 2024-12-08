@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
@@ -50,7 +49,8 @@ public class EmptyWorld implements WorldView {
     @Nullable
     @Override
     public Chunk getChunk(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create) {
-        return new EmptyChunk(this.world, new ChunkPos(chunkX, chunkZ), this.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.THE_VOID));
+
+        return new EmptyChunk(this.world, new ChunkPos(chunkX, chunkZ), world.getRegistryManager().getOrThrow(RegistryKeys.BIOME).getOrThrow(BiomeKeys.THE_VOID));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class EmptyWorld implements WorldView {
 
     @Override
     public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ) {
-        return this.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.THE_VOID);
+        return world.getRegistryManager().getOrThrow(RegistryKeys.BIOME).getOrThrow(BiomeKeys.THE_VOID);
     }
 
     @Override
