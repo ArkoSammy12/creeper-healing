@@ -21,7 +21,7 @@ public abstract class PotionEntityMixin extends ThrownItemEntity {
     }
 
     // Make explosions start healing when you throw a potion of healing or regeneration on them
-    @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/PotionEntity;applySplashPotion(Ljava/lang/Iterable;Lnet/minecraft/entity/Entity;)V"))
+    @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/PotionEntity;applySplashPotion(Lnet/minecraft/server/world/ServerWorld;Ljava/lang/Iterable;Lnet/minecraft/entity/Entity;)V"))
     private void onSplashPotionHit(HitResult hitResult, CallbackInfo ci, @Local PotionContentsComponent potionContentsComponent) {
         World world = this.getWorld();
         SplashPotionCallbacks.ON_COLLISION.invoker().onPotionCollide(((PotionEntity) (Object) this), potionContentsComponent, hitResult, world);

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
-public interface ExplosionDuck {
+public interface ExplosionImplDuck {
 
     boolean creeperhealing$shouldHeal();
 

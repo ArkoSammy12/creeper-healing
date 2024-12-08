@@ -4,6 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -21,7 +22,7 @@ public interface AffectedBlock {
 
     RegistryKey<World> getWorldRegistryKey();
 
-    World getWorld(MinecraftServer server);
+    ServerWorld getWorld(MinecraftServer server);
 
     long getBlockTimer();
 

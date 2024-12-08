@@ -81,7 +81,7 @@ public final class ExplosionUtils {
     }
 
     // The goal is to heal blocks inwards from the edge of the explosion, bottom to top, non-transparent blocks first
-    public static @NotNull List<AffectedBlock> sortAffectedBlocks(@NotNull List<AffectedBlock> affectedBlocksList, World world) {
+    public static @NotNull List<AffectedBlock> sortAffectedBlocks(@NotNull List<AffectedBlock> affectedBlocksList, ServerWorld world) {
         List<AffectedBlock> sortedAffectedBlocks = new ArrayList<>(affectedBlocksList);
         List<BlockPos> affectedBlocksAsPositions = sortedAffectedBlocks.stream().map(AffectedBlock::getBlockPos).collect(Collectors.toList());
         int centerX = getCenterXCoordinate(affectedBlocksAsPositions);
@@ -91,8 +91,8 @@ public final class ExplosionUtils {
         Comparator<AffectedBlock> yLevelComparator = Comparator.comparingInt(affectedBlock -> affectedBlock.getBlockPos().getY());
         sortedAffectedBlocks.sort(yLevelComparator);
         Comparator<AffectedBlock> transparencyComparator = (currentAffectedBlock, nextAffectedBlock) -> {
-            boolean isCurrentAffectedBlockTransparent = currentAffectedBlock.getBlockState().isTransparent(world, currentAffectedBlock.getBlockPos());
-            boolean isNextAffectedBlockTransparent = nextAffectedBlock.getBlockState().isTransparent(world, nextAffectedBlock.getBlockPos());
+            boolean isCurrentAffectedBlockTransparent = currentAffectedBlock.getBlockState().isTransparent();
+            boolean isNextAffectedBlockTransparent = nextAffectedBlock.getBlockState().isTransparent();
             return Boolean.compare(isCurrentAffectedBlockTransparent, isNextAffectedBlockTransparent);
         };
         sortedAffectedBlocks.sort(transparencyComparator);

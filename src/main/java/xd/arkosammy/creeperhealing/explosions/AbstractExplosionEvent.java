@@ -2,6 +2,7 @@ package xd.arkosammy.creeperhealing.explosions;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
@@ -39,7 +40,7 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
     }
 
     @Override
-    public World getWorld(MinecraftServer server) {
+    public ServerWorld getWorld(MinecraftServer server) {
         return server.getWorld(this.affectedBlocks.getFirst().getWorldRegistryKey());
     }
 

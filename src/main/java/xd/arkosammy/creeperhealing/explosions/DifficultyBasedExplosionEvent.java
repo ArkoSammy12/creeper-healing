@@ -1,7 +1,7 @@
 package xd.arkosammy.creeperhealing.explosions;
 
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
@@ -24,7 +24,7 @@ public class DifficultyBasedExplosionEvent extends AbstractExplosionEvent {
     }
 
     @Override
-    public void setup(World world) {
+    public void setup(ServerWorld world) {
         final int difficultyMultiplier = switch (world.getDifficulty()) {
             case PEACEFUL -> -2;
             case EASY -> -1;

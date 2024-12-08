@@ -1,9 +1,9 @@
 package xd.arkosammy.creeperhealing.explosions;
 
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
@@ -28,7 +28,7 @@ public class BlastResistanceBasedExplosionEvent extends AbstractExplosionEvent {
 
     // Change the timers of each affected block based on their blast resistance
     @Override
-    public void setup(World world) {
+    public void setup(ServerWorld world) {
         Random random = world.getRandom();
         for (AffectedBlock affectedBlock : this.getAffectedBlocks().toList()) {
             if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {

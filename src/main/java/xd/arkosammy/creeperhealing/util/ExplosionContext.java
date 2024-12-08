@@ -2,6 +2,7 @@ package xd.arkosammy.creeperhealing.util;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -13,7 +14,7 @@ public record ExplosionContext(
         List<BlockPos> vanillaAffectedPositions,
         List<BlockPos> indirectlyAffectedPositions,
         Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities,
-        World world,
+        ServerWorld world,
         World.ExplosionSourceType explosionSourceType
 ) {
 }
