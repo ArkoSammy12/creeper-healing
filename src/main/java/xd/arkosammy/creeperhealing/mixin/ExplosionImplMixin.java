@@ -1,6 +1,8 @@
 package xd.arkosammy.creeperhealing.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
@@ -18,8 +20,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xd.arkosammy.creeperhealing.ExplosionManagerRegistrar;
 import xd.arkosammy.creeperhealing.config.ConfigSettings;
 import xd.arkosammy.creeperhealing.config.ConfigUtils;
@@ -113,19 +113,18 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
         return original;
     }
 
-    // Make sure the thread local is reset when entering and exiting Explosion#affectWorld
-    @Inject(method = "destroyBlocks", at = @At(value = "HEAD"))
-    private void setThreadLocals(List<BlockPos> positions, CallbackInfo ci) {
+    @WrapMethod(method = "destroyBlocks")
+    private void onDestroyBlocks(List<BlockPos> positions, Operation<Void> original) {
+        // Make sure the thread local is reset when entering and exiting ExplosionImpl#destroyBlocks
         // If adding more logic here, remember to check logical server side with World#isClient
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
-    }
 
-    // Filter out indirectly affected positions whose corresponding state did not change before and after the explosion.
-    // Filter out entries in the affected states and block entities map with block position keys not in the affected positions.
-    // Emit an ExplosionContext object for ExplosionManagers to receive.
-    @Inject(method = "destroyBlocks", at = @At(value = "RETURN"))
-    private void emitExplosionContext(List<BlockPos> positions, CallbackInfo ci) {
+        original.call(positions);
+
+        // Filter out indirectly affected positions whose corresponding state did not change before and after the explosion.
+        // Filter out entries in the affected states and block entities map with block position keys not in the affected positions.
+        // Emit an ExplosionContext object for ExplosionManagers to receive.
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
         if ((this.getWorld().isClient() || !(this.getWorld() instanceof ServerWorld serverWorld)) || !this.creeperhealing$shouldHeal()) {
@@ -181,6 +180,7 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
         this.vanillaAffectedPositions.clear();
         this.affectedStatesAndBlockEntities.clear();
         this.indirectlyAffectedPositions.clear();
+
     }
 
     // Recursively find indirectly affected positions connected to the main affected positions.
@@ -239,6 +239,5 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
             }
         }
     }
-
 
 }
