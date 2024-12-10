@@ -3,7 +3,7 @@
 	"id": "creeperhealing",
 	"version": "${version}",
 	"name": "Creeper Healing",
-	"description": "A server and client side, customizable Fabric mod to automatically and naturally heal Creeper explosions (and other types of explosions!).",
+	"description": "A server side, customizable Fabric mod to automatically and naturally heal Creeper explosions (and other types of explosions!).",
 	"authors": [
 		"ArkoSammy12"
 	],
@@ -23,10 +23,15 @@
 		"creeper-healing.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.16.2",
-		"minecraft": ">=1.21",
+		"fabricloader": ">=0.16.9",
+		"minecraft": ">=1.21.4",
 		"java": ">=21",
 		"fabric-api": "*",
 		"monkeyconfig" : "*"
+	},
+	"custom": {
+	  "lithium:options": {
+		"mixin.world.explosions": false
+	  }
 	}
 }

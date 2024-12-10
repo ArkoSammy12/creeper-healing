@@ -2,9 +2,9 @@ package xd.arkosammy.creeperhealing.explosions.factories;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 import xd.arkosammy.creeperhealing.blocks.SingleAffectedBlock;
@@ -18,13 +18,13 @@ import java.util.*;
 public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractExplosionEvent> {
 
     private final Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities;
-    private final World world;
+    private final ServerWorld world;
     private final int blastRadius;
     private final Set<BlockPos> affectedPositions = new HashSet<>();
     private final BlockPos center;
     private final List<BlockPos> vanillaAffectedPositions;
 
-    public DefaultExplosionFactory(Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities, List<BlockPos> vanillaAffectedPositions, List<BlockPos> indirectlyExplodedPositions, World world) {
+    public DefaultExplosionFactory(Map<BlockPos, Pair<BlockState, BlockEntity>> affectedStatesAndBlockEntities, List<BlockPos> vanillaAffectedPositions, List<BlockPos> indirectlyExplodedPositions, ServerWorld world) {
         this.affectedStatesAndBlockEntities = affectedStatesAndBlockEntities;
         this.world = world;
         this.affectedPositions.addAll(vanillaAffectedPositions);
@@ -53,7 +53,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     }
 
     @Override
-    public @Nullable AbstractExplosionEvent createExplosionEvent(List<BlockPos> affectedPositions, World world) {
+    public @Nullable AbstractExplosionEvent createExplosionEvent(List<BlockPos> affectedPositions, ServerWorld world) {
         List<AffectedBlock> affectedBlocks = this.processAffectedPositions(affectedPositions, world);
         if (affectedBlocks == null || affectedBlocks.isEmpty()) {
             return null;
@@ -111,12 +111,12 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
     }
 
     @Override
-    public World getWorld() {
+    public ServerWorld getWorld() {
         return this.world;
     }
 
     @Nullable
-    private List<AffectedBlock> processAffectedPositions(List<BlockPos> affectedPositions, World world) {
+    private List<AffectedBlock> processAffectedPositions(List<BlockPos> affectedPositions, ServerWorld world) {
         List<BlockPos> positionsToHeal = ExplosionUtils.filterPositionsToHeal(affectedPositions, (pos) -> this.affectedStatesAndBlockEntities.get(pos).getLeft());
         if (positionsToHeal.isEmpty()) {
             return null;

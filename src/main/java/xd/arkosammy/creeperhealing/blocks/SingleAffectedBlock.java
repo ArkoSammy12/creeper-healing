@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -56,7 +57,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     @Override
-    public World getWorld(@NotNull MinecraftServer server) {
+    public ServerWorld getWorld(@NotNull MinecraftServer server) {
         return server.getWorld(this.getWorldRegistryKey());
     }
 
@@ -92,7 +93,6 @@ public class SingleAffectedBlock implements AffectedBlock {
             return;
         }
         this.tryHealing(server, explosionEvent);
-        this.setPlaced();
     }
 
     @Override
@@ -109,6 +109,7 @@ public class SingleAffectedBlock implements AffectedBlock {
 
     protected void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent) {
 
+        this.setPlaced();
         BlockState state = this.getBlockState();
         BlockPos pos = this.getBlockPos();
         World world = this.getWorld(server);
@@ -198,7 +199,6 @@ public class SingleAffectedBlock implements AffectedBlock {
                 continue;
             }
             singleAffectedBlock.tryHealing(server, explosionEvent);
-            singleAffectedBlock.setPlaced();
         }
 
     }

@@ -1,7 +1,7 @@
 package xd.arkosammy.creeperhealing.explosions;
 
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import xd.arkosammy.creeperhealing.blocks.AffectedBlock;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class DefaultExplosionEvent extends AbstractExplosionEvent {
 
 
     @Override
-    public void setup(World world) {
+    public void setup(ServerWorld world) {
 
     }
 

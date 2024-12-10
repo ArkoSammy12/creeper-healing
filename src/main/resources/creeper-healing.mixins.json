@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockMixin",
-    "ExplosionMixin",
+    "ExplosionImplMixin",
     "FallingBlockMixin",
     "ItemScattererMixin",
     "PotionEntityMixin",
