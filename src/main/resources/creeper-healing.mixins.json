@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "xd.arkosammy.creeperhealing.mixin",
+  "package": "io.github.arkosammy12.creeperhealing.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockMixin",

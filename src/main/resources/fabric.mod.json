@@ -12,11 +12,11 @@
 		"sources": "https://github.com/ArkoSammy12/creeper-healing"
 	},
 	"license": "LGPL-3.0-only",
-	"icon": "assets/creeper-healing/icon.png",
+	"icon": "assets/creeperhealing/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-          "xd.arkosammy.creeperhealing.CreeperHealing"
+          "io.github.arkosammy12.creeperhealing.CreeperHealing"
 		]
 	},
 	"mixins": [
