@@ -34,7 +34,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     private final RegistryKey<World> worldRegistryKey;
 
     @Nullable
-    private final NbtCompound nbt;
+    protected final NbtCompound nbt;
     private long timer;
     private boolean placed;
 
@@ -127,7 +127,7 @@ public class SingleAffectedBlock implements AffectedBlock {
             }
         }
 
-        if (!this.shouldHealBlock(world, this.blockPos)) {
+        if (!this.shouldHealBlock(world)) {
             return;
         }
 
@@ -146,11 +146,11 @@ public class SingleAffectedBlock implements AffectedBlock {
         ExplosionUtils.spawnParticles(world, pos);
     }
 
-    protected boolean shouldHealBlock(World world, BlockPos pos) {
+    protected boolean shouldHealBlock(World world) {
         if (shouldForceHeal()) {
             return true;
         }
-        return world.getBlockState(pos).isReplaceable();
+        return world.getBlockState(this.blockPos).isReplaceable();
     }
 
     protected boolean shouldForceHeal() {
@@ -205,7 +205,7 @@ public class SingleAffectedBlock implements AffectedBlock {
 
     @Override
     public SerializedAffectedBlock asSerialized() {
-        return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, this.worldRegistryKey, this.nbt, this.timer, this.placed);
+        return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, null, null, this.worldRegistryKey, this.nbt, null, this.timer, this.placed);
     }
 
     @Override

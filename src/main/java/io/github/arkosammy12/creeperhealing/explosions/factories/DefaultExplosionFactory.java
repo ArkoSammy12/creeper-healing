@@ -2,10 +2,17 @@ package io.github.arkosammy12.creeperhealing.explosions.factories;
 
 import io.github.arkosammy12.creeperhealing.explosions.*;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.BedPart;
+import net.minecraft.block.enums.ChestType;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 import io.github.arkosammy12.creeperhealing.blocks.AffectedBlock;
 import io.github.arkosammy12.creeperhealing.blocks.SingleAffectedBlock;
@@ -122,14 +129,95 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
             return null;
         }
         List<AffectedBlock> affectedBlocks = new ArrayList<>();
+        List<BlockPos> visitedPositions = new ArrayList<>();
         for (BlockPos pos : positionsToHeal) {
+
+            if (visitedPositions.contains(pos)) {
+                continue;
+            }
+
             BlockState affectedState = this.affectedStatesAndBlockEntities.get(pos).getLeft();
             BlockEntity affectedBlockEntity = this.affectedStatesAndBlockEntities.get(pos).getRight();
-            AffectedBlock affectedBlock = AffectedBlock.newInstance(pos, affectedState, affectedBlockEntity, world);
+
+            BlockPos otherHalfPos = getOtherHalfPos(affectedState, pos);
+            AffectedBlock affectedBlock = null;
+            if (otherHalfPos == null) {
+                affectedBlock = AffectedBlock.newInstance(pos, affectedState, affectedBlockEntity, world);
+            } else {
+                visitedPositions.add(otherHalfPos);
+                for (BlockPos otherPos : positionsToHeal) {
+                    if (otherPos.equals(otherHalfPos)) {
+                        BlockState secondHalfState = this.affectedStatesAndBlockEntities.get(otherPos).getLeft();
+                        BlockEntity secondHalfBlockEntity = this.affectedStatesAndBlockEntities.get(otherPos).getRight();
+                        affectedBlock = AffectedBlock.newInstance(pos, affectedState, affectedBlockEntity, otherHalfPos, secondHalfState, secondHalfBlockEntity, world);
+                        break;
+                    }
+                }
+                if (affectedBlock == null) {
+                    affectedBlock = AffectedBlock.newInstance(pos, affectedState, affectedBlockEntity, otherHalfPos, null, null, world);
+                }
+            }
             affectedBlocks.add(affectedBlock);
+            visitedPositions.add(pos);
         }
         List<AffectedBlock> sortedAffectedBlocks = ExplosionUtils.sortAffectedBlocks(affectedBlocks, world);
         return sortedAffectedBlocks;
+    }
+
+    @Nullable
+    private static BlockPos getOtherHalfPos(BlockState state, BlockPos pos) {
+
+        if (state.contains(Properties.DOUBLE_BLOCK_HALF)) {
+
+            DoubleBlockHalf secondHalf = state.get(Properties.DOUBLE_BLOCK_HALF).equals(DoubleBlockHalf.UPPER) ? DoubleBlockHalf.LOWER : DoubleBlockHalf.UPPER;
+            return switch (secondHalf) {
+                case UPPER -> pos.up();
+                case LOWER -> pos.down();
+            };
+
+        } else if (state.contains(Properties.BED_PART)) {
+
+            BedPart secondBedPart = state.get(Properties.BED_PART).equals(BedPart.HEAD) ? BedPart.FOOT : BedPart.HEAD;
+            Direction firstBedPartOrientation = state.get(Properties.HORIZONTAL_FACING);
+            return switch (secondBedPart) {
+                case HEAD -> switch (firstBedPartOrientation) {
+                    case NORTH -> pos.north();
+                    case SOUTH -> pos.south();
+                    case EAST -> pos.east();
+                    default -> pos.west();
+                };
+                case FOOT -> switch (firstBedPartOrientation) {
+                    case NORTH -> pos.south();
+                    case SOUTH -> pos.north();
+                    case EAST -> pos.west();
+                    default -> pos.east();
+                };
+            };
+
+        } else if (state.isOf(Blocks.CHEST) && state.get(ChestBlock.CHEST_TYPE) != ChestType.SINGLE) {
+
+            ChestType chestType = state.get(ChestBlock.CHEST_TYPE);
+            Direction facing = state.get(ChestBlock.FACING);
+            return switch (chestType) {
+                case SINGLE -> null;
+                case LEFT -> switch (facing) {
+                    case NORTH -> pos.east();
+                    case EAST -> pos.south();
+                    case SOUTH -> pos.west();
+                    case WEST -> pos.north();
+                    default -> null;
+                };
+                case RIGHT -> switch (facing) {
+                    case NORTH -> pos.west();
+                    case EAST -> pos.north();
+                    case SOUTH -> pos.east();
+                    case WEST -> pos.south();
+                    default -> null;
+                };
+            };
+
+        }
+        return null;
     }
 
 }

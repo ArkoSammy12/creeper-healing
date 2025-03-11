@@ -39,9 +39,6 @@ public interface AffectedBlock {
     static AffectedBlock newInstance(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, World world) {
         RegistryKey<World> worldRegistryKey = world.getRegistryKey();
         long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
-        if (state.contains(Properties.DOUBLE_BLOCK_HALF) || state.contains(Properties.BED_PART)) {
-            return new DoubleAffectedBlock(pos, state, worldRegistryKey, blockPlacementDelay, false);
-        }
         boolean restoreBlockNbt = ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class);
         if (blockEntity != null && restoreBlockNbt) {
             return new SingleAffectedBlock(pos, state, worldRegistryKey, blockEntity.createNbtWithId(world.getRegistryManager()), blockPlacementDelay, false);
@@ -49,4 +46,13 @@ public interface AffectedBlock {
         return new SingleAffectedBlock(pos, state, worldRegistryKey, null, blockPlacementDelay, false);
     }
 
+    static AffectedBlock newInstance(BlockPos firstHalfPos, BlockState firstHalfState, @Nullable BlockEntity firstHalfBlockEntity, BlockPos secondHalfPos, BlockState secondHalfState, @Nullable BlockEntity secondHalfBlockEntity, World world) {
+        RegistryKey<World> worldRegistryKey = world.getRegistryKey();
+        long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
+        boolean restoreBlockNbt = ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class);
+        if ((firstHalfBlockEntity != null && secondHalfBlockEntity != null) && restoreBlockNbt) {
+            return new DoubleAffectedBlock(firstHalfPos, firstHalfState, firstHalfBlockEntity.createNbtWithId(world.getRegistryManager()), secondHalfPos, secondHalfState, secondHalfBlockEntity.createNbtWithId(world.getRegistryManager()), worldRegistryKey, blockPlacementDelay, false);
+        }
+        return new DoubleAffectedBlock(firstHalfPos, firstHalfState, null, secondHalfPos, secondHalfState, null, worldRegistryKey, blockPlacementDelay, false);
+    }
 }
