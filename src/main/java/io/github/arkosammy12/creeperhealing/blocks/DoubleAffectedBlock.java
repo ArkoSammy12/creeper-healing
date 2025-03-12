@@ -1,6 +1,7 @@
 package io.github.arkosammy12.creeperhealing.blocks;
 
 import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
+import net.minecraft.block.BlockKeys;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.entity.BlockEntity;
@@ -9,6 +10,7 @@ import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
@@ -111,11 +113,18 @@ public class DoubleAffectedBlock extends SingleAffectedBlock {
         SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
         if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {
             String replaceMapValue = replaceMapGroup.get(blockIdentifier);
-            if (replaceMapValue != null && !this.shouldForceHeal()) {
+            // Hardcode an exception to allow beds to be replaced with other blocks despite them having an Nbt tag.
+            if (replaceMapValue != null && (!this.shouldForceHeal() || firstHalfState.isIn(BlockTags.BEDS))) {
                 firstHalfState = Registries.BLOCK.get(Identifier.of(replaceMapValue)).getStateWithProperties(firstHalfState);
                 secondHalfState = Registries.BLOCK.get(Identifier.of(replaceMapValue)).getStateWithProperties(secondHalfState);
                 stateReplaced = true;
             }
+        }
+
+        // Prevent both halves of a double block from being replaced with two of a single regular block
+        if (!firstHalfState.contains(Properties.DOUBLE_BLOCK_HALF) && !firstHalfState.contains(Properties.BED_PART)) {
+            super.tryHealing(server, currentExplosionEvent);
+            return;
         }
 
         if (!this.shouldHealBlock(world)) {
