@@ -32,9 +32,8 @@ public class SingleAffectedBlock implements AffectedBlock {
     private final BlockPos blockPos;
     private final BlockState blockState;
     private final RegistryKey<World> worldRegistryKey;
-
     @Nullable
-    protected final NbtCompound nbt;
+    private final NbtCompound nbt;
     private long timer;
     private boolean placed;
 
@@ -71,6 +70,11 @@ public class SingleAffectedBlock implements AffectedBlock {
         return this.blockState;
     }
 
+    @Nullable
+    public NbtCompound getNbt() {
+        return this.nbt;
+    }
+
     @Override
     public final void setPlaced() {
         this.placed = true;
@@ -101,6 +105,11 @@ public class SingleAffectedBlock implements AffectedBlock {
             return true;
         }
         return this.getBlockState().canPlaceAt(this.getWorld(server), this.getBlockPos());
+    }
+
+    @Override
+    public SerializedAffectedBlock asSerialized() {
+        return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, this.nbt, null, null, null, this.worldRegistryKey, this.timer, this.placed);
     }
 
     protected String getAffectedBlockType() {
@@ -201,11 +210,6 @@ public class SingleAffectedBlock implements AffectedBlock {
             singleAffectedBlock.tryHealing(server, explosionEvent);
         }
 
-    }
-
-    @Override
-    public SerializedAffectedBlock asSerialized() {
-        return new DefaultSerializedAffectedBlock(this.getAffectedBlockType(), this.blockPos, this.blockState, null, null, this.worldRegistryKey, this.nbt, null, this.timer, this.placed);
     }
 
     @Override

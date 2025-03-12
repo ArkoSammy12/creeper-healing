@@ -116,33 +116,36 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
 
     @WrapMethod(method = "destroyBlocks")
     private void onDestroyBlocks(List<BlockPos> positions, Operation<Void> original) {
+
         // Make sure the thread local is reset when entering and exiting ExplosionImpl#destroyBlocks
         // If adding more logic here, remember to check logical server side with World#isClient
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
 
         World world = this.getWorld();
+        if ((!(world instanceof ServerWorld serverWorld)) || !this.creeperhealing$shouldHeal()) {
+            this.vanillaAffectedPositions.clear();
+            this.affectedStatesAndBlockEntities.clear();
+            this.indirectlyAffectedPositions.clear();
+            original.call(positions);
+            ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
+            ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
+            return;
+        }
 
-        if (world instanceof ServerWorld serverWorld) {
-            ((ServerWorldDuck) serverWorld).creeperhealing$addAffectedPositions(vanillaAffectedPositions);
-            ((ServerWorldDuck) serverWorld).creeperhealing$addAffectedPositions(indirectlyAffectedPositions);
-        }
+        ((ServerWorldDuck) serverWorld).creeperhealing$addAffectedPositions(vanillaAffectedPositions);
+        ((ServerWorldDuck) serverWorld).creeperhealing$addAffectedPositions(indirectlyAffectedPositions);
+
         original.call(positions);
-        if (world instanceof ServerWorld serverWorld) {
-            ((ServerWorldDuck) serverWorld).creeperhealing$clearAffectedPositions();
-        }
+
+        ((ServerWorldDuck) serverWorld).creeperhealing$clearAffectedPositions();
 
         // Filter out indirectly affected positions whose corresponding state did not change before and after the explosion.
         // Filter out entries in the affected states and block entities map with block position keys not in the affected positions.
         // Emit an ExplosionContext object for ExplosionManagers to receive.
         ExplosionUtils.DROP_BLOCK_ITEMS.set(true);
         ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(true);
-        if ((world.isClient() || !(world instanceof ServerWorld serverWorld)) || !this.creeperhealing$shouldHeal()) {
-            this.vanillaAffectedPositions.clear();
-            this.affectedStatesAndBlockEntities.clear();
-            this.indirectlyAffectedPositions.clear();
-            return;
-        }
+
         List<BlockPos> filteredIndirectlyAffectedPositions = new ArrayList<>();
         for (BlockPos pos : this.indirectlyAffectedPositions) {
             Pair<BlockState, BlockEntity> pair = this.affectedStatesAndBlockEntities.get(pos);

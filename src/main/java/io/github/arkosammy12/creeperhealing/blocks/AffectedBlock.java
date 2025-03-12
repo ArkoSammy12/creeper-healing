@@ -5,7 +5,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +45,7 @@ public interface AffectedBlock {
         return new SingleAffectedBlock(pos, state, worldRegistryKey, null, blockPlacementDelay, false);
     }
 
-    static AffectedBlock newInstance(BlockPos firstHalfPos, BlockState firstHalfState, @Nullable BlockEntity firstHalfBlockEntity, BlockPos secondHalfPos, BlockState secondHalfState, @Nullable BlockEntity secondHalfBlockEntity, World world) {
+    static AffectedBlock newInstance(BlockPos firstHalfPos, BlockState firstHalfState, @Nullable BlockEntity firstHalfBlockEntity, BlockPos secondHalfPos, @Nullable BlockState secondHalfState, @Nullable BlockEntity secondHalfBlockEntity, World world) {
         RegistryKey<World> worldRegistryKey = world.getRegistryKey();
         long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
         boolean restoreBlockNbt = ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class);

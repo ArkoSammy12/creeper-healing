@@ -16,11 +16,11 @@ public record DefaultSerializedAffectedBlock(
         String affectedBlockType,
         BlockPos pos,
         BlockState state,
+        @Nullable NbtCompound nbt,
         @Nullable BlockPos secondHalfPos,
         @Nullable BlockState secondHalfState,
-        RegistryKey<World> worldRegistryKey,
-        @Nullable NbtCompound nbt,
         @Nullable NbtCompound secondHalfNbt,
+        RegistryKey<World> worldRegistryKey,
         long blockTimer,
         boolean placed
 ) implements SerializedAffectedBlock {
@@ -29,15 +29,15 @@ public record DefaultSerializedAffectedBlock(
             Codec.STRING.fieldOf("affected_block_type").forGetter(SerializedAffectedBlock::getAffectedBlockTypeName),
             BlockPos.CODEC.fieldOf("block_pos").forGetter(SerializedAffectedBlock::getBlockPos),
             BlockState.CODEC.fieldOf("block_state").forGetter(SerializedAffectedBlock::getBlockState),
+            NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("nbt", NbtCompound.class)),
             BlockPos.CODEC.optionalFieldOf("second_half_pos").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("secondHalfPos", BlockPos.class)),
             BlockState.CODEC.optionalFieldOf("second_half_state").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("secondHalfState", BlockState.class)),
-            World.CODEC.fieldOf("world").forGetter(SerializedAffectedBlock::getWorldRegistryKey),
-            NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("nbt", NbtCompound.class)),
             NbtCompound.CODEC.optionalFieldOf("second_half_nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("secondHalfNbt", NbtCompound.class)),
+            World.CODEC.fieldOf("world").forGetter(SerializedAffectedBlock::getWorldRegistryKey),
             Codec.LONG.fieldOf("affected_block_timer").forGetter(SerializedAffectedBlock::getBlockTimer),
             Codec.BOOL.fieldOf("is_placed").forGetter(SerializedAffectedBlock::isPlaced)
-    ).apply(instance, (affectedBlockType, blockPos, blockState, secondHalfPos, secondHalfState, world, optionalNbt, optionalSecondHalfNbt, affectedBlockTimer, isPlaced) ->
-            new DefaultSerializedAffectedBlock(affectedBlockType, blockPos, blockState, secondHalfPos.orElse(null), secondHalfState.orElse(null), world, optionalNbt.orElse(null), optionalSecondHalfNbt.orElse(null), affectedBlockTimer, isPlaced)));
+    ).apply(instance, (affectedBlockType, blockPos, blockState, optionalNbt, secondHalfPos, secondHalfState, optionalSecondHalfNbt, world, affectedBlockTimer, isPlaced) ->
+            new DefaultSerializedAffectedBlock(affectedBlockType, blockPos, blockState, optionalNbt.orElse(null), secondHalfPos.orElse(null), secondHalfState.orElse(null), optionalSecondHalfNbt.orElse(null), world, affectedBlockTimer, isPlaced)));
 
     @Override
     public String getAffectedBlockTypeName() {

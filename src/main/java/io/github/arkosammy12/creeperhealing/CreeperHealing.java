@@ -14,7 +14,6 @@ import xd.arkosammy.monkeyconfig.managers.ConfigManager;
 import xd.arkosammy.monkeyconfig.managers.TomlConfigManager;
 import xd.arkosammy.monkeyconfig.registrars.DefaultConfigRegistrar;
 
-// TODO: Make code prettier and better organized
 public class CreeperHealing implements ModInitializer {
 
     public static final String MOD_ID = "creeperhealing";
