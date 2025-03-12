@@ -87,6 +87,12 @@ public class DoubleAffectedBlock extends SingleAffectedBlock {
     }
 
     @Override
+    protected boolean shouldForceHeal() {
+        boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getSettingValue(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getSettingLocation(), BooleanSetting.class);
+        return this.getNbt() != null && this.getSecondHalfNbt() != null && forceBlocksWithNbtToAlwaysHeal;
+    }
+
+    @Override
     public void tryHealing(MinecraftServer server, ExplosionEvent currentExplosionEvent) {
         if (this.secondHalfState == null) {
             super.tryHealing(server, currentExplosionEvent);

@@ -14,6 +14,8 @@ import xd.arkosammy.monkeyconfig.managers.ConfigManager;
 import xd.arkosammy.monkeyconfig.managers.TomlConfigManager;
 import xd.arkosammy.monkeyconfig.registrars.DefaultConfigRegistrar;
 
+// TODO: Fix replace map not working for beds as they have an nbt tag but we want to replce beds anyway.
+// TODO: Consider the case where a double block is mapped to a single block. Only heal one of the blocks.
 public class CreeperHealing implements ModInitializer {
 
     public static final String MOD_ID = "creeperhealing";
