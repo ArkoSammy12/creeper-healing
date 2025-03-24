@@ -1,7 +1,7 @@
 package io.github.arkosammy12.creeperhealing.blocks;
 
-import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
-import net.minecraft.block.BlockKeys;
+import io.github.arkosammy12.monkeyconfig.base.Setting;
+import io.github.arkosammy12.monkeyconfig.sections.maps.StringMapSection;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.entity.BlockEntity;
@@ -18,13 +18,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
-import io.github.arkosammy12.creeperhealing.config.SettingGroups;
 import io.github.arkosammy12.creeperhealing.explosions.ExplosionEvent;
 import io.github.arkosammy12.creeperhealing.util.ExplosionUtils;
 import org.jetbrains.annotations.Nullable;
-import xd.arkosammy.monkeyconfig.groups.SettingGroup;
-import xd.arkosammy.monkeyconfig.groups.maps.StringMapSettingGroup;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.Objects;
 
@@ -90,7 +86,7 @@ public class DoubleAffectedBlock extends SingleAffectedBlock {
 
     @Override
     protected boolean shouldForceHeal() {
-        boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getSettingValue(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getSettingLocation(), BooleanSetting.class);
+        boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getRawBooleanSetting(ConfigUtils.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL);
         return this.getNbt() != null && this.getSecondHalfNbt() != null && forceBlocksWithNbtToAlwaysHeal;
     }
 
@@ -110,16 +106,15 @@ public class DoubleAffectedBlock extends SingleAffectedBlock {
         boolean stateReplaced = false;
 
         String blockIdentifier = Registries.BLOCK.getId(firstHalfState.getBlock()).toString();
-        SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
-        if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {
-            String replaceMapValue = replaceMapGroup.get(blockIdentifier);
-            // Hardcode an exception to allow beds to be replaced with other blocks despite them having an Nbt tag.
-            if (replaceMapValue != null && (!this.shouldForceHeal() || firstHalfState.isIn(BlockTags.BEDS))) {
-                firstHalfState = Registries.BLOCK.get(Identifier.of(replaceMapValue)).getStateWithProperties(firstHalfState);
-                secondHalfState = Registries.BLOCK.get(Identifier.of(replaceMapValue)).getStateWithProperties(secondHalfState);
-                stateReplaced = true;
-            }
+        StringMapSection replaceMapSection = ConfigUtils.getRawStringMapSection(ConfigUtils.REPLACE_MAP);
+        Setting<String, ?> replaceMapValue = replaceMapSection.get(blockIdentifier);
+        // Hardcode an exception to allow beds to be replaced with other blocks despite them having an Nbt tag.
+        if (replaceMapValue != null && (!this.shouldForceHeal() || firstHalfState.isIn(BlockTags.BEDS))) {
+            firstHalfState = Registries.BLOCK.get(Identifier.of(replaceMapValue.getValue().getRaw())).getStateWithProperties(firstHalfState);
+            secondHalfState = Registries.BLOCK.get(Identifier.of(replaceMapValue.getValue().getRaw())).getStateWithProperties(secondHalfState);
+            stateReplaced = true;
         }
+
 
         // Prevent both halves of a double block from being replaced with two of a single regular block
         if (!firstHalfState.contains(Properties.DOUBLE_BLOCK_HALF) && !firstHalfState.contains(Properties.BED_PART)) {
@@ -132,7 +127,7 @@ public class DoubleAffectedBlock extends SingleAffectedBlock {
         }
 
         ExplosionUtils.pushEntitiesUpwards(world, firstHalfPos, firstHalfState, firstHalfState.contains(Properties.DOUBLE_BLOCK_HALF));
-        boolean makeFallingBlocksFall = ConfigUtils.getSettingValue(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getSettingLocation(), BooleanSetting.class);
+        boolean makeFallingBlocksFall = ConfigUtils.getRawBooleanSetting(ConfigUtils.MAKE_FALLING_BLOCKS_FALL);
         if (firstHalfState.getBlock() instanceof FallingBlock) {
             ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(makeFallingBlocksFall);
         }

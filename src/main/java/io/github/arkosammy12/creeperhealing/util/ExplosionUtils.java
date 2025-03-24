@@ -16,10 +16,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import io.github.arkosammy12.creeperhealing.blocks.AffectedBlock;
-import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
-import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.util.*;
 import java.util.function.Function;
@@ -59,8 +56,8 @@ public final class ExplosionUtils {
 
     public static List<BlockPos> filterPositionsToHeal(Collection<BlockPos> positions, Function<BlockPos, BlockState> positionToStateMapper) {
         List<BlockPos> affectedPositions = new ArrayList<>();
-        boolean whitelistEnabled = ConfigUtils.getSettingValue(ConfigSettings.ENABLE_WHITELIST.getSettingLocation(), BooleanSetting.class);
-        List<? extends String> whitelist = ConfigUtils.getSettingValue(ConfigSettings.WHITELIST.getSettingLocation(), StringListSetting.class);
+        boolean whitelistEnabled = ConfigUtils.getRawBooleanSetting(ConfigUtils.ENABLE_WHITELIST);
+        List<? extends String> whitelist = ConfigUtils.getRawStringListSetting(ConfigUtils.WHITELIST);
         for (BlockPos affectedPosition : positions) {
             // Hardcoded exception. Place before all logic
             BlockState affectedState = positionToStateMapper.apply(affectedPosition);
@@ -178,7 +175,7 @@ public final class ExplosionUtils {
     }
 
     public static void playBlockPlacementSoundEffect(World world, BlockPos blockPos, BlockState blockState) {
-        boolean placementSoundEffectSetting = ConfigUtils.getSettingValue(ConfigSettings.BLOCK_PLACEMENT_SOUND_EFFECT.getSettingLocation(), BooleanSetting.class);
+        boolean placementSoundEffectSetting = ConfigUtils.getRawBooleanSetting(ConfigUtils.BLOCK_PLACEMENT_SOUND_EFFECT);
         boolean doPlacementSoundEffect = placementSoundEffectSetting && !world.isClient() && !blockState.isAir();
         if (!doPlacementSoundEffect) {
             return;
@@ -190,7 +187,7 @@ public final class ExplosionUtils {
         if (!(world instanceof ServerWorld serverWorld)) {
             return;
         }
-        boolean blockPlacementParticlesSetting = ConfigUtils.getSettingValue(ConfigSettings.BLOCK_PLACEMENT_PARTICLES.getSettingLocation(), BooleanSetting.class);
+        boolean blockPlacementParticlesSetting = ConfigUtils.getRawBooleanSetting(ConfigUtils.BLOCK_PLACEMENT_PARTICLES);
         if (!blockPlacementParticlesSetting) {
             return;
         }

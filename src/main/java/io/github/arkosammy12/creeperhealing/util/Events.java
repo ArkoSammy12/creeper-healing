@@ -19,7 +19,6 @@ import net.minecraft.world.World;
 import io.github.arkosammy12.creeperhealing.CreeperHealing;
 import io.github.arkosammy12.creeperhealing.ExplosionManagerRegistrar;
 import io.github.arkosammy12.creeperhealing.blocks.SingleAffectedBlock;
-import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
 import io.github.arkosammy12.creeperhealing.explosions.AbstractExplosionEvent;
 import io.github.arkosammy12.creeperhealing.explosions.DaytimeExplosionEvent;
@@ -27,7 +26,6 @@ import io.github.arkosammy12.creeperhealing.explosions.ExplosionEvent;
 import io.github.arkosammy12.creeperhealing.util.callbacks.DaylightCycleEvents;
 import io.github.arkosammy12.creeperhealing.util.callbacks.SplashPotionCallbacks;
 import io.github.arkosammy12.creeperhealing.util.callbacks.TimeCommandCallbacks;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +84,8 @@ public final class Events {
             return;
         }
         boolean hasRegeneration = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(regenerationEffect));
-        boolean healOnHealingPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_HEALING_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
-        boolean healOnRegenerationPotion = ConfigUtils.getSettingValue(ConfigSettings.HEAL_ON_REGENERATION_POTION_SPLASH.getSettingLocation(), BooleanSetting.class);
+        boolean healOnHealingPotion = ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_ON_HEALING_POTION_SPLASH);
+        boolean healOnRegenerationPotion = ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_ON_REGENERATION_POTION_SPLASH);
         if (hasInstantHealth && healOnHealingPotion) {
             for (ExplosionEvent explosionEvent : CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().toList()) {
                 boolean potionHitExplosion = explosionEvent.getAffectedBlocks().anyMatch(affectedBlock -> affectedBlock.getBlockPos().equals(potionHitPosition));

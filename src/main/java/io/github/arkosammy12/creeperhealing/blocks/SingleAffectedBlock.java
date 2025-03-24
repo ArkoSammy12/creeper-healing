@@ -1,5 +1,7 @@
 package io.github.arkosammy12.creeperhealing.blocks;
 
+import io.github.arkosammy12.monkeyconfig.base.Setting;
+import io.github.arkosammy12.monkeyconfig.sections.maps.StringMapSection;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.ChestType;
@@ -14,14 +16,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
-import io.github.arkosammy12.creeperhealing.config.SettingGroups;
 import io.github.arkosammy12.creeperhealing.explosions.ExplosionEvent;
 import io.github.arkosammy12.creeperhealing.util.ExplosionUtils;
-import xd.arkosammy.monkeyconfig.groups.SettingGroup;
-import xd.arkosammy.monkeyconfig.groups.maps.StringMapSettingGroup;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
 
 import java.util.List;
 import java.util.Objects;
@@ -127,21 +124,20 @@ public class SingleAffectedBlock implements AffectedBlock {
         // Check if the block we are about to try placing is in the replace-map.
         // If it is, switch the state for the corresponding one in the replace-map.
         String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
-        SettingGroup settingGroup = ConfigUtils.getSettingGroup(SettingGroups.REPLACE_MAP.getName());
-        if (settingGroup instanceof StringMapSettingGroup replaceMapGroup) {
-            String replaceMapValue = replaceMapGroup.get(blockIdentifier);
-            if (replaceMapValue != null && !this.shouldForceHeal()) {
-                state = Registries.BLOCK.get(Identifier.of(replaceMapValue)).getStateWithProperties(state);
-                stateReplaced = true;
-            }
+        StringMapSection replaceMapSection = ConfigUtils.getRawStringMapSection(ConfigUtils.REPLACE_MAP);
+        Setting<String, ?> replaceMapValue = replaceMapSection.get(blockIdentifier);
+        if (replaceMapValue != null && !this.shouldForceHeal()) {
+            state = Registries.BLOCK.get(Identifier.of(replaceMapValue.getValue().getRaw())).getStateWithProperties(state);
+            stateReplaced = true;
         }
+
 
         if (!this.shouldHealBlock(world)) {
             return;
         }
 
         ExplosionUtils.pushEntitiesUpwards(world, pos, state, false);
-        boolean makeFallingBlocksFall = ConfigUtils.getSettingValue(ConfigSettings.MAKE_FALLING_BLOCKS_FALL.getSettingLocation(), BooleanSetting.class);
+        boolean makeFallingBlocksFall = ConfigUtils.getRawBooleanSetting(ConfigUtils.MAKE_FALLING_BLOCKS_FALL);
         if (state.getBlock() instanceof FallingBlock) {
             ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(makeFallingBlocksFall);
         }
@@ -163,7 +159,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     protected boolean shouldForceHeal() {
-        boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getSettingValue(ConfigSettings.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL.getSettingLocation(), BooleanSetting.class);
+        boolean forceBlocksWithNbtToAlwaysHeal = ConfigUtils.getRawBooleanSetting(ConfigUtils.FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL);
         return this.nbt != null && forceBlocksWithNbtToAlwaysHeal;
     }
 

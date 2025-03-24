@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import io.github.arkosammy12.creeperhealing.ExplosionManagerRegistrar;
-import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
 import io.github.arkosammy12.creeperhealing.explosions.ducks.ExplosionImplDuck;
 import io.github.arkosammy12.creeperhealing.managers.DefaultExplosionManager;
@@ -30,8 +29,6 @@ import io.github.arkosammy12.creeperhealing.util.EmptyWorld;
 import io.github.arkosammy12.creeperhealing.util.ExcludedBlocks;
 import io.github.arkosammy12.creeperhealing.util.ExplosionContext;
 import io.github.arkosammy12.creeperhealing.util.ExplosionUtils;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
-import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.util.*;
 
@@ -78,7 +75,7 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
         World.ExplosionSourceType explosionSourceType = (this.explosionSourceType);
         boolean shouldHeal = switch (explosionSourceType) {
             case MOB -> {
-                if (!ConfigUtils.getSettingValue(ConfigSettings.HEAL_MOB_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)) {
+                if (!ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_MOB_EXPLOSIONS)) {
                     yield false;
                 }
                 LivingEntity causingEntity = this.getCausingEntity();
@@ -86,13 +83,13 @@ public abstract class ExplosionImplMixin implements Explosion, ExplosionImplDuck
                     yield true;
                 }
                 String entityId = Registries.ENTITY_TYPE.getId(causingEntity.getType()).toString();
-                List<? extends String> healMobExplosionsBlacklist = ConfigUtils.getSettingValue(ConfigSettings.HEAL_MOB_EXPLOSIONS_BLACKLIST.getSettingLocation(), StringListSetting.class);
+                List<? extends String> healMobExplosionsBlacklist = ConfigUtils.getRawStringListSetting(ConfigUtils.HEAL_MOB_EXPLOSIONS_BLACKLIST);
                 yield !healMobExplosionsBlacklist.contains(entityId);
             }
-            case BLOCK -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_BLOCK_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
-            case TNT -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_TNT_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
-            case TRIGGER -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_TRIGGERED_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
-            case null, default -> ConfigUtils.getSettingValue(ConfigSettings.HEAL_OTHER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
+            case BLOCK -> ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_BLOCK_EXPLOSIONS);
+            case TNT -> ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_TNT_EXPLOSIONS);
+            case TRIGGER -> ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_TRIGGERED_EXPLOSIONS);
+            case null, default -> ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_OTHER_EXPLOSIONS);
         };
         return shouldHeal;
     }

@@ -3,7 +3,6 @@ package io.github.arkosammy12.creeperhealing.mixin;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.arkosammy12.creeperhealing.explosions.ducks.ServerWorldDuck;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -21,13 +20,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
 import io.github.arkosammy12.creeperhealing.explosions.ducks.ExplosionImplDuck;
 import io.github.arkosammy12.creeperhealing.util.ExcludedBlocks;
 import io.github.arkosammy12.creeperhealing.util.ExplosionUtils;
-import xd.arkosammy.monkeyconfig.settings.BooleanSetting;
-import xd.arkosammy.monkeyconfig.settings.list.StringListSetting;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,7 +73,7 @@ public abstract class BlockMixin {
         World.ExplosionSourceType explosionSourceType = ((ExplosionImplDuck) explosion).creeperhealing$getExplosionSourceType();
         boolean shouldDropItems = switch (explosionSourceType) {
             case MOB -> {
-                if (!ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_MOB_EXPLOSIONS.getSettingLocation(), BooleanSetting.class)) {
+                if (!ConfigUtils.getRawBooleanSetting(ConfigUtils.DROP_ITEMS_ON_MOB_EXPLOSIONS)) {
                     yield false;
                 }
                 LivingEntity causingEntity = explosion.getCausingEntity();
@@ -85,21 +81,17 @@ public abstract class BlockMixin {
                     yield true;
                 }
                 String entityId = Registries.ENTITY_TYPE.getId(causingEntity.getType()).toString();
-                List<? extends String> dropItemsOnMobExplosionsBlacklist = ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_MOB_EXPLOSIONS_BLACKLIST.getSettingLocation(), StringListSetting.class);
+                List<? extends String> dropItemsOnMobExplosionsBlacklist = ConfigUtils.getRawStringListSetting(ConfigUtils.DROP_ITEMS_ON_MOB_EXPLOSIONS_BLACKLIST);
                 yield !dropItemsOnMobExplosionsBlacklist.contains(entityId);
             }
-            case BLOCK ->
-                    ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_BLOCK_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
-            case TNT ->
-                    ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_TNT_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
-            case TRIGGER ->
-                    ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_TRIGGERED_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
-            case null, default ->
-                    ConfigUtils.getSettingValue(ConfigSettings.DROP_ITEMS_ON_OTHER_EXPLOSIONS.getSettingLocation(), BooleanSetting.class);
+            case BLOCK -> ConfigUtils.getRawBooleanSetting(ConfigUtils.DROP_ITEMS_ON_BLOCK_EXPLOSIONS);
+            case TNT -> ConfigUtils.getRawBooleanSetting(ConfigUtils.DROP_ITEMS_ON_TNT_EXPLOSIONS);
+            case TRIGGER -> ConfigUtils.getRawBooleanSetting(ConfigUtils.DROP_ITEMS_ON_TRIGGERED_EXPLOSIONS);
+            case null, default -> ConfigUtils.getRawBooleanSetting(ConfigUtils.DROP_ITEMS_ON_OTHER_EXPLOSIONS);
         };
 
         // Do not drop the inventories of blocks if the inventory will be restored later
-        if (ConfigUtils.getSettingValue(ConfigSettings.RESTORE_BLOCK_NBT.getSettingLocation(), BooleanSetting.class)) {
+        if (ConfigUtils.getRawBooleanSetting(ConfigUtils.RESTORE_BLOCK_NBT)) {
             ExplosionUtils.DROP_CONTAINER_INVENTORY_ITEMS.set(false);
         }
 

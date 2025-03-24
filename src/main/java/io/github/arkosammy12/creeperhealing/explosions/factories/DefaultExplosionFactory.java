@@ -10,7 +10,6 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import io.github.arkosammy12.creeperhealing.blocks.AffectedBlock;
 import io.github.arkosammy12.creeperhealing.blocks.SingleAffectedBlock;
-import io.github.arkosammy12.creeperhealing.config.ConfigSettings;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
 import io.github.arkosammy12.creeperhealing.util.ExplosionUtils;
 
@@ -42,7 +41,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         if (affectedBlocks == null || affectedBlocks.isEmpty()) {
             return null;
         }
-        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
+        ExplosionHealingMode healingMode = ConfigUtils.getRawEnumSetting(ConfigUtils.MODE);
         AbstractExplosionEvent explosionEvent = switch (healingMode) {
             case DEFAULT_MODE -> new DefaultExplosionEvent(affectedBlocks, this.blastRadius, this.center);
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks, this.blastRadius, this.center);
@@ -61,7 +60,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
         }
         BlockPos center = ExplosionUtils.calculateCenter(affectedPositions);
         int radius = ExplosionUtils.getMaxExplosionRadius(affectedPositions);
-        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
+        ExplosionHealingMode healingMode = ConfigUtils.getRawEnumSetting(ConfigUtils.MODE);
         AbstractExplosionEvent explosionEvent = switch (healingMode) {
             case DEFAULT_MODE -> new DefaultExplosionEvent(affectedBlocks, radius, center);
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(affectedBlocks, radius, center);
@@ -95,7 +94,7 @@ public class DefaultExplosionFactory implements ExplosionEventFactory<AbstractEx
                 singleAffectedBlock.setTimer(blockHealDelay);
             }
         });
-        ExplosionHealingMode healingMode = ConfigUtils.getEnumSettingValue(ConfigSettings.MODE.getSettingLocation());
+        ExplosionHealingMode healingMode = ConfigUtils.getRawEnumSetting(ConfigUtils.MODE);
         AbstractExplosionEvent explosionEvent = switch (healingMode) {
             case DEFAULT_MODE -> new DefaultExplosionEvent(sortedAffectedBlocks, healTimer, blockCounter, radius, center);
             case DAYTIME_HEALING_MODE -> new DaytimeExplosionEvent(sortedAffectedBlocks, healTimer, blockCounter, radius, center);

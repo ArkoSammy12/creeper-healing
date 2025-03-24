@@ -83,8 +83,11 @@ dependencies {
 
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 
-	// Monkey config
-	modImplementation("xd.arkosammy:monkeyconfig:${project.monkey_config_version}")
+	// Monkey Utils
+	modImplementation("maven.modrinth:uApL7Qhc:${project.monkey_utils}")
+
+	// Monkey Config
+	include(implementation("io.github.arkosammy12:monkey-config:${project.monkey_config}"))
 
 	// Creeper Overhaul
 	//modImplementation("maven.modrinth:MI1LWe93:${project.creeper_overhaul_version}")
