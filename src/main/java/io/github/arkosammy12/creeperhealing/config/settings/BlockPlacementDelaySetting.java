@@ -19,7 +19,7 @@ public class BlockPlacementDelaySetting extends CommandNumberSetting<Double> {
     @Override
     public @NotNull Function2<CommandContext<? extends ServerCommandSource>, ConfigManager, Integer> getOnValueSetCallback() {
         return (ctx, manager) -> {
-            super.getOnValueSetCallback();
+            super.getOnValueSetCallback().invoke(ctx, manager);
             CreeperHealing.EXPLOSION_MANAGER.updateAffectedBlocksTimers();
             return Command.SINGLE_SUCCESS;
         };
