@@ -89,6 +89,9 @@ dependencies {
 	// Monkey Config
 	include(implementation("io.github.arkosammy12:monkey-config:${project.monkey_config}"))
 
+	// Fabric Permissions API
+	include(modImplementation('me.lucko:fabric-permissions-api:0.4.0'))
+
 	// Creeper Overhaul
 	//modImplementation("maven.modrinth:MI1LWe93:${project.creeper_overhaul_version}")
 

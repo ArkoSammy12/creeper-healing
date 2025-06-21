@@ -38,7 +38,7 @@ public interface AffectedBlock {
         long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
         boolean restoreBlockNbt = ConfigUtils.getRawBooleanSetting(ConfigUtils.RESTORE_BLOCK_NBT);
         if (blockEntity != null && restoreBlockNbt) {
-            return new SingleAffectedBlock(pos, state, worldRegistryKey, blockEntity.createNbtWithId(world.getRegistryManager()), blockPlacementDelay, false);
+            return new SingleAffectedBlock(pos, state, worldRegistryKey, blockEntity.createNbtWithIdentifyingData(world.getRegistryManager()), blockPlacementDelay, false);
         }
         return new SingleAffectedBlock(pos, state, worldRegistryKey, null, blockPlacementDelay, false);
     }
@@ -48,7 +48,7 @@ public interface AffectedBlock {
         long blockPlacementDelay = ConfigUtils.getBlockPlacementDelay();
         boolean restoreBlockNbt = ConfigUtils.getRawBooleanSetting(ConfigUtils.RESTORE_BLOCK_NBT);
         if ((firstHalfBlockEntity != null && secondHalfBlockEntity != null) && restoreBlockNbt) {
-            return new DoubleAffectedBlock(firstHalfPos, firstHalfState, firstHalfBlockEntity.createNbtWithId(world.getRegistryManager()), secondHalfPos, secondHalfState, secondHalfBlockEntity.createNbtWithId(world.getRegistryManager()), worldRegistryKey, blockPlacementDelay, false);
+            return new DoubleAffectedBlock(firstHalfPos, firstHalfState, firstHalfBlockEntity.createNbtWithIdentifyingData(world.getRegistryManager()), secondHalfPos, secondHalfState, secondHalfBlockEntity.createNbtWithIdentifyingData(world.getRegistryManager()), worldRegistryKey, blockPlacementDelay, false);
         }
         return new DoubleAffectedBlock(firstHalfPos, firstHalfState, null, secondHalfPos, secondHalfState, null, worldRegistryKey, blockPlacementDelay, false);
     }
