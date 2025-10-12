@@ -39,7 +39,7 @@ public final class ExplosionUtils {
         int amountToPush = isTallBlock ? 2 : 1;
         for (Entity entity : world.getEntitiesByClass(LivingEntity.class, new Box(pos), Entity::isAlive)) {
             if (areAboveBlocksFree(world, pos, entity, amountToPush)) {
-                entity.refreshPositionAfterTeleport(entity.getPos().withAxis(Direction.Axis.Y, entity.getBlockY() + amountToPush));
+                entity.refreshPositionAfterTeleport(entity.getEntityPos().withAxis(Direction.Axis.Y, entity.getBlockY() + amountToPush));
             }
         }
     }
