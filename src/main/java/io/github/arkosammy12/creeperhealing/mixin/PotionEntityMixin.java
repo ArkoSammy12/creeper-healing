@@ -31,7 +31,7 @@ public abstract class PotionEntityMixin extends ThrownItemEntity {
             return result;
         }
         if (result instanceof PotionContentsComponent potionContentsComponent) {
-            World world = this.getWorld();
+            World world = this.getEntityWorld();
             SplashPotionCallbacks.ON_COLLISION.invoker().onPotionCollide(((PotionEntity) (Object) this), potionContentsComponent, blockHitResult, world);
         }
         return result;
