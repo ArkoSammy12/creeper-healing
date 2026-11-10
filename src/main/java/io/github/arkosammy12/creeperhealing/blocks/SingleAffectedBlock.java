@@ -1,19 +1,18 @@
 package io.github.arkosammy12.creeperhealing.blocks;
 
-import io.github.arkosammy12.monkeyconfig.base.Setting;
-import io.github.arkosammy12.monkeyconfig.sections.maps.StringMapSection;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.ChestType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
@@ -28,13 +27,13 @@ public class SingleAffectedBlock implements AffectedBlock {
     public static final String TYPE = "single_affected_block";
     private final BlockPos blockPos;
     private final BlockState blockState;
-    private final RegistryKey<World> worldRegistryKey;
+    private final ResourceKey<Level> worldRegistryKey;
     @Nullable
-    private final NbtCompound nbt;
+    private final CompoundTag nbt;
     private long timer;
     private boolean placed;
 
-    protected SingleAffectedBlock(BlockPos blockPos, BlockState blockState, RegistryKey<World> registryKey, @Nullable NbtCompound nbt, long timer, boolean placed) {
+    protected SingleAffectedBlock(BlockPos blockPos, BlockState blockState, ResourceKey<Level> registryKey, @Nullable CompoundTag nbt, long timer, boolean placed) {
         this.blockPos = blockPos;
         this.blockState = blockState;
         this.worldRegistryKey = registryKey;
@@ -48,13 +47,13 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     @Override
-    public RegistryKey<World> getWorldRegistryKey() {
+    public ResourceKey<Level> getWorldRegistryKey() {
         return this.worldRegistryKey;
     }
 
     @Override
-    public ServerWorld getWorld(@NotNull MinecraftServer server) {
-        return server.getWorld(this.getWorldRegistryKey());
+    public ServerLevel getWorld(@NotNull MinecraftServer server) {
+        return server.getLevel(this.getWorldRegistryKey());
     }
 
     @Override
@@ -68,7 +67,7 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     @Nullable
-    public NbtCompound getNbt() {
+    public CompoundTag getNbt() {
         return this.nbt;
     }
 
@@ -101,7 +100,7 @@ public class SingleAffectedBlock implements AffectedBlock {
         if (shouldForceHeal()) {
             return true;
         }
-        return this.getBlockState().canPlaceAt(this.getWorld(server), this.getBlockPos());
+        return this.getBlockState().canSurvive(this.getWorld(server), this.getBlockPos());
     }
 
     @Override
@@ -118,16 +117,15 @@ public class SingleAffectedBlock implements AffectedBlock {
         this.setPlaced();
         BlockState state = this.getBlockState();
         BlockPos pos = this.getBlockPos();
-        World world = this.getWorld(server);
+        Level world = this.getWorld(server);
         boolean stateReplaced = false;
 
         // Check if the block we are about to try placing is in the replace-map.
         // If it is, switch the state for the corresponding one in the replace-map.
-        String blockIdentifier = Registries.BLOCK.getId(state.getBlock()).toString();
-        StringMapSection replaceMapSection = ConfigUtils.getRawStringMapSection(ConfigUtils.REPLACE_MAP);
-        Setting<String, ?> replaceMapValue = replaceMapSection.get(blockIdentifier);
+        String blockIdentifier = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+        String replaceMapValue = ConfigUtils.getReplaceMapEntry(blockIdentifier);
         if (replaceMapValue != null && !this.shouldForceHeal()) {
-            state = Registries.BLOCK.get(Identifier.of(replaceMapValue.getValue().getRaw())).getStateWithProperties(state);
+            state = BuiltInRegistries.BLOCK.getValue(Identifier.parse(replaceMapValue)).withPropertiesOf(state);
             stateReplaced = true;
         }
 
@@ -141,21 +139,21 @@ public class SingleAffectedBlock implements AffectedBlock {
         if (state.getBlock() instanceof FallingBlock) {
             ExplosionUtils.FALLING_BLOCK_SCHEDULE_TICK.set(makeFallingBlocksFall);
         }
-        world.setBlockState(pos, state);
+        world.setBlock(pos, state, Block.UPDATE_ALL);
         this.handleChestBlockIfNeeded(currentExplosionEvent, state, pos, server);
         boolean healNbt = this.nbt != null && !stateReplaced;
         if (healNbt) {
-            world.addBlockEntity(BlockEntity.createFromNbt(pos, state, this.nbt, world.getRegistryManager()));
+            world.setBlockEntity(BlockEntity.loadStatic(pos, state, this.nbt, world.registryAccess()));
         }
         ExplosionUtils.playBlockPlacementSoundEffect(world, pos, state);
         ExplosionUtils.spawnParticles(world, pos);
     }
 
-    protected boolean shouldHealBlock(World world) {
+    protected boolean shouldHealBlock(Level world) {
         if (shouldForceHeal()) {
             return true;
         }
-        return world.getBlockState(this.blockPos).isReplaceable();
+        return world.getBlockState(this.blockPos).canBeReplaced();
     }
 
     protected boolean shouldForceHeal() {
@@ -164,11 +162,11 @@ public class SingleAffectedBlock implements AffectedBlock {
     }
 
     private void handleChestBlockIfNeeded(ExplosionEvent explosionEvent, BlockState blockState, BlockPos chestPos, MinecraftServer server) {
-        if (!blockState.isOf(Blocks.CHEST)) {
+        if (!blockState.is(Blocks.CHEST)) {
             return;
         }
-        ChestType chestType = blockState.get(ChestBlock.CHEST_TYPE);
-        Direction facing = blockState.get(ChestBlock.FACING);
+        ChestType chestType = blockState.getValue(ChestBlock.TYPE);
+        Direction facing = blockState.getValue(ChestBlock.FACING);
         BlockPos otherHalfPos = switch (chestType) {
             case SINGLE -> null;
             case LEFT -> switch (facing) {
@@ -200,7 +198,7 @@ public class SingleAffectedBlock implements AffectedBlock {
             }
             BlockState affectedState = singleAffectedBlock.getBlockState();
             BlockPos affectedPosition = singleAffectedBlock.getBlockPos();
-            if (!affectedState.isOf(Blocks.CHEST) || !affectedPosition.equals(otherHalfPos)) {
+            if (!affectedState.is(Blocks.CHEST) || !affectedPosition.equals(otherHalfPos)) {
                 continue;
             }
             singleAffectedBlock.tryHealing(server, explosionEvent);

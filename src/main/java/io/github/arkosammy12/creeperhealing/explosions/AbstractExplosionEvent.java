@@ -1,10 +1,10 @@
 package io.github.arkosammy12.creeperhealing.explosions;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import io.github.arkosammy12.creeperhealing.blocks.AffectedBlock;
 import io.github.arkosammy12.creeperhealing.config.ConfigUtils;
 
@@ -40,8 +40,8 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
     }
 
     @Override
-    public ServerWorld getWorld(MinecraftServer server) {
-        return server.getWorld(this.affectedBlocks.getFirst().getWorldRegistryKey());
+    public ServerLevel getWorld(MinecraftServer server) {
+        return server.getLevel(this.affectedBlocks.getFirst().getWorldRegistryKey());
     }
 
     @Override
@@ -78,7 +78,7 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
         this.healTimer = timer;
     }
 
-    protected void updateFinishedStatus(World world) {
+    protected void updateFinishedStatus(Level world) {
     }
 
     abstract protected ExplosionHealingMode getHealingMode();
@@ -146,12 +146,12 @@ public abstract class AbstractExplosionEvent implements ExplosionEvent {
 
     @Override
     public SerializedExplosionEvent asSerialized() {
-        return new DefaultSerializedExplosion(this.getHealingMode().asString(), this.getAffectedBlocks().map(AffectedBlock::asSerialized).toList(), this.healTimer, this.blockCounter, this.radius, this.center);
+        return new DefaultSerializedExplosion(this.getHealingMode().getSerializedName(), this.getAffectedBlocks().map(AffectedBlock::asSerialized).toList(), this.healTimer, this.blockCounter, this.radius, this.center);
     }
 
-    public final void findAndMarkPlaced(BlockPos blockPos, BlockState blockState, World world) {
+    public final void findAndMarkPlaced(BlockPos blockPos, BlockState blockState, Level world) {
         for (AffectedBlock affectedBlock : this.affectedBlocks) {
-            if (affectedBlock.getBlockState().equals(blockState) && affectedBlock.getBlockPos().equals(blockPos) && affectedBlock.getWorldRegistryKey().equals(world.getRegistryKey())) {
+            if (affectedBlock.getBlockState().equals(blockState) && affectedBlock.getBlockPos().equals(blockPos) && affectedBlock.getWorldRegistryKey().equals(world.dimension())) {
                 affectedBlock.setPlaced();
             }
         }

@@ -2,7 +2,7 @@ package io.github.arkosammy12.creeperhealing.util.callbacks;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 public interface TimeCommandCallbacks {
 
@@ -21,11 +21,11 @@ public interface TimeCommandCallbacks {
             }));
 
     interface OnTimeExecuteAdd {
-        void onTimeExecuteAdd(ServerCommandSource serverCommandSource, int time, int newTime);
+        void onTimeExecuteAdd(CommandSourceStack serverCommandSource, int time, int newTime);
     }
 
     interface OnTimeExecuteSet {
-        void onTimeExecuteSet(ServerCommandSource serverCommandSource, int time, int newTime);
+        void onTimeExecuteSet(CommandSourceStack serverCommandSource, int time, int newTime);
     }
 
 }

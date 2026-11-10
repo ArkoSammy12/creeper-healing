@@ -2,20 +2,20 @@ package io.github.arkosammy12.creeperhealing.util;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.SharedConstants;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.projectile.thrown.PotionEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import io.github.arkosammy12.creeperhealing.CreeperHealing;
 import io.github.arkosammy12.creeperhealing.ExplosionManagerRegistrar;
 import io.github.arkosammy12.creeperhealing.blocks.SingleAffectedBlock;
@@ -49,7 +49,7 @@ public final class Events {
     }
 
     // Start healing DaytimeExplosionEvents when the night is skipped
-    private static void onNightSkipped(ServerWorld world, BooleanSupplier shouldKeepTicking) {
+    private static void onNightSkipped(ServerLevel world, BooleanSupplier shouldKeepTicking) {
         for (ExplosionEvent explosionEvent : CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().toList()) {
             if (explosionEvent instanceof DaytimeExplosionEvent daytimeExplosionEvent) {
                 daytimeExplosionEvent.setHealTimer(1);
@@ -57,32 +57,26 @@ public final class Events {
         }
     }
 
-    private static void onSplashPotionHit(PotionEntity potionEntity, PotionContentsComponent potionContentsComponent, HitResult hitResult, World world) {
-        Iterable<StatusEffectInstance> statusEffectsIterable = potionContentsComponent.getEffects();
-        List<StatusEffectInstance> statusEffects = new ArrayList<>();
+    private static void onSplashPotionHit(AbstractThrownPotion potionEntity, PotionContents potionContentsComponent, HitResult hitResult, Level world) {
+        Iterable<MobEffectInstance> statusEffectsIterable = potionContentsComponent.getAllEffects();
+        List<MobEffectInstance> statusEffects = new ArrayList<>();
 
-        for (StatusEffectInstance statusEffectInstance : statusEffectsIterable) {
+        for (MobEffectInstance statusEffectInstance : statusEffectsIterable) {
             statusEffects.add(statusEffectInstance);
         }
 
         BlockPos potionHitPosition = switch (hitResult.getType()) {
-            case BLOCK -> ((BlockHitResult) hitResult).getBlockPos().offset(((BlockHitResult) hitResult).getSide());
-            case ENTITY -> ((EntityHitResult) hitResult).getEntity().getBlockPos();
+            case BLOCK -> ((BlockHitResult) hitResult).getBlockPos().relative(((BlockHitResult) hitResult).getDirection());
+            case ENTITY -> ((EntityHitResult) hitResult).getEntity().blockPosition();
             case MISS -> null;
         };
 
         if (potionHitPosition == null) {
             return;
         }
-        RegistryEntry.Reference<StatusEffect> instantHealthEffect = StatusEffects.INSTANT_HEALTH.getKey().flatMap(key -> Registries.STATUS_EFFECT.getEntry(key.getValue())).orElse(null);
-        if (instantHealthEffect == null) {
-            return;
-        }
+        Holder<MobEffect> instantHealthEffect = MobEffects.INSTANT_HEALTH;
         boolean hasInstantHealth = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(instantHealthEffect));
-        RegistryEntry.Reference<StatusEffect> regenerationEffect = StatusEffects.REGENERATION.getKey().flatMap(key -> Registries.STATUS_EFFECT.getEntry(key.getValue())).orElse(null);
-        if (regenerationEffect == null) {
-            return;
-        }
+        Holder<MobEffect> regenerationEffect = MobEffects.REGENERATION;
         boolean hasRegeneration = statusEffects.stream().anyMatch(statusEffect -> statusEffect.equals(regenerationEffect));
         boolean healOnHealingPotion = ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_ON_HEALING_POTION_SPLASH);
         boolean healOnRegenerationPotion = ConfigUtils.getRawBooleanSetting(ConfigUtils.HEAL_ON_REGENERATION_POTION_SPLASH);
@@ -109,10 +103,10 @@ public final class Events {
     }
 
     // Recalculate DaytimeExplosionEvents' timers when ticks are added or set
-    private static void onTimeCommand(ServerCommandSource serverCommandSource, int time, int newTime) {
+    private static void onTimeCommand(CommandSourceStack serverCommandSource, int time, int newTime) {
         for (ExplosionEvent explosionEvent : CreeperHealing.EXPLOSION_MANAGER.getExplosionEvents().toList()) {
             if (explosionEvent instanceof DaytimeExplosionEvent daytimeExplosionEvent && explosionEvent.getHealTimer() > 0) {
-                daytimeExplosionEvent.setHealTimer(SharedConstants.TICKS_PER_IN_GAME_DAY - newTime);
+                daytimeExplosionEvent.setHealTimer(SharedConstants.TICKS_PER_GAME_DAY - newTime);
             }
         }
     }

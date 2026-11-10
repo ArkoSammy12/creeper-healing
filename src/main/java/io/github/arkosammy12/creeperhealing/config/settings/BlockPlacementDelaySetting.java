@@ -7,7 +7,7 @@ import io.github.arkosammy12.monkeyconfig.base.ConfigManager;
 import io.github.arkosammy12.monkeyconfig.builders.NumberSettingBuilder;
 import io.github.arkosammy12.monkeyutils.settings.CommandNumberSetting;
 import kotlin.jvm.functions.Function2;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockPlacementDelaySetting extends CommandNumberSetting<Double> {
@@ -17,7 +17,7 @@ public class BlockPlacementDelaySetting extends CommandNumberSetting<Double> {
     }
 
     @Override
-    public @NotNull Function2<CommandContext<? extends ServerCommandSource>, ConfigManager, Integer> getOnValueSetCallback() {
+    public @NotNull Function2<CommandContext<? extends CommandSourceStack>, ConfigManager, Integer> getOnValueSetCallback() {
         return (ctx, manager) -> {
             super.getOnValueSetCallback().invoke(ctx, manager);
             CreeperHealing.EXPLOSION_MANAGER.updateAffectedBlocksTimers();

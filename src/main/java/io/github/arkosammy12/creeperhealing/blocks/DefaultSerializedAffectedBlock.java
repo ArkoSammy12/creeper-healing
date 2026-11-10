@@ -2,11 +2,11 @@ package io.github.arkosammy12.creeperhealing.blocks;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import io.github.arkosammy12.creeperhealing.CreeperHealing;
 
@@ -16,11 +16,11 @@ public record DefaultSerializedAffectedBlock(
         String affectedBlockType,
         BlockPos pos,
         BlockState state,
-        @Nullable NbtCompound nbt,
+        @Nullable CompoundTag nbt,
         @Nullable BlockPos secondHalfPos,
         @Nullable BlockState secondHalfState,
-        @Nullable NbtCompound secondHalfNbt,
-        RegistryKey<World> worldRegistryKey,
+        @Nullable CompoundTag secondHalfNbt,
+        ResourceKey<Level> worldRegistryKey,
         long blockTimer,
         boolean placed
 ) implements SerializedAffectedBlock {
@@ -29,11 +29,11 @@ public record DefaultSerializedAffectedBlock(
             Codec.STRING.fieldOf("affected_block_type").forGetter(SerializedAffectedBlock::getAffectedBlockTypeName),
             BlockPos.CODEC.fieldOf("block_pos").forGetter(SerializedAffectedBlock::getBlockPos),
             BlockState.CODEC.fieldOf("block_state").forGetter(SerializedAffectedBlock::getBlockState),
-            NbtCompound.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("nbt", NbtCompound.class)),
+            CompoundTag.CODEC.optionalFieldOf("nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("nbt", CompoundTag.class)),
             BlockPos.CODEC.optionalFieldOf("second_half_pos").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("secondHalfPos", BlockPos.class)),
             BlockState.CODEC.optionalFieldOf("second_half_state").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("secondHalfState", BlockState.class)),
-            NbtCompound.CODEC.optionalFieldOf("second_half_nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("secondHalfNbt", NbtCompound.class)),
-            World.CODEC.fieldOf("world").forGetter(SerializedAffectedBlock::getWorldRegistryKey),
+            CompoundTag.CODEC.optionalFieldOf("second_half_nbt_data").forGetter(serializedAffectedBlock -> serializedAffectedBlock.getCustomData("secondHalfNbt", CompoundTag.class)),
+            Level.RESOURCE_KEY_CODEC.fieldOf("world").forGetter(SerializedAffectedBlock::getWorldRegistryKey),
             Codec.LONG.fieldOf("affected_block_timer").forGetter(SerializedAffectedBlock::getBlockTimer),
             Codec.BOOL.fieldOf("is_placed").forGetter(SerializedAffectedBlock::isPlaced)
     ).apply(instance, (affectedBlockType, blockPos, blockState, optionalNbt, secondHalfPos, secondHalfState, optionalSecondHalfNbt, world, affectedBlockTimer, isPlaced) ->
@@ -55,7 +55,7 @@ public record DefaultSerializedAffectedBlock(
     }
 
     @Override
-    public RegistryKey<World> getWorldRegistryKey() {
+    public ResourceKey<Level> getWorldRegistryKey() {
         return this.worldRegistryKey;
     }
 

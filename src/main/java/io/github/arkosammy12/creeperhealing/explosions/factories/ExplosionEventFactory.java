@@ -1,7 +1,7 @@
 package io.github.arkosammy12.creeperhealing.explosions.factories;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import io.github.arkosammy12.creeperhealing.blocks.AffectedBlock;
 import io.github.arkosammy12.creeperhealing.explosions.ExplosionEvent;
@@ -13,13 +13,13 @@ public interface ExplosionEventFactory<T extends ExplosionEvent> {
     @Nullable
     List<BlockPos> getAffectedPositions();
 
-    ServerWorld getWorld();
+    ServerLevel getWorld();
 
     @Nullable
     T createExplosionEvent();
 
     @Nullable
-    T createExplosionEvent(List<BlockPos> affectedPositions, ServerWorld world);
+    T createExplosionEvent(List<BlockPos> affectedPositions, ServerLevel world);
 
     @Nullable
     T createExplosionEvent(List<AffectedBlock> affectedBlocks, long healTimer);
