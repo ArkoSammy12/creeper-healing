@@ -1,106 +1,102 @@
 package io.github.arkosammy12.creeperhealing.config;
 
-import io.github.arkosammy12.creeperhealing.explosions.ExplosionHealingMode;
+import io.github.arkosammy12.monkeyconfig.base.Setting;
+import io.github.arkosammy12.monkeyconfig.managers.ConfigManagerUtils;
+import io.github.arkosammy12.monkeyconfig.sections.maps.StringMapSection;
+import io.github.arkosammy12.monkeyconfig.util.ElementPath;
 
 import java.util.List;
-import java.util.Map;
 
-/**
- * Temporary stand-in for the monkey-config backed configuration, which has no 26.x release yet.
- * Every setting returns its default value.
- */
+import static io.github.arkosammy12.creeperhealing.CreeperHealing.CONFIG_MANAGER;
+
 public final class ConfigUtils {
 
-    public static final String EXPLOSION_HEAL_DELAY = "explosion_heal_delay";
-    public static final String BLOCK_PLACEMENT_DELAY = "block_placement_delay";
+    public static ElementPath EXPLOSION_HEAL_DELAY;
+    public static ElementPath BLOCK_PLACEMENT_DELAY;
 
-    public static final String DROP_ITEMS_ON_MOB_EXPLOSIONS = "drop_items_on_mob_explosions";
-    public static final String DROP_ITEMS_ON_BLOCK_EXPLOSIONS = "drop_items_on_block_explosions";
-    public static final String DROP_ITEMS_ON_TNT_EXPLOSIONS = "drop_items_on_tnt_explosions";
-    public static final String DROP_ITEMS_ON_TRIGGERED_EXPLOSIONS = "drop_items_on_triggered_explosions";
-    public static final String DROP_ITEMS_ON_OTHER_EXPLOSIONS = "drop_items_on_other_explosions";
-    public static final String DROP_ITEMS_ON_MOB_EXPLOSIONS_BLACKLIST = "drop_items_on_mob_explosions_blacklist";
+    public static ElementPath DROP_ITEMS_ON_MOB_EXPLOSIONS;
+    public static ElementPath DROP_ITEMS_ON_BLOCK_EXPLOSIONS;
+    public static ElementPath DROP_ITEMS_ON_TNT_EXPLOSIONS;
+    public static ElementPath DROP_ITEMS_ON_TRIGGERED_EXPLOSIONS;
+    public static ElementPath DROP_ITEMS_ON_OTHER_EXPLOSIONS;
+    public static ElementPath DROP_ITEMS_ON_MOB_EXPLOSIONS_BLACKLIST;
 
-    public static final String HEAL_MOB_EXPLOSIONS = "heal_mob_explosions";
-    public static final String HEAL_BLOCK_EXPLOSIONS = "heal_block_explosions";
-    public static final String HEAL_TNT_EXPLOSIONS = "heal_tnt_explosions";
-    public static final String HEAL_TRIGGERED_EXPLOSIONS = "heal_triggered_explosions";
-    public static final String HEAL_OTHER_EXPLOSIONS = "heal_other_explosions";
-    public static final String HEAL_MOB_EXPLOSIONS_BLACKLIST = "heal_mob_explosions_blacklist";
+    public static ElementPath HEAL_MOB_EXPLOSIONS;
+    public static ElementPath HEAL_BLOCK_EXPLOSIONS;
+    public static ElementPath HEAL_TNT_EXPLOSIONS;
+    public static ElementPath HEAL_TRIGGERED_EXPLOSIONS;
+    public static ElementPath HEAL_OTHER_EXPLOSIONS;
+    public static ElementPath HEAL_MOB_EXPLOSIONS_BLACKLIST;
 
-    public static final String MODE = "mode";
+    public static ElementPath MODE;
 
-    public static final String RESTORE_BLOCK_NBT = "restore_block_nbt";
-    public static final String FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL = "force_blocks_with_nbt_to_always_heal";
-    public static final String MAKE_FALLING_BLOCKS_FALL = "make_falling_blocks_fall";
-    public static final String BLOCK_PLACEMENT_SOUND_EFFECT = "block_placement_sound_effect";
-    public static final String BLOCK_PLACEMENT_PARTICLES = "block_placement_particles";
-    public static final String HEAL_ON_HEALING_POTION_SPLASH = "heal_on_healing_potion_splash";
-    public static final String HEAL_ON_REGENERATION_POTION_SPLASH = "heal_on_regeneration_potion_splash";
-    public static final String ENABLE_WHITELIST = "enable_whitelist";
+    public static ElementPath RESTORE_BLOCK_NBT;
+    public static ElementPath FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL;
+    public static ElementPath MAKE_FALLING_BLOCKS_FALL;
+    public static ElementPath BLOCK_PLACEMENT_SOUND_EFFECT;
+    public static ElementPath BLOCK_PLACEMENT_PARTICLES;
+    public static ElementPath HEAL_ON_HEALING_POTION_SPLASH;
+    public static ElementPath HEAL_ON_REGENERATION_POTION_SPLASH;
+    public static ElementPath ENABLE_WHITELIST;
 
-    public static final String WHITELIST = "whitelist";
+    public static ElementPath WHITELIST;
 
-    public static final double DEFAULT_EXPLOSION_HEAL_DELAY = 3;
-    public static final double DEFAULT_BLOCK_PLACEMENT_DELAY = 1;
-
-    private static final Map<String, Boolean> BOOLEAN_DEFAULTS = Map.ofEntries(
-            Map.entry(DROP_ITEMS_ON_MOB_EXPLOSIONS, false),
-            Map.entry(DROP_ITEMS_ON_BLOCK_EXPLOSIONS, true),
-            Map.entry(DROP_ITEMS_ON_TNT_EXPLOSIONS, true),
-            Map.entry(DROP_ITEMS_ON_TRIGGERED_EXPLOSIONS, true),
-            Map.entry(DROP_ITEMS_ON_OTHER_EXPLOSIONS, true),
-            Map.entry(HEAL_MOB_EXPLOSIONS, true),
-            Map.entry(HEAL_BLOCK_EXPLOSIONS, false),
-            Map.entry(HEAL_TNT_EXPLOSIONS, false),
-            Map.entry(HEAL_TRIGGERED_EXPLOSIONS, false),
-            Map.entry(HEAL_OTHER_EXPLOSIONS, false),
-            Map.entry(RESTORE_BLOCK_NBT, false),
-            Map.entry(FORCE_BLOCKS_WITH_NBT_TO_ALWAYS_HEAL, false),
-            Map.entry(MAKE_FALLING_BLOCKS_FALL, true),
-            Map.entry(BLOCK_PLACEMENT_SOUND_EFFECT, true),
-            Map.entry(BLOCK_PLACEMENT_PARTICLES, true),
-            Map.entry(HEAL_ON_HEALING_POTION_SPLASH, true),
-            Map.entry(HEAL_ON_REGENERATION_POTION_SPLASH, true),
-            Map.entry(ENABLE_WHITELIST, false)
-    );
-
-    private static final Map<String, String> REPLACE_MAP = Map.of("minecraft:diamond_block", "minecraft:stone");
+    public static ElementPath REPLACE_MAP;
 
     private ConfigUtils() {
     }
 
-    public static boolean getRawBooleanSetting(String key) {
-        Boolean value = BOOLEAN_DEFAULTS.get(key);
-        if (value == null) {
-            throw new IllegalArgumentException("No boolean setting found with key: " + key);
+    public static double DEFAULT_EXPLOSION_HEAL_DELAY = 3;
+    public static double DEFAULT_BLOCK_PLACEMENT_DELAY = 1;
+
+    public static boolean getRawBooleanSetting(ElementPath path) {
+        Setting<Boolean, ?> setting = ConfigManagerUtils.getBooleanSetting(CONFIG_MANAGER, path);
+        if (setting == null) {
+            throw new IllegalArgumentException("No boolean setting found with path: " + path);
         }
-        return value;
+        return setting.getValue().getRaw();
     }
 
-    public static List<? extends String> getRawStringListSetting(String key) {
-        return List.of("minecraft:placeholder");
+    public static List<? extends String> getRawStringListSetting(ElementPath path) {
+        Setting<List<? extends String>, ?> setting = ConfigManagerUtils.getStringListSetting(CONFIG_MANAGER, path);
+        if (setting == null) {
+            throw new IllegalArgumentException("No string list setting found with path: " + path);
+        }
+        return setting.getValue().getRaw();
     }
 
-    @SuppressWarnings("unchecked")
-    public static <E extends Enum<E>> E getRawEnumSetting(String key) {
-        if (!MODE.equals(key)) {
-            throw new IllegalArgumentException("No enum setting found with key: " + key);
+    public static <E extends Enum<E>> E getRawEnumSetting(ElementPath path) {
+        Setting<E, ?> setting = ConfigManagerUtils.getEnumSetting(CONFIG_MANAGER, path);
+        if (setting == null) {
+            throw new IllegalArgumentException("No enum setting found with path: " + path);
         }
-        return (E) ExplosionHealingMode.DEFAULT_MODE;
+        return setting.getValue().getRaw();
+    }
+
+    public static StringMapSection getRawStringMapSection(ElementPath path) {
+        StringMapSection section = ConfigManagerUtils.getStringMapSection(CONFIG_MANAGER, path);
+        if (section == null) {
+            throw new IllegalArgumentException("No string map section found with path: " + path);
+        }
+        return section;
     }
 
     public static String getReplaceMapEntry(String blockIdentifier) {
-        return REPLACE_MAP.get(blockIdentifier);
+        Setting<String, ?> setting = getRawStringMapSection(REPLACE_MAP).get(blockIdentifier);
+        return setting == null ? null : setting.getValue().getRaw();
     }
 
     public static long getExplosionHealDelay() {
-        long rounded = Math.round(Math.max(0, DEFAULT_EXPLOSION_HEAL_DELAY) * 20);
+        Setting<Double, ?> explosionHealDelaySetting = ConfigManagerUtils.getNumberSetting(CONFIG_MANAGER, EXPLOSION_HEAL_DELAY);
+        double healDelay = explosionHealDelaySetting == null ? DEFAULT_EXPLOSION_HEAL_DELAY : explosionHealDelaySetting.getValue().getRaw();
+        long rounded = Math.round(Math.max(0, healDelay) * 20);
         return rounded == 0 ? 20 : rounded;
     }
 
     public static long getBlockPlacementDelay() {
-        long rounded = Math.round(Math.max(0, DEFAULT_BLOCK_PLACEMENT_DELAY) * 20);
+        Setting<Double, ?> blockPlacementDelaySetting = ConfigManagerUtils.getNumberSetting(CONFIG_MANAGER, BLOCK_PLACEMENT_DELAY);
+        double blockPlacementDelay = blockPlacementDelaySetting == null ? DEFAULT_BLOCK_PLACEMENT_DELAY : blockPlacementDelaySetting.getValue().getRaw();
+        long rounded = Math.round(Math.max(0, blockPlacementDelay) * 20);
         return rounded == 0 ? 20 : rounded;
     }
 

@@ -82,7 +82,12 @@ dependencies {
 
 	// implementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 
-	// TODO: restore monkey-utils / monkey-config once 26.x releases exist
+	// Monkey Utils
+	implementation("maven.modrinth:uApL7Qhc:${project.monkey_utils}")
+
+	// Monkey Config
+	include(implementation("io.github.arkosammy12:monkey-config:${project.monkey_config}"))
+
 	// Fabric Permissions API
 	include(implementation('me.lucko:fabric-permissions-api:0.7.0'))
 
