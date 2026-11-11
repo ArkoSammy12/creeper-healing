@@ -2,10 +2,10 @@ package io.github.arkosammy12.creeperhealing.util.callbacks;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.projectile.thrown.PotionEntity;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.world.World;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.Level;
 
 public interface SplashPotionCallbacks {
 
@@ -17,7 +17,7 @@ public interface SplashPotionCallbacks {
             }));
 
     interface OnCollision {
-        void onPotionCollide(PotionEntity potionEntity, PotionContentsComponent potionContentsComponent, HitResult hitResult, World world);
+        void onPotionCollide(AbstractThrownPotion potionEntity, PotionContents potionContentsComponent, HitResult hitResult, Level world);
     }
 
 }

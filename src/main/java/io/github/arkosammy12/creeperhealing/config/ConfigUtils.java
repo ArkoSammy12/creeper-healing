@@ -81,6 +81,11 @@ public final class ConfigUtils {
         return section;
     }
 
+    public static String getReplaceMapEntry(String blockIdentifier) {
+        Setting<String, ?> setting = getRawStringMapSection(REPLACE_MAP).get(blockIdentifier);
+        return setting == null ? null : setting.getValue().getRaw();
+    }
+
     public static long getExplosionHealDelay() {
         Setting<Double, ?> explosionHealDelaySetting = ConfigManagerUtils.getNumberSetting(CONFIG_MANAGER, EXPLOSION_HEAL_DELAY);
         double healDelay = explosionHealDelaySetting == null ? DEFAULT_EXPLOSION_HEAL_DELAY : explosionHealDelaySetting.getValue().getRaw();

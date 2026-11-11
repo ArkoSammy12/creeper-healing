@@ -2,13 +2,13 @@ package io.github.arkosammy12.creeperhealing.explosions;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.Level;
 import io.github.arkosammy12.creeperhealing.blocks.AffectedBlock;
 import io.github.arkosammy12.creeperhealing.blocks.SingleAffectedBlock;
-import net.minecraft.world.rule.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 
 import java.util.List;
 
@@ -29,11 +29,11 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
     }
 
     @Override
-    public void setup(ServerWorld world) {
-        if (!world.getGameRules().getValue(GameRules.ADVANCE_TIME)) {
+    public void setup(ServerLevel world) {
+        if (!world.getGameRules().get(GameRules.ADVANCE_TIME)) {
             return;
         }
-        this.healTimer = SharedConstants.TICKS_PER_IN_GAME_DAY - (world.getTimeOfDay() % SharedConstants.TICKS_PER_IN_GAME_DAY);
+        this.healTimer = SharedConstants.TICKS_PER_GAME_DAY - (world.getDefaultClockTime() % SharedConstants.TICKS_PER_GAME_DAY);
         int daylightBasedBlockPlacementDelay = (int) (13000 / Math.max(this.getAffectedBlocks().count(), 1));
         for (AffectedBlock affectedBlock : this.getAffectedBlocks().toList()) {
             if (!(affectedBlock instanceof SingleAffectedBlock singleAffectedBlock)) {
@@ -44,15 +44,15 @@ public class DaytimeExplosionEvent extends AbstractExplosionEvent {
     }
 
     @Override
-    public void updateFinishedStatus(World world) {
+    public void updateFinishedStatus(Level world) {
         if (this.getBlockCounter() > 0) {
             return;
         }
         MinecraftServer server = world.getServer();
         boolean sufficientLight = this.getAffectedBlocks().anyMatch(affectedBlock -> {
             BlockPos pos = affectedBlock.getBlockPos();
-            World blockWorld = affectedBlock.getWorld(server);
-            return blockWorld.getLightLevel(LightType.BLOCK, pos) > 0 || blockWorld.getLightLevel(LightType.SKY, pos) > 0;
+            Level blockWorld = affectedBlock.getWorld(server);
+            return blockWorld.getBrightness(LightLayer.BLOCK, pos) > 0 || blockWorld.getBrightness(LightLayer.SKY, pos) > 0;
         });
         if (!sufficientLight) {
             this.finished = true;

@@ -1,7 +1,7 @@
 package io.github.arkosammy12.creeperhealing;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import io.github.arkosammy12.creeperhealing.explosions.factories.ExplosionEventFactory;
 import io.github.arkosammy12.creeperhealing.managers.ExplosionManager;
 import io.github.arkosammy12.creeperhealing.util.ExplosionContext;

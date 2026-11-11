@@ -2,7 +2,7 @@ package io.github.arkosammy12.creeperhealing.explosions;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import io.github.arkosammy12.creeperhealing.CreeperHealing;
 import io.github.arkosammy12.creeperhealing.blocks.AffectedBlock;
 import io.github.arkosammy12.creeperhealing.blocks.DefaultSerializedAffectedBlock;

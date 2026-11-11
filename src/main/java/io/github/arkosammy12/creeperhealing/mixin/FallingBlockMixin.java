@@ -1,8 +1,8 @@
 package io.github.arkosammy12.creeperhealing.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FallingBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.FallingBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import io.github.arkosammy12.creeperhealing.util.ExcludedBlocks;
@@ -11,7 +11,7 @@ import io.github.arkosammy12.creeperhealing.util.ExplosionUtils;
 @Mixin(FallingBlock.class)
 public abstract class FallingBlockMixin {
 
-    @ModifyExpressionValue(method = "scheduledTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FallingBlock;canFallThrough(Lnet/minecraft/block/BlockState;)Z"))
+    @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FallingBlock;isFree(Lnet/minecraft/world/level/block/state/BlockState;)Z"))
     private boolean onBlockAttemptedFall(boolean original, BlockState blockState) {
         // Hardcoded Exception. Place before all other logic
         if (ExcludedBlocks.isExcluded(blockState)) {

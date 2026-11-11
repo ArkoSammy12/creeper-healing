@@ -1,6 +1,6 @@
 package io.github.arkosammy12.creeperhealing.explosions.ducks;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.Collection;
 
